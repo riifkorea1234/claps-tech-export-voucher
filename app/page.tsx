@@ -27,6 +27,7 @@ import {
   SealCheck,
   Palette,
 } from "@phosphor-icons/react/dist/ssr";
+import { ScrollRevealText } from "@/components/domain/scroll-reveal-text";
 
 // 통합 허브 노드 (클랩스 기능명 · 타사 로고 대체)
 const HUB_LEFT = [
@@ -100,8 +101,12 @@ const ENGINE = [
   },
 ];
 
-// 활용 사례 (placeholder)
-const USECASES = ["굿즈 브랜딩", "캐릭터 IP", "콜라보 프로모션"];
+// 활용 사례
+const USECASES = [
+  { label: "굿즈 브랜딩", img: "/usecase-branding.jpg" },
+  { label: "캐릭터 IP", img: "/usecase-character.jpg" },
+  { label: "콜라보 프로모션", img: "/usecase-collab.jpg" },
+];
 
 // 요금 플랜 (실제 가격 미정 → 문의 기반)
 const PLANS = [
@@ -329,7 +334,7 @@ export default function LandingPage() {
               <FloatBadge
                 icon={Sparkle}
                 label="AI 에셋 생성"
-                className="left-0 top-[46%] mt-[-20px] -translate-x-1/2"
+                className="left-0 top-[46%] mt-[-20px] ml-[-20px] -translate-x-1/2"
                 delay={200}
               />
               <FloatBadge
@@ -362,10 +367,10 @@ export default function LandingPage() {
 
         {/* 문제 → 해결 (2단) */}
         <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
+          <div className="grid grid-cols-1 gap-8 px-2 md:grid-cols-2 md:gap-16">
             <div>
               <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                문제 → 해결
+                PROBLEM → SOLUTION
               </span>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 도구가 흩어지면
@@ -493,7 +498,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
             <div>
               <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                CLAPS 워크플로우
+                THE WORKFLOW
               </span>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 브랜드 이미지 작업을
@@ -597,7 +602,7 @@ export default function LandingPage() {
         {/* 엔진 — 기능 4개 그리드 */}
         <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
           <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-            핵심 엔진
+            THE ENGINE
           </span>
           <h2 className="mt-4 max-w-2xl text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[48px]">
             브랜드 이미지를 다루는 데
@@ -638,12 +643,12 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <div>
               <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                브랜드 보호
+                BRAND PROTECTION
               </span>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
-                만든 이미지,
+                세상에 나간 뒤에도
                 <br />
-                끝까지 지킵니다
+                브랜드는 계속 지킵니다
               </h2>
               <p className="mt-5 max-w-md text-[17px] leading-[1.5] text-[#0a0a0a]/55">
                 기준 이미지를 등록하면 웹 전반에서 무단 사용을 탐지해,
@@ -675,12 +680,11 @@ export default function LandingPage() {
             backgroundSize: "22px 22px",
           }}
         >
-          <div className="mx-auto w-full max-w-[1000px] px-8 py-28 text-center md:py-36">
-            <p className="text-[32px] leading-[1.3] font-bold tracking-[-0.01em] text-[#0a0a0a] md:text-[52px]">
-              라이선스를 지키는 것이,
-              <br />
-              브랜드를 지키는 가장 빠른 길입니다.
-            </p>
+          <div className="mx-auto w-full max-w-[1000px] px-8 py-[212px] text-center md:py-[244px]">
+            <ScrollRevealText
+              text={"라이선스를 지키는 것이,\n브랜드를 지키는 가장 빠른 길입니다."}
+              className="text-[32px] leading-[1.3] font-bold tracking-[-0.01em] text-[#0a0a0a] md:text-[52px]"
+            />
             <span className="mt-8 inline-block text-sm font-medium tracking-wide text-[#0a0a0a]/40">
               CLAPS Studio 2.0
             </span>
@@ -692,7 +696,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
             <div>
               <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                활용 사례
+                USE CASES
               </span>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 이렇게 쓰입니다
@@ -708,12 +712,20 @@ export default function LandingPage() {
           <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {USECASES.map((u) => (
               <div
-                key={u}
-                className="group relative flex aspect-[3/4] items-end overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-200 to-zinc-300"
+                key={u.label}
+                className="group relative flex aspect-[3/4] items-end overflow-hidden rounded-2xl bg-zinc-200"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={u.img}
+                  alt={u.label}
+                  className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="relative flex w-full items-center justify-between p-5">
-                  <span className="text-base font-semibold text-white">{u}</span>
+                  <span className="text-base font-semibold text-white">
+                    {u.label}
+                  </span>
                   <ArrowUpRight className="size-5 text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>
               </div>
@@ -728,7 +740,7 @@ export default function LandingPage() {
         >
           <div className="max-w-xl">
             <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-              요금
+              PRICING
             </span>
             <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
               작게 시작하고,
