@@ -7,6 +7,8 @@ import {
   Plus,
   Search,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Radar,
   EllipsisVertical,
   PencilLine,
@@ -42,6 +44,8 @@ const SORT_LABEL: Record<SortKey, string> = {
   created: "생성순",
 };
 
+const PAGE_SIZE = 20;
+
 export default function MonitoringListPage() {
   const router = useRouter();
   const [records, setRecords] = useState<SavedMonitoringRecord[]>([]);
@@ -49,10 +53,16 @@ export default function MonitoringListPage() {
   const [editValue, setEditValue] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("recent");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setRecords(getRecords());
   }, []);
+
+  // 검색·정렬 바뀌면 첫 페이지로
+  useEffect(() => {
+    setPage(1);
+  }, [query, sort]);
 
   // 검색(이름) + 정렬 (최신순=최근 탐지 / 생성순=최초 탐지일)
   const visible = records
@@ -61,11 +71,21 @@ export default function MonitoringListPage() {
     )
     .slice()
     .sort((a, b) => {
+      // 최신순: 최근 탐지 일시 내림차순 (최근 것부터)
       if (sort === "recent") return b.scannedAt.localeCompare(a.scannedAt);
+      // 생성순: 최초 탐지일 오름차순 (먼저 만든 것부터)
       const av = a.firstScannedAt ?? a.scannedAt;
       const bv = b.firstScannedAt ?? b.scannedAt;
-      return bv.localeCompare(av);
+      return av.localeCompare(bv);
     });
+
+  // 페이지네이션 (20건 초과 시)
+  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = visible.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   function startRename(r: SavedMonitoringRecord) {
     setEditingId(r.id);
@@ -178,7 +198,7 @@ export default function MonitoringListPage() {
                     </TableCell>
                   </TableRow>
                 )}
-                {visible.map((r) => (
+                {paged.map((r) => (
                   <TableRow
                     key={r.id}
                     onClick={() => {
@@ -278,6 +298,48 @@ export default function MonitoringListPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* 페이지네이션 (20건 초과 시) */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
+                aria-label="이전 페이지"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const n = i + 1;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setPage(n)}
+                    className={cn(
+                      "flex size-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors",
+                      n === currentPage
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-input bg-card text-foreground hover:bg-muted/50",
+                    )}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
+                aria-label="다음 페이지"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
