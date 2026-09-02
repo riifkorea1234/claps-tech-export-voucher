@@ -23,13 +23,16 @@ export function AppSidebar() {
     <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
       {/* 브랜드 (헤더와 높이 정렬) */}
       <div className="flex h-[55px] shrink-0 items-center gap-2 border-b border-sidebar-border px-5">
-        <Image
-          src="/claps-logo.svg"
-          alt="CLAPS"
-          width={80}
-          height={15}
-          priority
-        />
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/claps-logo.svg"
+            alt="CLAPS"
+            width={80}
+            height={15}
+            priority
+            className="[filter:brightness(0)_invert(20%)]"
+          />
+        </Link>
         <span className="text-xs font-medium leading-none text-muted-foreground">
           Studio 2.0
         </span>
