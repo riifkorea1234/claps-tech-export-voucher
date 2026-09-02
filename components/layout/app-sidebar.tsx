@@ -2,13 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronsUpDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronsUpDown, Settings, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { NAV } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
@@ -52,25 +61,53 @@ export function AppSidebar() {
       {/* 하단 — 유저 메뉴 */}
       <div className="flex flex-col gap-2 px-3 py-2">
         <div className="h-px w-full bg-sidebar-border" />
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-sidebar-accent/60"
-        >
-          <Image
-            src="/avatar-placeholder.png"
-            alt=""
-            width={32}
-            height={32}
-            className="size-8 shrink-0 rounded-md object-cover"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-foreground">
-              라이선시 담당자
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg p-2 text-left outline-none transition-colors hover:bg-sidebar-accent/60">
+            <Image
+              src="/avatar-placeholder.png"
+              alt=""
+              width={32}
+              height={32}
+              className="size-8 shrink-0 rounded-md object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-foreground">
+                라이선시 담당자
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                회사명
+              </div>
             </div>
-            <div className="truncate text-xs text-muted-foreground">회사명</div>
-          </div>
-          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
-        </button>
+            <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            side="top"
+            align="start"
+            className="w-[212px]"
+          >
+            <DropdownMenuLabel className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium text-foreground">
+                라이선시 담당자
+              </span>
+              <span className="text-xs font-normal text-muted-foreground">
+                회사명
+              </span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled>
+              <Settings className="size-4" />
+              설정
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => router.push("/")}
+            >
+              <LogOut className="size-4" />
+              로그아웃
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </aside>
   );
