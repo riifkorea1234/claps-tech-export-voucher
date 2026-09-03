@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* 부크크명조 웹폰트 (눈누 CDN) — 랜딩 브랜드 문구용 */
+@font-face {
+  font-family: "BookkMyungjo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/BookkMyungjo-Lt.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "BookkMyungjo";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/BookkMyungjo-Bd.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* Radix가 붙이는 data-state를 받도록 (shadcn 애니메이션 활성화) */
@@ -38,6 +54,24 @@
 @keyframes dash-flow {
   to {
     stroke-dashoffset: -24;
+  }
+}
+
+/* 통합 허브: 선을 따라 흐르는 점 (dasharray "3 180" 기준 한 주기) */
+@keyframes hub-line-dot {
+  to {
+    stroke-dashoffset: -183;
+  }
+}
+
+/* 통합 허브 센터: 은은한 발광 맥동 */
+@keyframes hub-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
   }
 }
 

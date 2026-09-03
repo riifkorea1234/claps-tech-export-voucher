@@ -41,6 +41,20 @@ const HUB_RIGHT = [
   { label: "리포트", icon: BarChart3 },
 ];
 
+// 허브 행별 곡선 (연결선 SVG viewBox 300x46 · 행 간격 78px 기준)
+// 좌측: 노드 오른쪽(0,23) → 센터 왼쪽 가장자리(300, 센터중심)
+const HUB_CURVE_LEFT = [
+  "M0 23 C 140 23 160 101 300 101", // 위 행: 아래로
+  "M0 23 L 300 23", // 가운데: 직선
+  "M0 23 C 140 23 160 -55 300 -55", // 아래 행: 위로
+];
+// 우측: 센터 오른쪽 가장자리(0, 센터중심) → 노드 왼쪽(300,23)
+const HUB_CURVE_RIGHT = [
+  "M0 101 C 140 101 160 23 300 23",
+  "M0 23 L 300 23",
+  "M0 -55 C 140 -55 160 23 300 23",
+];
+
 // 지표 (성과 수치 대신 기능 사실 기반 · 과장 없음)
 // 아이콘 = Phosphor 듀오톤
 const STATS = [
@@ -56,16 +70,19 @@ const FLOW = [
     title: "파트너 찾기",
     desc: "IP·업종·팬덤에 맞는 협업 파트너를 추천합니다.",
     link: "파트너 추천 알아보기",
+    img: "/flow-partner.png",
   },
   {
     title: "에셋 생성·검증",
-    desc: "브랜드에 맞는 이미지를 만들고 가이드 위반을 자동 검출합니다.",
+    desc: "브랜드에 맞는 이미지를 만들고\n가이드 위반을 자동 검출합니다.",
     link: "에셋 생성 알아보기",
+    img: "/flow-asset.png",
   },
   {
     title: "모니터링",
-    desc: "웹 전반에서 무단 사용을 탐지해 브랜드를 보호합니다.",
+    desc: "웹 전반에서 무단 사용을 탐지해\n브랜드를 보호합니다.",
     link: "모니터링 알아보기",
+    img: "/flow-monitoring.png",
   },
 ];
 
@@ -185,7 +202,7 @@ const NAV_LINKS = [
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#f7f7f6] text-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#F9F9F9] text-[#0a0a0a]">
       {/* 상단 공지바 */}
       <Link
         href="/login"
@@ -408,38 +425,28 @@ export default function LandingPage() {
               }}
             />
 
-            {/* md+ : 좌우 노드 + 가운데 허브 + 연결선 */}
-            <div className="relative hidden grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-10 px-12 py-20 md:grid">
-              <div className="flex flex-col gap-7">
-                {HUB_LEFT.map((n) => {
-                  const Icon = n.icon;
-                  return (
-                    <div key={n.label} className="flex items-center">
-                      <div className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/90">
-                        <Icon className="size-4 text-white/60" />
-                        {n.label}
-                      </div>
-                      <span className="h-px flex-1 bg-gradient-to-r from-white/25 to-transparent" />
-                    </div>
-                  );
-                })}
+            {/* md+ : 행별 곡선 연결선 + 좌우 노드 + 가운데 허브 */}
+            <div className="relative hidden grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-6 px-12 py-14 md:grid">
+              {/* 좌측 노드 + 연결선 */}
+              <div className="flex flex-col gap-8">
+                {HUB_LEFT.map((n, i) => (
+                  <div key={n.label} className="flex items-center">
+                    <HubNode icon={n.icon} label={n.label} />
+                    <HubConnector d={HUB_CURVE_LEFT[i]} delay={i * 0.4} />
+                  </div>
+                ))}
               </div>
 
               <HubLogo />
 
-              <div className="flex flex-col gap-7">
-                {HUB_RIGHT.map((n) => {
-                  const Icon = n.icon;
-                  return (
-                    <div key={n.label} className="flex items-center justify-end">
-                      <span className="h-px flex-1 bg-gradient-to-l from-white/25 to-transparent" />
-                      <div className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/90">
-                        <Icon className="size-4 text-white/60" />
-                        {n.label}
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* 우측 연결선 + 노드 */}
+              <div className="flex flex-col gap-8">
+                {HUB_RIGHT.map((n, i) => (
+                  <div key={n.label} className="flex items-center justify-end">
+                    <HubConnector d={HUB_CURVE_RIGHT[i]} delay={i * 0.4 + 0.2} />
+                    <HubNode icon={n.icon} label={n.label} />
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -447,18 +454,9 @@ export default function LandingPage() {
             <div className="relative flex flex-col items-center gap-8 px-6 py-14 md:hidden">
               <HubLogo />
               <div className="grid w-full grid-cols-2 gap-3">
-                {[...HUB_LEFT, ...HUB_RIGHT].map((n) => {
-                  const Icon = n.icon;
-                  return (
-                    <div
-                      key={n.label}
-                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/90"
-                    >
-                      <Icon className="size-4 text-white/60" />
-                      {n.label}
-                    </div>
-                  );
-                })}
+                {[...HUB_LEFT, ...HUB_RIGHT].map((n) => (
+                  <HubNode key={n.label} icon={n.icon} label={n.label} />
+                ))}
               </div>
             </div>
           </div>
@@ -522,13 +520,22 @@ export default function LandingPage() {
                   (i > 0 ? " border-t border-black/10 md:border-t-0 md:border-l" : "")
                 }
               >
-                {/* 미니 미리보기 (placeholder) */}
-                <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-black/10 bg-[#f4f4f5]">
-                  <span className="text-xs text-black/30">미리보기</span>
+                {/* 미니 미리보기 */}
+                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-black/15 bg-[#f4f4f5]">
+                  {f.img ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={f.img}
+                      alt={f.title}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs text-black/30">미리보기</span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-lg font-semibold">{f.title}</span>
-                  <span className="text-sm leading-[1.5] text-[#0a0a0a]/55">
+                  <span className="text-sm leading-[1.5] whitespace-pre-line text-[#0a0a0a]/55">
                     {f.desc}
                   </span>
                 </div>
@@ -625,8 +632,8 @@ export default function LandingPage() {
                     (i >= 2 ? " border-t" : "")
                   }
                 >
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-brand/10">
-                    <Icon className="size-5 text-brand" />
+                  <div className="flex size-16 items-center justify-center rounded-2xl bg-brand/10">
+                    <Icon className="size-7 text-brand" />
                   </div>
                   <span className="text-lg font-semibold">{f.title}</span>
                   <span className="max-w-xs text-sm leading-[1.5] whitespace-pre-line text-[#0a0a0a]/55">
@@ -648,7 +655,7 @@ export default function LandingPage() {
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
                 세상에 나간 뒤에도
                 <br />
-                브랜드는 계속 지킵니다
+                브랜드는 계속 지켜집니다
               </h2>
               <p className="mt-5 max-w-md text-[17px] leading-[1.5] text-[#0a0a0a]/55">
                 기준 이미지를 등록하면 웹 전반에서 무단 사용을 탐지해,
@@ -676,14 +683,14 @@ export default function LandingPage() {
           className="relative"
           style={{
             backgroundImage:
-              "radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px)",
+              "radial-gradient(circle, rgba(0,0,0,0.1) 1.3px, transparent 1px)",
             backgroundSize: "22px 22px",
           }}
         >
           <div className="mx-auto w-full max-w-[1000px] px-8 py-[212px] text-center md:py-[244px]">
             <ScrollRevealText
               text={"라이선스를 지키는 것이,\n브랜드를 지키는 가장 빠른 길입니다."}
-              className="text-[32px] leading-[1.3] font-bold tracking-[-0.01em] text-[#0a0a0a] md:text-[52px]"
+              className="text-[28px] leading-[1.5] font-bold tracking-[-0.01em] text-[#0a0a0a] [font-family:'BookkMyungjo',serif] md:text-[44px]"
             />
             <span className="mt-8 inline-block text-sm font-medium tracking-wide text-[#0a0a0a]/40">
               CLAPS Studio 2.0
@@ -757,10 +764,10 @@ export default function LandingPage() {
               <div
                 key={p.name}
                 className={
-                  "flex flex-col gap-6 rounded-2xl border p-8" +
+                  "flex flex-col gap-6 rounded-2xl border border-black/10 bg-white p-8 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-[#0a0a0a] hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)]" +
                   (p.highlight
-                    ? " border-[#0a0a0a] bg-white shadow-[0_30px_60px_-30px_rgba(0,0,0,0.3)]"
-                    : " border-black/10 bg-white")
+                    ? " shadow-[0_30px_60px_-30px_rgba(0,0,0,0.3)]"
+                    : "")
                 }
               >
                 <div className="flex flex-col gap-2">
@@ -802,9 +809,6 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[320px_1fr] md:gap-16">
             <div>
               <h2 className="text-2xl font-bold tracking-[-0.01em]">자주 묻는 질문</h2>
-              <p className="mt-2 text-sm text-[#0a0a0a]/55">
-                핵심만 빠르게 확인하세요.
-              </p>
             </div>
             <div className="border-t border-black/10">
               {FAQS.map((f) => (
@@ -959,24 +963,70 @@ function FloatBadge({
   );
 }
 
+// 통합 허브 행별 곡선 연결선 (노드↔센터, 흐르는 점)
+function HubConnector({ d, delay }: { d: string; delay: number }) {
+  return (
+    <svg
+      aria-hidden
+      className="h-[46px] flex-1 overflow-visible"
+      viewBox="0 0 300 46"
+      preserveAspectRatio="none"
+    >
+      {/* 은은한 베이스 선 */}
+      <path d={d} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+      {/* 흐르는 점 */}
+      <path
+        d={d}
+        fill="none"
+        stroke="rgba(255,255,255,0.9)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeDasharray="3 180"
+        style={{
+          animation: "hub-line-dot 3s linear infinite",
+          animationDelay: `${delay}s`,
+        }}
+      />
+    </svg>
+  );
+}
+
+// 통합 허브 노드 칩 (다크 카드용)
+function HubNode({
+  icon: Icon,
+  label,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.1] to-white/[0.03] px-4 py-3 text-sm font-medium text-white/90 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <Icon className="size-4 text-white/55" />
+      {label}
+    </div>
+  );
+}
+
 // 통합 허브 중앙 로고 (다크 카드용)
 function HubLogo() {
   return (
-    <div className="relative flex size-32 items-center justify-center rounded-[28px] border border-white/25 bg-gradient-to-b from-white/15 to-white/[0.03] shadow-[0_0_60px_rgba(255,150,190,0.25)]">
+    <div className="relative flex size-36 items-center justify-center rounded-[32px] border border-white/25 bg-gradient-to-b from-white/[0.14] to-white/[0.02] shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_20px_50px_-10px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm">
+      {/* 하단 웜 글로우 (맥동) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-1 left-1/2 h-16 w-20 -translate-x-1/2 rounded-full blur-2xl"
+        className="pointer-events-none absolute -bottom-2 left-1/2 h-20 w-24 -translate-x-1/2 rounded-full blur-2xl"
         style={{
           background:
-            "radial-gradient(closest-side, rgba(255,140,170,0.6), transparent)",
+            "radial-gradient(closest-side, rgba(255,140,170,0.7), rgba(255,170,90,0.35), transparent)",
+          animation: "hub-glow-pulse 4s ease-in-out infinite",
         }}
       />
       <Image
         src="/claps-logo.svg"
         alt="CLAPS"
-        width={84}
-        height={16}
-        className="relative opacity-90 [filter:brightness(0)_invert(1)]"
+        width={88}
+        height={17}
+        className="relative opacity-95 [filter:brightness(0)_invert(1)]"
       />
     </div>
   );
