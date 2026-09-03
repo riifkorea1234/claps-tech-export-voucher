@@ -28,6 +28,7 @@ import {
   Palette,
 } from "@phosphor-icons/react/dist/ssr";
 import { ScrollRevealText } from "@/components/domain/scroll-reveal-text";
+import { TiltMonitorPreview } from "@/components/domain/tilt-monitor-preview";
 
 // 통합 허브 노드 (클랩스 기능명 · 타사 로고 대체)
 const HUB_LEFT = [
@@ -426,7 +427,7 @@ export default function LandingPage() {
             />
 
             {/* md+ : 행별 곡선 연결선 + 좌우 노드 + 가운데 허브 */}
-            <div className="relative hidden grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-6 px-12 py-14 md:grid">
+            <div className="relative hidden grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-0 px-12 py-14 md:grid">
               {/* 좌측 노드 + 연결선 */}
               <div className="flex flex-col gap-8">
                 {HUB_LEFT.map((n, i) => (
@@ -591,18 +592,6 @@ export default function LandingPage() {
                 </ul>
               </div>
             </div>
-
-            {/* 앱 미리보기 (placeholder) */}
-            <div className="mt-14 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
-              <div className="flex h-10 items-center gap-1.5 border-b border-white/10 px-4">
-                <span className="size-2.5 rounded-full bg-white/15" />
-                <span className="size-2.5 rounded-full bg-white/15" />
-                <span className="size-2.5 rounded-full bg-white/15" />
-              </div>
-              <div className="flex aspect-[16/9] items-center justify-center">
-                <span className="text-sm text-white/30">가이드 검증 화면 미리보기</span>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -670,11 +659,7 @@ export default function LandingPage() {
                 모니터링 알아보기
               </Link>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_30px_60px_-30px_rgba(0,0,0,0.25)]">
-              <div className="flex aspect-[4/3] items-center justify-center bg-[#f4f4f5]">
-                <span className="text-sm text-black/30">모니터링 미리보기</span>
-              </div>
-            </div>
+            <TiltMonitorPreview />
           </div>
         </section>
 
