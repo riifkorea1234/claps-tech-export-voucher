@@ -112,18 +112,21 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
   return (
     <div
       onClick={onOpen}
-      className="relative aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border border-border transition-shadow hover:shadow-md"
+      className="flex cursor-pointer flex-col overflow-hidden rounded-lg border border-border transition-shadow hover:shadow-md"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 to-zinc-200" />
-      <span
-        className={cn(
-          "absolute top-3 left-3 rounded-full px-2 py-1 text-sm text-white",
-          r.platform === "구글" ? "bg-[#055dff]" : "bg-[#03994a]",
-        )}
-      >
-        {r.platform}
-      </span>
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-white p-4">
+      {/* 이미지 영역 — 4:3 비율, 좁아져도 최소 높이 유지 */}
+      <div className="relative aspect-[4/3] min-h-[140px] bg-gradient-to-br from-zinc-100 to-zinc-200">
+        <span
+          className={cn(
+            "absolute top-3 left-3 rounded-full px-2 py-1 text-sm text-white",
+            r.platform === "구글" ? "bg-[#055dff]" : "bg-[#03994a]",
+          )}
+        >
+          {r.platform}
+        </span>
+      </div>
+      {/* 정보 영역 */}
+      <div className="flex flex-col gap-2 bg-white p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-md bg-[#f0f0f3] px-2 py-1 text-xs font-medium text-[#33333d]">
             유사도 {r.similarity}%
