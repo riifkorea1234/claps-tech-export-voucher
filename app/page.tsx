@@ -202,7 +202,7 @@ const NAV_LINKS = [
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#F9F9F9] text-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#F5F5F5] text-[#0a0a0a]">
       {/* 상단 공지바 */}
       <Link
         href="/login"
