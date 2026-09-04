@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronsUpDown, Settings, LogOut } from "lucide-react";
+import { getAccount, clearCurrent, type Account } from "@/lib/account-store";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -18,6 +20,20 @@ import { cn } from "@/lib/utils";
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [account, setAccount] = useState<Account | null>(null);
+
+  // 저장된 계정(프로필) 로드 → 하단 계정 영역에 표시
+  useEffect(() => {
+    setAccount(getAccount());
+  }, []);
+
+  const displayName = account?.name || "라이선시 담당자";
+  const displayOrg = account?.org || account?.email || "회사명";
+
+  function handleLogout() {
+    clearCurrent();
+    router.push("/");
+  }
 
   return (
     <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
@@ -75,10 +91,10 @@ export function AppSidebar() {
             />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium text-foreground">
-                라이선시 담당자
+                {displayName}
               </div>
               <div className="truncate text-xs text-muted-foreground">
-                회사명
+                {displayOrg}
               </div>
             </div>
             <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
@@ -90,10 +106,10 @@ export function AppSidebar() {
           >
             <DropdownMenuLabel className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-foreground">
-                라이선시 담당자
+                {displayName}
               </span>
               <span className="text-xs font-normal text-muted-foreground">
-                회사명
+                {displayOrg}
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -102,10 +118,7 @@ export function AppSidebar() {
               설정
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() => router.push("/")}
-            >
+            <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
               <LogOut className="size-4" />
               로그아웃
             </DropdownMenuItem>
