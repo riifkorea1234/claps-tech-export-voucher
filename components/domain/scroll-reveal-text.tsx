@@ -21,8 +21,8 @@ export function ScrollRevealText({
     const update = () => {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
-      // 요소가 화면 아래(85%)에서 올라와 위쪽(35%)에 닿는 동안 0 → 1
-      const start = vh * 0.85;
+      // 요소가 화면 아래(70%)에서 올라와 위쪽(35%)에 닿는 동안 0 → 1
+      const start = vh * 0.7;
       const end = vh * 0.35;
       const p = (start - rect.top) / (start - end);
       setProgress(Math.max(0, Math.min(1, p)));
