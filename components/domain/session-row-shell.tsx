@@ -1,6 +1,7 @@
 "use client";
 
 import { CoverThumb } from "./cover-thumb";
+import { hasStageAssets } from "@/lib/session-assets-store";
 import type { ProjectCover } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ export function SessionRowShell({
         {subtitle}
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <span className="text-xs text-muted-foreground">{timeLabel}</span>
+        <span className="text-sm text-muted-foreground">{timeLabel}</span>
         {stage}
         {menu}
       </div>
@@ -51,12 +52,8 @@ export function SessionRowShell({
 export type Stage = "생성" | "검증" | "최종";
 
 export function resolveStage(sessionId: string): Stage {
-  try {
-    if (sessionStorage.getItem(`claps:final:${sessionId}`)) return "최종";
-    if (sessionStorage.getItem(`claps:verify:${sessionId}`)) return "검증";
-  } catch {
-    // 무시
-  }
+  if (hasStageAssets("final", sessionId)) return "최종";
+  if (hasStageAssets("verify", sessionId)) return "검증";
   return "생성";
 }
 
@@ -71,7 +68,7 @@ export function StageBadge({ stage }: { stage: Stage }) {
   return (
     <span
       className={cn(
-        "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+        "shrink-0 rounded-full px-2 py-0.5 text-sm font-medium",
         STAGE_TONES[stage],
       )}
     >

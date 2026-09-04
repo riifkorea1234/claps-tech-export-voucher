@@ -96,7 +96,7 @@ export function AssetRow({
       }
       subtitle={
         !editing && (
-          <span className="truncate text-xs text-muted-foreground">
+          <span className="truncate text-sm text-muted-foreground">
             {projectName ?? "프로젝트 미연결"}
           </span>
         )
