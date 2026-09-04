@@ -33,6 +33,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MonitoringInfo } from "@/components/domain/monitoring-info";
 import { CoverThumb } from "@/components/domain/cover-thumb";
 import { StatusBadge } from "@/components/domain/status-badge";
@@ -444,9 +445,9 @@ export default function MonitoringDetailPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold text-foreground">탐지 결과</h2>
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+              <Badge variant="secondary" className="h-auto text-sm">
                 {resultCount}건
-              </span>
+              </Badge>
             </div>
             {lastScan && (
               <span className="text-sm text-muted-foreground">

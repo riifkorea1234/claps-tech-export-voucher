@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Plus,
-  Search,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Radar,
   EllipsisVertical,
   PencilLine,
@@ -16,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableHeader,
@@ -36,6 +34,9 @@ import {
   deleteRecord,
   type SavedMonitoringRecord,
 } from "@/lib/monitoring-store";
+import { EmptyState } from "@/components/domain/empty-state";
+import { SearchBar } from "@/components/domain/search-bar";
+import { Pagination } from "@/components/domain/pagination";
 import { cn } from "@/lib/utils";
 
 type SortKey = "recent" | "created";
@@ -112,9 +113,9 @@ export default function MonitoringListPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold text-foreground">탐지 기록</h2>
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+          <Badge variant="secondary" className="h-auto text-sm">
             {records.length}
-          </span>
+          </Badge>
         </div>
         <Button asChild className="gap-1.5">
           <Link href="/monitoring/new">
@@ -125,36 +126,26 @@ export default function MonitoringListPage() {
 
       {records.length === 0 ? (
         // 탐지 기록 없음 (기본)
-        <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[14px] border border-dashed border-border bg-card px-6 py-10 text-center">
-          <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-            <Radar className="size-6 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-base font-semibold text-foreground">
-              아직 탐지 기록이 없어요
-            </p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              이미지로 무단 사용을 탐지해보세요
-            </p>
-          </div>
-          <Button asChild variant="outline" size="sm" className="mt-1">
-            <Link href="/monitoring/new">새 탐지 시작</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={Radar}
+          title="아직 탐지 기록이 없어요"
+          description="이미지로 무단 사용을 탐지해보세요"
+          action={
+            <Button asChild variant="outline" size="sm" className="mt-1">
+              <Link href="/monitoring/new">새 탐지 시작</Link>
+            </Button>
+          }
+        />
       ) : (
         <>
           {/* 검색 · 필터 (에셋 생성 목록 참고) */}
           <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="탐지 기록 검색"
-                className="h-10 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
-              />
-            </div>
+            <SearchBar
+              value={query}
+              onChange={setQuery}
+              placeholder="탐지 기록 검색"
+              className="flex-1"
+            />
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
                 {SORT_LABEL[sort]}
@@ -300,46 +291,11 @@ export default function MonitoringListPage() {
           </div>
 
           {/* 페이지네이션 (20건 초과 시) */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
-                aria-label="이전 페이지"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const n = i + 1;
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPage(n)}
-                    className={cn(
-                      "flex size-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors",
-                      n === currentPage
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-input bg-card text-foreground hover:bg-muted/50",
-                    )}
-                  >
-                    {n}
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
-                aria-label="다음 페이지"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </div>
-          )}
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
         </>
       )}
     </div>

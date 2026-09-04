@@ -1,7 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AuthShell } from "@/components/layout/auth-shell";
 import { LoginEmailForm } from "@/components/domain/login-email-form";
 
 // 로그인 페이지 — 센터 정렬. 실제 인증 연동 전: 버튼은 앱(/projects)으로 이동.
@@ -42,34 +40,8 @@ function KakaoIcon() {
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-[100dvh] flex-col items-center justify-center bg-background px-6">
-      {/* 상단 좌측 로고 (클릭 시 랜딩으로) */}
-      <Link
-        href="/"
-        className="absolute top-6 left-6 flex h-8 items-center"
-      >
-        <Image
-          src="/claps-logo.svg"
-          alt="CLAPS"
-          width={96}
-          height={18}
-          priority
-          className="[filter:brightness(0)]"
-        />
-      </Link>
-
-      {/* 언어 버튼 */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="absolute top-6 right-6 h-8 gap-1.5 rounded-[10px]"
-      >
-        <Globe className="size-4" />
-        언어
-      </Button>
-
-      <div className="flex w-full max-w-[360px] flex-col gap-[22px]">
-        {/* 제목 */}
+    <AuthShell>
+      {/* 제목 */}
         <div className="flex flex-col gap-2 text-center">
           <h2 className="text-2xl font-bold tracking-[-0.6px] text-foreground">
             시작하기
@@ -114,7 +86,6 @@ export default function LoginPage() {
         >
           비밀번호를 잊으셨나요?
         </Link>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

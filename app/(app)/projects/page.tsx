@@ -9,16 +9,14 @@ import {
   FolderPlus,
   Info,
   Plus,
-  Search,
   Check,
-  ChevronLeft,
-  ChevronRight,
   EllipsisVertical,
   PencilLine,
   Trash2,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -26,16 +24,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 import {
   Tooltip,
   TooltipProvider,
@@ -45,6 +33,10 @@ import {
 import { StatusBadge } from "@/components/domain/status-badge";
 import { CoverThumb } from "@/components/domain/cover-thumb";
 import { NewProjectDialog } from "@/components/domain/new-project-dialog";
+import { EmptyState } from "@/components/domain/empty-state";
+import { SearchBar } from "@/components/domain/search-bar";
+import { Pagination } from "@/components/domain/pagination";
+import { ConfirmDeleteDialog } from "@/components/domain/confirm-delete-dialog";
 import {
   PROJECT_STATUSES,
   type Project,
@@ -231,23 +223,19 @@ export default function ProjectsPage() {
               전체 프로젝트
             </h2>
             {items.length > 0 && (
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+              <Badge variant="secondary" className="h-auto text-sm">
                 {items.length}
-              </span>
+              </Badge>
             )}
           </div>
 
           {/* 검색창 */}
-          <div className="relative w-full sm:w-[300px]">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="프로젝트 검색..."
-              className="h-9 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
-            />
-          </div>
+          <SearchBar
+            value={query}
+            onChange={setQuery}
+            placeholder="프로젝트 검색..."
+            className="w-full sm:w-[300px]"
+          />
 
           <Button
             className="shrink-0 gap-1.5"
@@ -259,27 +247,23 @@ export default function ProjectsPage() {
 
         {items.length === 0 ? (
           // 프로젝트 없음 (empty)
-          <div className="mt-8 flex min-h-[300px] flex-col items-center justify-center gap-4 rounded-[14px] border border-dashed border-border px-6 py-10 text-center">
-            <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-              <FolderPlus className="size-6 text-muted-foreground" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-base font-semibold text-foreground">
-                아직 프로젝트가 없어요
-              </p>
-              <p className="text-sm text-muted-foreground">
+          <EmptyState
+            className="mt-8"
+            icon={FolderPlus}
+            title="아직 프로젝트가 없어요"
+            description={
+              <>
                 &lsquo;새 프로젝트&rsquo;를 눌러 IP와 브랜드 가이드를 등록하면
                 <br />
                 여기에 프로젝트가 쌓여요.
-              </p>
-            </div>
-            <Button
-              className="mt-1 gap-1.5"
-              onClick={() => setDialogOpen(true)}
-            >
-              <Plus className="size-4" />새 프로젝트 만들기
-            </Button>
-          </div>
+              </>
+            }
+            action={
+              <Button className="mt-1 gap-1.5" onClick={() => setDialogOpen(true)}>
+                <Plus className="size-4" />새 프로젝트 만들기
+              </Button>
+            }
+          />
         ) : (
           <>
           {/* 표 — 아주 좁아지면 가로 스크롤 (컬럼 찌그러짐 방지) */}
@@ -433,43 +417,13 @@ export default function ProjectsPage() {
           </div>
 
           {/* 페이지네이션 (한 페이지 30개) */}
-          {totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-1">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={safePage === 1}
-                className="flex h-8 items-center gap-1 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-              >
-                <ChevronLeft className="size-4" />
-                이전
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setPage(n)}
-                  className={cn(
-                    "flex size-8 items-center justify-center rounded-md text-sm transition-colors",
-                    n === safePage
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-muted",
-                  )}
-                >
-                  {n}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={safePage === totalPages}
-                className="flex h-8 items-center gap-1 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-              >
-                다음
-                <ChevronRight className="size-4" />
-              </button>
-            </div>
-          )}
+          <div className="mt-6">
+            <Pagination
+              page={safePage}
+              totalPages={totalPages}
+              onChange={setPage}
+            />
+          </div>
           </>
         )}
       </section>
@@ -485,33 +439,21 @@ export default function ProjectsPage() {
       />
 
       {/* 삭제 확인 팝업 */}
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>정말 삭제할까요?</AlertDialogTitle>
-            <AlertDialogDescription>
-              <span className="font-medium text-foreground">
-                {deleteTarget?.name}
-              </span>{" "}
-              프로젝트를 삭제하면 되돌릴 수 없어요.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              삭제
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDelete}
+        description={
+          <>
+            <span className="font-medium text-foreground">
+              {deleteTarget?.name}
+            </span>{" "}
+            프로젝트를 삭제하면 되돌릴 수 없어요.
+          </>
+        }
+      />
     </div>
   );
 }

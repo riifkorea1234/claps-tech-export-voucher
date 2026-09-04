@@ -2,18 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, ChevronDown, Sparkles, Check } from "lucide-react";
+import { Plus, ChevronDown, Sparkles, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,7 +12,11 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { AssetRow } from "@/components/domain/asset-row";
+import { EmptyState } from "@/components/domain/empty-state";
+import { SearchBar } from "@/components/domain/search-bar";
+import { ConfirmDeleteDialog } from "@/components/domain/confirm-delete-dialog";
 import { getGroups, saveGroups } from "@/lib/assets-store";
+import { clearSessionAssets } from "@/lib/session-assets-store";
 import { getProjects } from "@/lib/projects-store";
 import type { AssetSession, SessionGroup } from "@/lib/mock/assets";
 
@@ -120,6 +115,7 @@ export default function AssetsPage() {
         }))
         .filter((g) => g.sessions.length > 0), // 빈 그룹은 숨김
     );
+    clearSessionAssets(deleteTarget.id); // 이 세션의 이미지도 함께 삭제
     setDeleteTarget(null);
   }
 
@@ -130,9 +126,9 @@ export default function AssetsPage() {
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold text-foreground">생성 목록</h2>
           {total > 0 && (
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+            <Badge variant="secondary" className="h-auto text-sm">
               {total}
-            </span>
+            </Badge>
           )}
         </div>
         <Button className="gap-1.5" onClick={createSession}>
@@ -142,38 +138,32 @@ export default function AssetsPage() {
 
       {loaded && total === 0 ? (
         // 생성 내역 없음 (empty)
-        <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[14px] border border-dashed border-border bg-card px-6 py-10 text-center">
-          <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-            <Sparkles className="size-6 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-base font-semibold text-foreground">
-              아직 생성 내역이 없어요
-            </p>
-            <p className="text-sm text-muted-foreground">
+        <EmptyState
+          icon={Sparkles}
+          title="아직 생성 내역이 없어요"
+          description={
+            <>
               &lsquo;새 에셋 생성&rsquo;을 눌러 브랜드 이미지를 만들면
               <br />
               생성한 세션이 여기에 쌓여요.
-            </p>
-          </div>
-          <Button size="sm" className="mt-1 gap-1.5" onClick={createSession}>
-            <Plus className="size-4" />새 에셋 생성
-          </Button>
-        </div>
+            </>
+          }
+          action={
+            <Button size="sm" className="mt-1 gap-1.5" onClick={createSession}>
+              <Plus className="size-4" />새 에셋 생성
+            </Button>
+          }
+        />
       ) : (
         <>
           {/* 검색 · 필터 */}
           <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="생성 목록 검색"
-                className="h-10 w-full rounded-lg border border-input bg-card pr-3 pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
-              />
-            </div>
+            <SearchBar
+              value={query}
+              onChange={setQuery}
+              placeholder="생성 목록 검색"
+              className="flex-1"
+            />
 
             {/* 프로젝트 필터 */}
             <DropdownMenu>
@@ -265,33 +255,21 @@ export default function AssetsPage() {
       )}
 
       {/* 삭제 확인 팝업 */}
-      <AlertDialog
+      <ConfirmDeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>정말 삭제할까요?</AlertDialogTitle>
-            <AlertDialogDescription>
-              <span className="font-medium text-foreground">
-                {deleteTarget?.title}
-              </span>{" "}
-              생성 세션을 삭제하면 되돌릴 수 없어요.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              삭제
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDelete}
+        description={
+          <>
+            <span className="font-medium text-foreground">
+              {deleteTarget?.title}
+            </span>{" "}
+            생성 세션을 삭제하면 되돌릴 수 없어요.
+          </>
+        }
+      />
     </div>
   );
 }

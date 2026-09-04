@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronsUpDown, Settings, LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut, UserRound } from "lucide-react";
+import { MyPageDialog } from "@/components/domain/my-page-dialog";
 import { getAccount, clearCurrent, type Account } from "@/lib/account-store";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
+  const [myPageOpen, setMyPageOpen] = useState(false);
 
   // 저장된 계정(프로필) 로드 → 하단 계정 영역에 표시
   useEffect(() => {
@@ -113,9 +115,9 @@ export function AppSidebar() {
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <Settings className="size-4" />
-              설정
+            <DropdownMenuItem onSelect={() => setMyPageOpen(true)}>
+              <UserRound className="size-4" />
+              마이페이지
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
@@ -125,6 +127,13 @@ export function AppSidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* 마이페이지 모달 */}
+      <MyPageDialog
+        open={myPageOpen}
+        onOpenChange={setMyPageOpen}
+        onSaved={() => setAccount(getAccount())}
+      />
     </aside>
   );
 }
