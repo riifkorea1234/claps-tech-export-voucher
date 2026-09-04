@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
+  Folders,
   FolderClock,
   FolderX,
   FolderPlus,
+  Info,
   Plus,
   Search,
   Check,
@@ -35,6 +36,12 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { CoverThumb } from "@/components/domain/cover-thumb";
 import { NewProjectDialog } from "@/components/domain/new-project-dialog";
@@ -55,24 +62,51 @@ import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 20; // 한 페이지에 최대 20개
 
-function BannerStat({
+const KPI_TONES = {
+  green: "text-green-600",
+  amber: "text-amber-600",
+  red: "text-destructive",
+} as const;
+
+function KpiCard({
   icon: Icon,
   label,
   value,
+  tone,
+  hint,
 }: {
   icon: LucideIcon;
   label: string;
   value: number;
+  tone: keyof typeof KPI_TONES;
+  hint: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex size-10 items-center justify-center rounded-lg bg-[#313131]">
-        <Icon className="size-6 text-white" strokeWidth={1.5} />
+    <div className="flex flex-col gap-3 rounded-[14px] bg-muted p-3">
+      {/* 라벨 + 설명 아이콘 */}
+      <div className="flex items-center gap-1.5 px-1.5 pt-1">
+        <span className="text-sm font-medium text-foreground">{label}</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label={`${label} 설명`}
+              className="flex items-center text-muted-foreground outline-none transition-colors hover:text-foreground"
+            >
+              <Info className="size-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{hint}</TooltipContent>
+        </Tooltip>
       </div>
-      <span className="text-sm font-medium text-white">{label}</span>
-      <span className="text-xl font-semibold tracking-tight text-white">
-        {value}
-      </span>
+
+      {/* 안쪽 흰 박스 — 아이콘 + 숫자 */}
+      <div className="flex items-center justify-center gap-2.5 rounded-[10px] border border-border bg-card px-4 py-5">
+        <Icon className={cn("size-[18px]", KPI_TONES[tone])} strokeWidth={2} />
+        <span className="text-2xl font-bold tracking-tight text-card-foreground">
+          {value}
+        </span>
+      </div>
     </div>
   );
 }
@@ -151,36 +185,42 @@ export default function ProjectsPage() {
 
   return (
     <div className="flex flex-col gap-5 px-6 py-5">
-      {/* 다크 KPI 배너 — 좁으면 줄바꿈, 넓으면 100px 간격 */}
-      <section className="relative flex flex-wrap items-center justify-center gap-x-10 gap-y-4 overflow-hidden rounded-[14px] bg-[#282828] px-6 py-5 md:gap-x-[100px] md:gap-y-0">
-        <Image
-          src="/kpi-banner-bg.png"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black to-black/30" />
-
-        {/* 진행 중 프로젝트 */}
-        <div className="relative flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-green-500" />
-            <span className="text-sm font-medium text-white">
-              진행 중 프로젝트
-            </span>
+      {/* 상단: 제목 + KPI 카드 */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1 pl-2">
+          <h1 className="text-2xl font-bold tracking-[-0.3px] text-foreground">
+            개요
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            브랜드 프로젝트의 진행 상황을 한눈에 확인하세요.
+          </p>
+        </div>
+        <TooltipProvider delayDuration={100}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <KpiCard
+              icon={Folders}
+              label="진행 중 프로젝트"
+              value={activeCount}
+              tone="green"
+              hint="완료되지 않은 전체 프로젝트 수예요."
+            />
+            <KpiCard
+              icon={FolderClock}
+              label="검증 중"
+              value={inReviewCount}
+              tone="amber"
+              hint="가이드 검증이 진행 중인 프로젝트 수예요."
+            />
+            <KpiCard
+              icon={FolderX}
+              label="수정 필요"
+              value={needsFixCount}
+              tone="red"
+              hint="검증에서 수정이 필요하다고 나온 프로젝트 수예요."
+            />
           </div>
-          <span className="text-2xl font-semibold tracking-tight text-white">
-            {activeCount}
-          </span>
-        </div>
-
-        {/* 검증 중 · 수정 필요 */}
-        <div className="relative flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:gap-x-11">
-          <BannerStat icon={FolderClock} label="검증 중" value={inReviewCount} />
-          <BannerStat icon={FolderX} label="수정 필요" value={needsFixCount} />
-        </div>
-      </section>
+        </TooltipProvider>
+      </div>
 
       {/* 프로젝트 목록 카드 */}
       <section className="rounded-[14px] border border-border bg-card p-6">
