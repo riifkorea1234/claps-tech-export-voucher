@@ -5,9 +5,12 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Download, ChevronDown, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import type { GeneratedAsset } from "@/components/domain/asset-result-card";
+import { getStageAssets, setStageAssets } from "@/lib/session-assets-store";
+import { ImageLightbox } from "@/components/domain/image-lightbox";
 import { findSession } from "@/lib/mock/assets";
 import { getAllSessions } from "@/lib/assets-store";
 import { cn } from "@/lib/utils";
@@ -34,25 +37,9 @@ export default function FinalPage() {
   // 전체화면(라이트박스)
   const [lightbox, setLightbox] = useState<GeneratedAsset | null>(null);
 
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox]);
-
   // 검증 화면에서 최종본에 담은 에셋을 세션에서 불러옴
   useEffect(() => {
-    let list: GeneratedAsset[] = [];
-    try {
-      const raw = sessionStorage.getItem(`claps:final:${id}`);
-      if (raw) list = JSON.parse(raw);
-    } catch {
-      list = [];
-    }
-    setItems(list);
+    setItems(getStageAssets("final", id));
     setLoaded(true);
   }, [id]);
 
@@ -77,11 +64,7 @@ export default function FinalPage() {
   function removeItem(assetId: string) {
     setItems((prev) => {
       const next = prev.filter((a) => a.id !== assetId);
-      try {
-        sessionStorage.setItem(`claps:final:${id}`, JSON.stringify(next));
-      } catch {
-        // 무시
-      }
+      setStageAssets("final", id, next);
       return next;
     });
     setSelected((prev) => {
@@ -107,9 +90,9 @@ export default function FinalPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-foreground">최종본</h2>
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+            <Badge variant="secondary" className="h-auto text-sm">
               {items.length}장
-            </span>
+            </Badge>
           </div>
           <span className="text-sm text-muted-foreground">
             프로젝트 라이브러리에 저장됩니다.
@@ -226,31 +209,7 @@ export default function FinalPage() {
       )}
 
       {/* 전체화면 라이트박스 */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6"
-          onClick={() => setLightbox(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="닫기"
-            className="absolute top-5 right-5 flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <X className="size-6" />
-          </button>
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-              "max-h-[85vh] w-[min(90vw,720px)] overflow-hidden rounded-xl shadow-2xl",
-              lightbox.aspectClass,
-              lightbox.gradient,
-            )}
-          />
-        </div>
-      )}
+      <ImageLightbox asset={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }

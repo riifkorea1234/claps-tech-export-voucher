@@ -5,14 +5,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { SessionRow } from "@/components/domain/session-row";
-import type { GeneratedAsset } from "@/components/domain/asset-result-card";
 import {
   sampleProjectDetail as project,
   type ProjectSession,
 } from "@/lib/mock/project-detail";
 import { getProject } from "@/lib/projects-store";
 import { getAllSessions } from "@/lib/assets-store";
+import { getStageAssets } from "@/lib/session-assets-store";
 
 // 이 프로젝트에 등록된 생성 목록만 모아 보는 페이지
 export default function ProjectSessionsPage() {
@@ -25,25 +26,16 @@ export default function ProjectSessionsPage() {
     const saved = getProject(id);
     if (saved) setName(saved.name);
 
-    // 이 프로젝트에 연결된 세션들 (생성·채택 장수는 세션 이미지에서 계산)
+    // 이 프로젝트에 연결된 세션들 (생성 장수 = 1단계, 최종 장수 = 3단계 최종본)
     const linked = getAllSessions().filter((s) => s.projectId === id);
     setSessions(
-      linked.map((s) => {
-        let imgs: GeneratedAsset[] = [];
-        try {
-          const raw = sessionStorage.getItem(`claps:session:${s.id}`);
-          if (raw) imgs = JSON.parse(raw) as GeneratedAsset[];
-        } catch {
-          // 무시
-        }
-        return {
-          id: s.id,
-          title: s.title,
-          generated: imgs.length,
-          adopted: imgs.filter((a) => a.adopted).length,
-          timeLabel: s.timeLabel,
-        };
-      }),
+      linked.map((s) => ({
+        id: s.id,
+        title: s.title,
+        generated: getStageAssets("generated", s.id).length,
+        adopted: getStageAssets("final", s.id).length,
+        timeLabel: s.timeLabel,
+      })),
     );
   }, [id]);
 
@@ -66,9 +58,9 @@ export default function ProjectSessionsPage() {
       <section className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold text-foreground">생성 목록</h2>
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-secondary-foreground">
+          <Badge variant="secondary" className="h-auto text-sm">
             {sessions.length}
-          </span>
+          </Badge>
         </div>
 
         {sessions.length === 0 ? (
