@@ -120,7 +120,7 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
         <span
           className={cn(
             "absolute top-3 left-3 rounded-full px-2 py-1 text-sm text-white",
-            r.platform === "구글" ? "bg-[#055dff]" : "bg-[#03994a]",
+            r.platform === "구글" ? "bg-platform-google" : "bg-platform-naver",
           )}
         >
           {r.platform}
@@ -129,7 +129,7 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
       {/* 정보 영역 */}
       <div className="flex flex-col gap-2 bg-white p-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="rounded-md bg-[#f0f0f3] px-2 py-1 text-xs font-medium text-[#33333d]">
+          <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
             유사도 {r.similarity}%
           </span>
           <span className="text-xs text-muted-foreground">{r.timeLabel}</span>
@@ -139,7 +139,7 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-1 text-sm text-[#1a76e9] hover:underline"
+          className="flex items-center gap-1 text-sm text-info hover:underline"
         >
           <span className="truncate">{r.url}</span>
           <SquareArrowOutUpRight className="size-4 shrink-0" />
@@ -337,7 +337,7 @@ export default function MonitoringDetailPage() {
       </Link>
 
       {/* 탐지 기준 (다크 배너) */}
-      <div className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-[14px] bg-[#282828] p-5">
+      <div className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-[14px] bg-banner p-5">
         <Image src="/kpi-banner-bg.png" alt="" fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black to-black/30" />
         <MonitoringInfo className="absolute top-4 right-4 z-10" />
@@ -392,7 +392,7 @@ export default function MonitoringDetailPage() {
             </>
           ) : (
             <>
-              <div className="flex h-[100px] w-40 items-center justify-center rounded-[10px] bg-[#4d4d4d]">
+              <div className="flex h-[100px] w-40 items-center justify-center rounded-[10px] bg-banner-muted">
                 <ImagePlus className="size-6 text-white/70" />
               </div>
               <div className="flex flex-wrap gap-2">
@@ -767,7 +767,7 @@ export default function MonitoringDetailPage() {
                         href={`https://${detail.url}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 break-all text-[#1a76e9] hover:underline"
+                        className="flex items-center gap-1 break-all text-info hover:underline"
                       >
                         <span className="break-all">{detail.url}</span>
                         <SquareArrowOutUpRight className="size-4 shrink-0" />

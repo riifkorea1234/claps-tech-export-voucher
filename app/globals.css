@@ -130,6 +130,15 @@
   --landing-ink: #0a0a0a;   /* 랜딩 기본 먹색 (글자·다크 섹션·버튼) */
   --landing-bg: #f5f5f5;    /* 랜딩 페이지 배경 */
 
+  /* 다크 배너 (프로젝트 상세·모니터링 상단) */
+  --banner: #282828;            /* 다크 배너 배경 */
+  --banner-foreground: #ffffff;
+  --banner-muted: #4d4d4d;      /* 배너 안 빈 이미지 자리 */
+
+  /* 외부 플랫폼 식별 색 (구글·네이버 브랜드색 · 국가 테마와 무관하게 고정) */
+  --platform-google: #055dff;
+  --platform-naver: #03994a;
+
   /* 상태색 (배지·판정용) */
   --success: #16a34a;
   --success-foreground: #ffffff;
@@ -222,6 +231,11 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-landing-ink: var(--landing-ink);
   --color-landing-bg: var(--landing-bg);
+  --color-banner: var(--banner);
+  --color-banner-foreground: var(--banner-foreground);
+  --color-banner-muted: var(--banner-muted);
+  --color-platform-google: var(--platform-google);
+  --color-platform-naver: var(--platform-naver);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
