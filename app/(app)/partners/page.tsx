@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/sheet";
 import { FactorBars } from "@/components/domain/factor-bars";
 import { PartnerCard } from "@/components/domain/partner-card";
+import { cn } from "@/lib/utils";
 import {
   heroPartner,
   partners,
@@ -105,28 +106,66 @@ export default function PartnersPage() {
 
   return (
     <div className="flex flex-col gap-4 px-6 py-5">
-      {/* 매칭 기준 배너 (다크) */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[14px] bg-primary px-6 py-4">
-        <span className="shrink-0 text-sm font-medium text-primary-foreground">
-          매칭 기준
-        </span>
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          {matchCriteria.map((c) => (
-            <span
-              key={c}
-              className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90"
-            >
-              {c}
-            </span>
-          ))}
+      {/* 매칭 기준 요약 (회색 바깥 + 흰 안쪽 박스) */}
+      <div className="flex flex-col gap-3 rounded-[14px] bg-muted p-3">
+        {/* 제목 줄 */}
+        <div className="flex items-center justify-between gap-3 px-1.5 pt-1">
+          <span className="text-sm font-medium text-foreground">매칭 기준</span>
+          <Link
+            href="/partners/criteria"
+            className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            수정
+            <ChevronRight className="size-4" />
+          </Link>
         </div>
-        <Link
-          href="/partners/criteria"
-          className="flex shrink-0 items-center gap-1 rounded-lg border border-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-        >
-          수정
-          <ChevronRight className="size-4" />
-        </Link>
+
+        {/* 항목마다 개별 흰 카드 */}
+        <div className="flex flex-wrap gap-2">
+          {matchCriteria.map((c) => {
+            // "IP: 헬로키티" → 라벨 "IP" / 값 "헬로키티" (콜론 없으면 값만)
+            const idx = c.indexOf(":");
+            const label = idx > -1 ? c.slice(0, idx).trim() : "";
+            const value = idx > -1 ? c.slice(idx + 1).trim() : c;
+            // 값에 "·"가 있으면 키워드 여러 개 → 칩으로 표시
+            const keywords = value
+              .split("·")
+              .map((k) => k.trim())
+              .filter(Boolean);
+            return (
+              <div
+                key={c}
+                className="flex min-w-[140px] flex-1 flex-col gap-1.5 rounded-[10px] border border-border bg-card px-4 py-3"
+              >
+                <span
+                  className={cn(
+                    "text-xs text-muted-foreground",
+                    // 칩은 자체 좌우 여백이 있어 라벨을 2px 맞춰줌
+                    keywords.length > 1 && "pl-0.5",
+                  )}
+                >
+                  {label || "기준"}
+                </span>
+                {keywords.length > 1 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {keywords.map((k) => (
+                      <span
+                        key={k}
+                        className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                      >
+                        {k}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm font-medium text-card-foreground">
+                    {value}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* 툴바 — 재매칭 / 필터 */}
