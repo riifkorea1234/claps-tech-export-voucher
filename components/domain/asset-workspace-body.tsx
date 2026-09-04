@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, WandSparkles, Check, FolderPlus, X } from "lucide-react";
+import { ChevronDown, WandSparkles, Check, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +18,8 @@ import { resolveProjectCover } from "@/lib/project-cover";
 import { StatusBadge } from "./status-badge";
 import { getProjects } from "@/lib/projects-store";
 import { getAllSessions, setSessionProject } from "@/lib/assets-store";
+import { getStageAssets, setStageAssets } from "@/lib/session-assets-store";
+import { ImageLightbox } from "./image-lightbox";
 import type { Project } from "@/lib/mock/projects";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import { cn } from "@/lib/utils";
@@ -86,16 +88,6 @@ export function AssetWorkspaceBody({
   // 전체화면(라이트박스)으로 볼 이미지
   const [lightbox, setLightbox] = useState<GeneratedAsset | null>(null);
 
-  // Esc로 라이트박스 닫기
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox]);
-
   // 프로젝트 선택 (기존 프로젝트에서만 · 모달)
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -121,26 +113,15 @@ export function AssetWorkspaceBody({
 
   // 세션별 저장된 상태 불러오기 (없으면 시드 유지)
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(`claps:session:${sessionId}`);
-      if (raw) setAssets(JSON.parse(raw));
-    } catch {
-      // 무시
-    }
+    const saved = getStageAssets("generated", sessionId);
+    if (saved.length > 0) setAssets(saved);
     setReady(true);
   }, [sessionId]);
 
   // 변경 시 세션별로 저장
   useEffect(() => {
     if (!ready) return;
-    try {
-      sessionStorage.setItem(
-        `claps:session:${sessionId}`,
-        JSON.stringify(assets),
-      );
-    } catch {
-      // 무시
-    }
+    setStageAssets("generated", sessionId, assets);
   }, [assets, ready, sessionId]);
 
   const adoptedCount = assets.filter((a) => a.adopted).length;
@@ -190,15 +171,11 @@ export function AssetWorkspaceBody({
 
   // 채택한 에셋을 세션에 저장하고 검증 화면으로 이동 (검수 목록 = 채택 이미지)
   function goVerify() {
-    const adopted = assets.filter((a) => a.adopted);
-    try {
-      sessionStorage.setItem(
-        `claps:verify:${sessionId}`,
-        JSON.stringify(adopted),
-      );
-    } catch {
-      // sessionStorage 사용 불가 시 무시 (검증 화면이 빈 상태로 처리)
-    }
+    setStageAssets(
+      "verify",
+      sessionId,
+      assets.filter((a) => a.adopted),
+    );
     router.push(`/assets/${sessionId}/verify${backSuffix}`);
   }
 
@@ -210,7 +187,9 @@ export function AssetWorkspaceBody({
 
         {/* 프로젝트 선택 */}
         <div className="flex flex-col gap-2">
-          <FieldLabel>프로젝트 선택</FieldLabel>
+          <FieldLabel>
+            프로젝트 선택 <span className="text-destructive">*</span>
+          </FieldLabel>
           <button
             type="button"
             onClick={() => setProjectPickerOpen(true)}
@@ -298,9 +277,21 @@ export function AssetWorkspaceBody({
           </div>
         </div>
 
-        <Button className="h-11 w-full" onClick={generate}>
-          에셋 생성
-        </Button>
+        {/* 프로젝트를 선택해야 생성 가능 */}
+        <div className="flex flex-col gap-2">
+          <Button
+            className="h-11 w-full"
+            onClick={generate}
+            disabled={!selectedProject}
+          >
+            에셋 생성
+          </Button>
+          {!selectedProject && (
+            <span className="text-center text-xs text-muted-foreground">
+              프로젝트를 선택하면 생성할 수 있어요
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 우: 생성 결과 */}
@@ -419,31 +410,7 @@ export function AssetWorkspaceBody({
       </Dialog>
 
       {/* 전체화면 라이트박스 */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6"
-          onClick={() => setLightbox(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="닫기"
-            className="absolute top-5 right-5 flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <X className="size-6" />
-          </button>
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-              "w-[min(90vw,720px)] max-h-[85vh] overflow-hidden rounded-xl shadow-2xl",
-              lightbox.aspectClass,
-              lightbox.gradient,
-            )}
-          />
-        </div>
-      )}
+      <ImageLightbox asset={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }

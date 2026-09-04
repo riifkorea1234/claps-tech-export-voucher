@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import type { GeneratedAsset } from "@/components/domain/asset-result-card";
+import { getStageAssets, setStageAssets } from "@/lib/session-assets-store";
 import { findSession } from "@/lib/mock/assets";
 import {
   verdictOf,
@@ -69,26 +70,13 @@ export default function VerifyPage() {
 
   // 이전 화면에서 채택한 에셋을 세션에서 불러옴
   useEffect(() => {
-    let adopted: GeneratedAsset[] = [];
-    try {
-      const raw = sessionStorage.getItem(`claps:verify:${id}`);
-      if (raw) adopted = JSON.parse(raw);
-    } catch {
-      adopted = [];
-    }
+    const adopted = getStageAssets("verify", id);
     setItems(adopted);
     // 2단계 진입 시 첫 항목(에셋 1)에 포커스
     setSelectedId(adopted[0]?.id ?? null);
 
     // 이전에 '최종본에 추가'했던 항목 복원
-    let finalList: GeneratedAsset[] = [];
-    try {
-      const rawF = sessionStorage.getItem(`claps:final:${id}`);
-      if (rawF) finalList = JSON.parse(rawF);
-    } catch {
-      finalList = [];
-    }
-    setFinalIds(new Set(finalList.map((a) => a.id)));
+    setFinalIds(new Set(getStageAssets("final", id).map((a) => a.id)));
 
     setLoaded(true);
   }, [id]);
@@ -96,12 +84,11 @@ export default function VerifyPage() {
   // 최종본 추가/취소 변경 시 세션에 계속 동기화 (다른 단계 갔다와도 유지)
   useEffect(() => {
     if (!loaded) return;
-    try {
-      const finalAssets = items.filter((a) => finalIds.has(a.id));
-      sessionStorage.setItem(`claps:final:${id}`, JSON.stringify(finalAssets));
-    } catch {
-      // 무시
-    }
+    setStageAssets(
+      "final",
+      id,
+      items.filter((a) => finalIds.has(a.id)),
+    );
   }, [finalIds, items, loaded, id]);
 
   const passCount = items.filter((a) => verdictOf(a.score) === "통과").length;
@@ -132,12 +119,11 @@ export default function VerifyPage() {
 
   // 최종본에 담은 에셋을 세션에 저장하고 최종본 화면으로 이동
   function goFinal() {
-    const finalAssets = items.filter((a) => finalIds.has(a.id));
-    try {
-      sessionStorage.setItem(`claps:final:${id}`, JSON.stringify(finalAssets));
-    } catch {
-      // sessionStorage 사용 불가 시 무시
-    }
+    setStageAssets(
+      "final",
+      id,
+      items.filter((a) => finalIds.has(a.id)),
+    );
     router.push(`/assets/${id}/final${backSuffix}`);
   }
 
