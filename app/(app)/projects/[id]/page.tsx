@@ -243,7 +243,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* 상단 프로젝트 요약 (다크 배너 · 프로젝트 홈 컨셉) */}
-      <section className="relative flex flex-col gap-5 overflow-hidden rounded-[14px] bg-[#282828] p-6">
+      <section className="relative flex flex-col gap-5 overflow-hidden rounded-[14px] bg-banner p-6">
         <Image src="/kpi-banner-bg.png" alt="" fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black to-black/30" />
         {/* 배너 전체 흰색 dimmer (살짝 밝게) */}

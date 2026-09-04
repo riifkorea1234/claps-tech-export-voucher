@@ -74,9 +74,9 @@ export function AssetResultCard({
               <button
                 type="button"
                 onClick={(e) => e.stopPropagation()}
-                className="pointer-events-none flex min-w-0 items-center gap-1.5 rounded-full bg-[#171717] px-2.5 py-1 text-sm whitespace-nowrap text-white outline-none group-hover:pointer-events-auto"
+                className="pointer-events-none flex min-w-0 items-center gap-1.5 rounded-full bg-foreground px-2.5 py-1 text-sm whitespace-nowrap text-white outline-none group-hover:pointer-events-auto"
               >
-                <span className="size-2 shrink-0 rounded-full bg-[#1fb21f]" />
+                <span className="size-2 shrink-0 rounded-full bg-success" />
                 가이드 통과
               </button>
             </TooltipTrigger>
@@ -87,7 +87,7 @@ export function AssetResultCard({
                     key={label}
                     className="flex items-center gap-1.5 whitespace-nowrap"
                   >
-                    <span className="size-1.5 shrink-0 rounded-full bg-[#1fb21f]" />
+                    <span className="size-1.5 shrink-0 rounded-full bg-success" />
                     {label}
                   </span>
                 ))}
@@ -95,7 +95,7 @@ export function AssetResultCard({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-[#1a1a1a]">
+        <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-foreground">
           {asset.score}
         </span>
       </div>

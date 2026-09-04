@@ -236,7 +236,7 @@ export function AssetWorkspaceBody({
                 className={cn(
                   "rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
                   style === chip
-                    ? "border-[1.4px] border-brand bg-[#feeff6] text-brand"
+                    ? "border-[1.4px] border-brand bg-brand/10 text-brand"
                     : "border border-border bg-card text-foreground hover:bg-muted/50",
                 )}
               >
