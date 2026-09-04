@@ -27,6 +27,8 @@ import {
   SealCheck,
   Palette,
 } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ScrollRevealText } from "@/components/domain/scroll-reveal-text";
 import { TiltMonitorPreview } from "@/components/domain/tilt-monitor-preview";
 
@@ -200,14 +202,13 @@ const NAV_LINKS = [
   { label: "문의", href: "#contact" },
 ];
 
-
 export default function LandingPage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#F5F5F5] text-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-landing-bg text-landing-ink">
       {/* 상단 공지바 */}
       <Link
         href="/login"
-        className="group relative flex h-9 w-full items-center justify-center overflow-hidden bg-[#0a0a0a] px-6 text-sm text-white"
+        className="group relative flex h-9 w-full items-center justify-center overflow-hidden bg-landing-ink px-6 text-sm text-white"
       >
         {/* 가로 웜 그라데이션 (양끝 검정 → 앰버/피치 → 가운데 핑크) */}
         <span
@@ -266,16 +267,13 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className="rounded-[10px] bg-[#0a0a0a] px-4 py-2 text-sm font-medium text-white transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-            >
+            <LandingButton href="/login" tone="dark" className="px-4 py-2 text-sm">
               시작하기
-            </Link>
+            </LandingButton>
           </div>
         </div>
         <div className="mx-auto w-full max-w-[1200px] px-8">
-          <div className="h-px w-full bg-black/10" />
+          <div className="h-px w-full bg-border" />
         </div>
       </header>
 
@@ -287,7 +285,7 @@ export default function LandingPage() {
             <span className="flex size-6 items-center justify-center rounded-full bg-brand text-white">
               <Sparkles className="size-3.5" />
             </span>
-            <span className="text-[16px] text-[#0a0a0a]/60">
+            <span className="text-[16px] text-landing-ink/60">
               IP-Safe · 라이선스 세이프 AI
             </span>
           </div>
@@ -300,7 +298,7 @@ export default function LandingPage() {
           </h1>
 
           {/* 서브텍스트 */}
-          <p className="mt-7 max-w-lg animate-in fade-in slide-in-from-bottom-2.5 text-[18px] leading-[1.6] text-[#0a0a0a]/60 delay-200 duration-500 ease-out">
+          <p className="mt-7 max-w-lg animate-in fade-in slide-in-from-bottom-2.5 text-[18px] leading-[1.6] text-landing-ink/60 delay-200 duration-500 ease-out">
             파트너 추천부터 이미지 생성, 가이드 검증, IP 모니터링까지
             <br />
             CLAPS에서 관리하세요.
@@ -308,22 +306,16 @@ export default function LandingPage() {
 
           {/* CTA */}
           <div className="mt-9 flex animate-in fade-in slide-in-from-bottom-2.5 flex-wrap items-center justify-center gap-3 delay-300 duration-500 ease-out">
-            <Link
-              href="/login"
-              className="flex items-center gap-2 rounded-[10px] bg-[#0a0a0a] px-5 py-3 text-[15px] font-medium text-white transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-            >
+            <LandingButton href="/login" tone="dark">
               <ArrowUpRight className="size-[18px]" />
               시작하기
-            </Link>
-            <Link
-              href="/login"
-              className="flex items-center gap-2 rounded-[10px] border border-black/10 bg-white px-5 py-3 text-[15px] font-medium shadow-sm transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-            >
+            </LandingButton>
+            <LandingButton href="/login" tone="outline">
               <ArrowUpRight className="size-[18px]" />
               요금 보기
-            </Link>
+            </LandingButton>
           </div>
-          <p className="mt-4 animate-in fade-in text-[13px] text-[#0a0a0a]/40 delay-500 duration-500 ease-out">
+          <p className="mt-4 animate-in fade-in text-[13px] text-landing-ink/40 delay-500 duration-500 ease-out">
             카드 등록 없이 시작하세요
           </p>
         </section>
@@ -332,11 +324,15 @@ export default function LandingPage() {
         <section className="mx-auto w-full max-w-[1200px] px-8 pb-24">
           <div className="relative mx-auto max-w-[860px]">
             {/* 앱 화면 스크린샷 (에셋 생성 · 가이드 검증 2단계) */}
-            <div className="overflow-hidden rounded-2xl border border-black/20 bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.28)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.28)]">
+              <Image
                 src="/landing-verify.png"
                 alt="CLAPS 가이드 검증 화면"
+                width={3350}
+                height={2178}
+                priority
+                quality={100}
+                sizes="(min-width: 768px) 860px, 100vw"
                 className="block h-auto w-full"
               />
             </div>
@@ -384,19 +380,17 @@ export default function LandingPage() {
         </section>
 
         {/* 문제 → 해결 (2단) */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
+        <Section>
           <div className="grid grid-cols-1 gap-8 px-2 md:grid-cols-2 md:gap-16">
             <div>
-              <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                PROBLEM → SOLUTION
-              </span>
+              <Eyebrow>PROBLEM → SOLUTION</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 도구가 흩어지면
                 <br />
                 브랜드 관리가 무너집니다
               </h2>
             </div>
-            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-[#0a0a0a]/55">
+            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
               파트너 찾기·이미지 생성·가이드 검증·무단 사용 감시를 따로 관리할
               필요 없어요.
               <br />
@@ -405,7 +399,7 @@ export default function LandingPage() {
           </div>
 
           {/* 다크 통합 허브 카드 */}
-          <div className="relative mt-10 overflow-hidden rounded-3xl bg-[#0a0a0a] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.4)]">
+          <div className="relative mt-10 overflow-hidden rounded-3xl bg-landing-ink shadow-[0_40px_80px_-30px_rgba(0,0,0,0.4)]">
             {/* 별 점 패턴 */}
             <div
               aria-hidden
@@ -461,7 +455,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* 지표 4개 — 브랜드 컬러 아이콘 + 큰 숫자 + 라벨 */}
         <section className="pb-16 md:pb-24">
@@ -472,19 +466,18 @@ export default function LandingPage() {
                 return (
                   <div
                     key={s.v}
-                    className={
-                      "flex flex-col items-center gap-5 text-center md:border-black/10" +
-                      (i > 0 ? " md:border-l" : "")
-                    }
+                    className={cn(
+                      "flex flex-col items-center gap-5 text-center md:border-border",
+                      i > 0 && "md:border-l",
+                    )}
                   >
                     <Icon weight="duotone" className="size-12 text-brand/70" />
                     <div className="flex flex-col gap-1.5">
                       <span className="text-3xl font-bold tracking-[-0.03em] md:text-4xl">
                         {s.k}
                       </span>
-                      <span className="text-sm text-[#0a0a0a]/55">{s.v}</span>
+                      <span className="text-sm text-landing-ink/55">{s.v}</span>
                     </div>
-
                   </div>
                 );
               })}
@@ -493,56 +486,56 @@ export default function LandingPage() {
         </section>
 
         {/* 워크플로우 */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
+        <Section>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
             <div>
-              <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                THE WORKFLOW
-              </span>
+              <Eyebrow>THE WORKFLOW</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 브랜드 이미지 작업을
                 <br />
                 하나의 흐름으로
               </h2>
             </div>
-            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-[#0a0a0a]/55">
+            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
               추천에서 시작해 생성·검증을 거쳐 모니터링까지,
               <br />
               하나의 간단한 흐름으로 이어집니다.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 border-t border-black/10 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 border-t border-border md:grid-cols-3">
             {FLOW.map((f, i) => (
               <div
                 key={f.title}
-                className={
-                  "flex flex-col gap-4 py-8 md:px-8 md:py-10" +
-                  (i > 0 ? " border-t border-black/10 md:border-t-0 md:border-l" : "")
-                }
+                className={cn(
+                  "flex flex-col gap-4 py-8 md:px-8 md:py-10",
+                  i > 0 && "border-t border-border md:border-t-0 md:border-l",
+                )}
               >
                 {/* 미니 미리보기 */}
-                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-black/15 bg-[#f4f4f5]">
+                <div className="group relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
                   {f.img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={f.img}
                       alt={f.title}
-                      className="size-full object-cover"
+                      fill
+                      quality={100}
+                      sizes="(min-width: 768px) 33vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <span className="text-xs text-black/30">미리보기</span>
+                    <span className="text-xs text-landing-ink/30">미리보기</span>
                   )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-lg font-semibold">{f.title}</span>
-                  <span className="text-sm leading-[1.5] whitespace-pre-line text-[#0a0a0a]/55">
+                  <span className="text-sm leading-[1.5] whitespace-pre-line text-landing-ink/55">
                     {f.desc}
                   </span>
                 </div>
                 <Link
                   href="/login"
-                  className="mt-auto flex items-center gap-1 text-sm font-medium text-[#0a0a0a] transition-opacity hover:opacity-60"
+                  className="mt-auto flex items-center gap-1 text-sm font-medium text-landing-ink transition-opacity hover:opacity-60"
                 >
                   {f.link}
                   <ArrowRight className="size-4" />
@@ -550,10 +543,10 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* 기능 스포트라이트 (다크) — 가이드 검증 */}
-        <section className="bg-[#0a0a0a] text-white">
+        <section className="bg-landing-ink text-white">
           <div className="mx-auto w-full max-w-[1200px] px-8 py-20 md:py-28">
             <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16">
               <div>
@@ -565,13 +558,10 @@ export default function LandingPage() {
                   <br />
                   자동으로 검증하세요
                 </h2>
-                <Link
-                  href="/login"
-                  className="mt-8 inline-flex items-center gap-2 rounded-[10px] bg-white px-5 py-3 text-[15px] font-medium text-[#0a0a0a] transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-                >
+                <LandingButton href="/login" tone="light" className="mt-8">
                   <ArrowUpRight className="size-[18px]" />
                   가이드 검증 알아보기
-                </Link>
+                </LandingButton>
               </div>
               <div className="flex flex-col gap-5 self-center">
                 <p className="text-[17px] leading-[1.5] text-white/60">
@@ -596,72 +586,65 @@ export default function LandingPage() {
         </section>
 
         {/* 엔진 — 기능 4개 그리드 */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
-          <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-            THE ENGINE
-          </span>
+        <Section id="features">
+          <Eyebrow>THE ENGINE</Eyebrow>
           <h2 className="mt-4 max-w-2xl text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[48px]">
             브랜드 이미지를 다루는 데
             <br />
             필요한 모든 것
           </h2>
-          <p className="mt-5 text-[17px] text-[#0a0a0a]/55">
+          <p className="mt-5 text-[17px] text-landing-ink/55">
             도구를 이어붙일 필요 없이, 라이선시 실무에 맞춰 설계했습니다.
           </p>
 
-          <div className="mt-12 grid grid-cols-1 border-t border-black/10 sm:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 border-t border-border sm:grid-cols-2">
             {ENGINE.map((f, i) => {
               const Icon = f.icon;
               return (
                 <div
                   key={f.title}
-                  className={
-                    "flex flex-col items-center gap-3 border-black/10 px-6 py-14 text-center" +
-                    (i % 2 === 1 ? " sm:border-l" : "") +
-                    (i >= 2 ? " border-t" : "")
-                  }
+                  className={cn(
+                    "flex flex-col items-center gap-3 border-border px-6 py-14 text-center",
+                    i % 2 === 1 && "sm:border-l",
+                    i >= 2 && "border-t",
+                  )}
                 >
                   <div className="flex size-16 items-center justify-center rounded-2xl bg-brand/10">
                     <Icon className="size-7 text-brand" />
                   </div>
                   <span className="text-lg font-semibold">{f.title}</span>
-                  <span className="max-w-xs text-sm leading-[1.5] whitespace-pre-line text-[#0a0a0a]/55">
+                  <span className="max-w-xs text-sm leading-[1.5] whitespace-pre-line text-landing-ink/55">
                     {f.desc}
                   </span>
                 </div>
               );
             })}
           </div>
-        </section>
+        </Section>
 
         {/* 인게이지먼트 — 2단 교차 */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
+        <Section>
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <div>
-              <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                BRAND PROTECTION
-              </span>
+              <Eyebrow>BRAND PROTECTION</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
                 세상에 나간 뒤에도
                 <br />
                 브랜드는 계속 지켜집니다
               </h2>
-              <p className="mt-5 max-w-md text-[17px] leading-[1.5] text-[#0a0a0a]/55">
+              <p className="mt-5 max-w-md text-[17px] leading-[1.5] text-landing-ink/55">
                 기준 이미지를 등록하면 웹 전반에서 무단 사용을 탐지해,
                 <br />
                 브랜드가 안전하게 쓰이는지 지켜봅니다.
               </p>
-              <Link
-                href="/login"
-                className="mt-8 inline-flex items-center gap-2 rounded-[10px] bg-[#0a0a0a] px-5 py-3 text-[15px] font-medium text-white transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-              >
+              <LandingButton href="/login" tone="dark" className="mt-8">
                 <ArrowUpRight className="size-[18px]" />
                 모니터링 알아보기
-              </Link>
+              </LandingButton>
             </div>
             <TiltMonitorPreview />
           </div>
-        </section>
+        </Section>
 
         {/* 브랜드 스테이트먼트 (대형 세리프) */}
         <section
@@ -675,26 +658,24 @@ export default function LandingPage() {
           <div className="mx-auto w-full max-w-[1000px] px-8 py-[212px] text-center md:py-[244px]">
             <ScrollRevealText
               text={"라이선스를 지키는 것이,\n브랜드를 지키는 가장 빠른 길입니다."}
-              className="text-[28px] leading-[1.5] font-bold tracking-[-0.01em] text-[#0a0a0a] [font-family:'BookkMyungjo',serif] md:text-[44px]"
+              className="text-[28px] leading-[1.5] font-bold tracking-[-0.01em] text-landing-ink [font-family:'BookkMyungjo',serif] md:text-[44px]"
             />
-            <span className="mt-8 inline-block text-sm font-medium tracking-wide text-[#0a0a0a]/40">
+            <span className="mt-8 inline-block text-sm font-medium tracking-wide text-landing-ink/40">
               CLAPS Studio 2.0
             </span>
           </div>
         </section>
 
         {/* 활용 사례 */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
+        <Section id="usecases">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16">
             <div>
-              <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-                USE CASES
-              </span>
+              <Eyebrow>USE CASES</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
                 이렇게 쓰입니다
               </h2>
             </div>
-            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-[#0a0a0a]/55">
+            <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
               캐릭터 IP 굿즈부터 콜라보 프로모션까지,
               <br />
               브랜드 이미지가 필요한 모든 순간에.
@@ -705,13 +686,15 @@ export default function LandingPage() {
             {USECASES.map((u) => (
               <div
                 key={u.label}
-                className="group relative flex aspect-[3/4] items-end overflow-hidden rounded-2xl bg-zinc-200"
+                className="group relative flex aspect-[3/4] items-end overflow-hidden rounded-2xl bg-muted"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={u.img}
                   alt={u.label}
-                  className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  quality={100}
+                  sizes="(min-width: 640px) 33vw, 100vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="relative flex w-full items-center justify-between p-5">
@@ -723,23 +706,18 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* 요금 */}
-        <section
-          id="pricing"
-          className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24"
-        >
+        <Section id="pricing">
           <div className="max-w-xl">
-            <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
-              PRICING
-            </span>
+            <Eyebrow>PRICING</Eyebrow>
             <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
               작게 시작하고,
               <br />
               필요한 만큼 확장하세요
             </h2>
-            <p className="mt-5 text-[17px] text-[#0a0a0a]/55">
+            <p className="mt-5 text-[17px] text-landing-ink/55">
               요금 정책은 준비 중입니다. 도입을 검토 중이시면 문의를 남겨주세요.
             </p>
           </div>
@@ -748,22 +726,20 @@ export default function LandingPage() {
             {PLANS.map((p) => (
               <div
                 key={p.name}
-                className={
-                  "flex flex-col gap-6 rounded-2xl border border-black/10 bg-white p-8 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-[#0a0a0a] hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)]" +
-                  (p.highlight
-                    ? " shadow-[0_30px_60px_-30px_rgba(0,0,0,0.3)]"
-                    : "")
-                }
+                className={cn(
+                  "flex flex-col gap-6 rounded-2xl border border-border bg-white p-8 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-landing-ink hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)]",
+                  p.highlight && "shadow-[0_30px_60px_-30px_rgba(0,0,0,0.3)]",
+                )}
               >
                 <div className="flex flex-col gap-2">
                   <span className="text-xl font-bold">{p.name}</span>
-                  <span className="text-sm text-[#0a0a0a]/55">{p.note}</span>
+                  <span className="text-sm text-landing-ink/55">{p.note}</span>
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold">문의</span>
-                  <span className="text-sm text-[#0a0a0a]/50">/ 맞춤 견적</span>
+                  <span className="text-sm text-landing-ink/50">/ 맞춤 견적</span>
                 </div>
-                <div className="h-px w-full bg-black/10" />
+                <div className="h-px w-full bg-border" />
                 <ul className="flex flex-col gap-3">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm">
@@ -772,51 +748,47 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
+                <LandingButton
                   href="/login"
-                  className={
-                    "mt-auto flex items-center justify-center gap-2 rounded-[10px] px-5 py-3 text-[15px] font-medium transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px" +
-                    (p.highlight
-                      ? " bg-[#0a0a0a] text-white"
-                      : " border border-black/10 bg-white")
-                  }
+                  tone={p.highlight ? "dark" : "outline"}
+                  className="mt-auto w-full justify-center"
                 >
                   <ArrowUpRight className="size-[18px]" />
                   문의하기
-                </Link>
+                </LandingButton>
               </div>
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* FAQ */}
-        <section className="mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24">
+        <Section>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[320px_1fr] md:gap-16">
             <div>
               <h2 className="text-2xl font-bold tracking-[-0.01em]">자주 묻는 질문</h2>
             </div>
-            <div className="border-t border-black/10">
+            <div className="border-t border-border">
               {FAQS.map((f) => (
                 <details
                   key={f.q}
-                  className="group border-b border-black/10 py-5"
+                  className="group border-b border-border py-5"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-medium [&::-webkit-details-marker]:hidden">
                     {f.q}
-                    <ChevronDown className="size-5 shrink-0 text-[#0a0a0a]/40 transition-transform duration-200 group-open:rotate-180" />
+                    <ChevronDown className="size-5 shrink-0 text-landing-ink/40 transition-transform duration-200 group-open:rotate-180" />
                   </summary>
-                  <p className="mt-3 max-w-2xl text-[15px] leading-[1.6] text-[#0a0a0a]/55">
+                  <p className="mt-3 max-w-2xl text-[15px] leading-[1.6] text-landing-ink/55">
                     {f.a}
                   </p>
                 </details>
               ))}
             </div>
           </div>
-        </section>
+        </Section>
       </main>
 
       {/* 다크 푸터 */}
-      <footer className="relative overflow-hidden bg-[#0a0a0a] text-white">
+      <footer className="relative overflow-hidden bg-landing-ink text-white">
         {/* 좌하단 웜 글로우 */}
         <div
           aria-hidden
@@ -828,7 +800,10 @@ export default function LandingPage() {
         />
         <div className="relative mx-auto w-full max-w-[1200px] px-8">
           {/* 마무리 CTA */}
-          <div className="flex flex-col items-start justify-between gap-6 border-b border-white/10 py-14 md:flex-row md:items-center">
+          <div
+            id="contact"
+            className="flex flex-col items-start justify-between gap-6 border-b border-white/10 py-14 md:flex-row md:items-center"
+          >
             <div>
               <h2 className="text-2xl font-bold tracking-[-0.01em] md:text-[28px]">
                 라이선스를 지키며, 브랜드 이미지를 완성하세요
@@ -837,12 +812,9 @@ export default function LandingPage() {
                 생성부터 검증·모니터링까지, 도구를 이어붙이지 않고 한 곳에서.
               </p>
             </div>
-            <Link
-              href="/login"
-              className="shrink-0 rounded-[10px] bg-white px-5 py-3 text-[15px] font-medium text-[#0a0a0a] transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px active:translate-y-px"
-            >
+            <LandingButton href="/login" tone="light" className="shrink-0">
               무료로 시작하기
-            </Link>
+            </LandingButton>
           </div>
 
           {/* 링크 컬럼 */}
@@ -903,6 +875,70 @@ export default function LandingPage() {
   );
 }
 
+// 섹션 그라데이션 라벨 (반복되던 eyebrow 통일)
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="bg-gradient-to-r from-brand to-orange-400 bg-clip-text text-sm font-semibold tracking-wide text-transparent">
+      {children}
+    </span>
+  );
+}
+
+// 표준 콘텐츠 섹션 래퍼 (max-w·좌우 여백·상하 여백 통일)
+function Section({
+  id,
+  className,
+  children,
+}: {
+  id?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      id={id}
+      className={cn(
+        "mx-auto w-full max-w-[1200px] px-8 py-16 md:py-24",
+        className,
+      )}
+    >
+      {children}
+    </section>
+  );
+}
+
+// 랜딩 CTA 버튼 (shadcn Button 기반 · tone으로 3종 통일)
+function LandingButton({
+  href,
+  tone = "dark",
+  className,
+  children,
+}: {
+  href: string;
+  tone?: "dark" | "light" | "outline";
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const tones = {
+    dark: "bg-landing-ink text-white hover:bg-landing-ink",
+    light: "bg-white text-landing-ink shadow-sm hover:bg-white",
+    outline:
+      "border border-border bg-white text-landing-ink shadow-sm hover:bg-white",
+  };
+  return (
+    <Button
+      asChild
+      className={cn(
+        "h-auto gap-2 rounded-[10px] px-5 py-3 text-[15px] font-medium transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px",
+        tones[tone],
+        className,
+      )}
+    >
+      <Link href={href}>{children}</Link>
+    </Button>
+  );
+}
+
 // 미리보기 주위 플로팅 기능 배지
 function FloatBadge({
   icon: Icon,
@@ -930,7 +966,7 @@ function FloatBadge({
       >
         {/* 안쪽 알약: 뿅 등장 애니메이션 (스케일) */}
         <div
-          className="flex items-center gap-2 rounded-full border border-black/20 bg-white py-[6px] pl-2 pr-4 opacity-0 shadow-[0_12px_32px_-10px_rgba(0,0,0,0.28)]"
+          className="flex items-center gap-2 rounded-full border border-border bg-white py-[6px] pl-2 pr-4 opacity-0 shadow-[0_12px_32px_-10px_rgba(0,0,0,0.28)]"
           style={{
             animation: "badge-pop 0.45s cubic-bezier(0.22,1,0.36,1) both",
             animationDelay: `${popDelay}ms`,
@@ -939,7 +975,7 @@ function FloatBadge({
           <span className="flex size-6 items-center justify-center rounded-full bg-brand text-white">
             <Icon weight="fill" className="size-3.5" />
           </span>
-          <span className="text-[13px] font-medium whitespace-nowrap text-[#0a0a0a]">
+          <span className="text-[13px] font-medium whitespace-nowrap text-landing-ink">
             {label}
           </span>
         </div>

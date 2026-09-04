@@ -50,13 +50,6 @@
   }
 }
 
-/* 통합 허브 연결선 흐름 */
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -24;
-  }
-}
-
 /* 통합 허브: 선을 따라 흐르는 점 (dasharray "3 180" 기준 한 주기) */
 @keyframes hub-line-dot {
   to {
@@ -132,6 +125,10 @@
   /* 브랜드 (액센트 전용) */
   --brand: #ca0060;
   --brand-foreground: #ffffff;
+
+  /* 랜딩 페이지 전용 (마케팅 톤 — 서비스 화면 zinc과 살짝 다른 진한 먹색/밝은 배경) */
+  --landing-ink: #0a0a0a;   /* 랜딩 기본 먹색 (글자·다크 섹션·버튼) */
+  --landing-bg: #f5f5f5;    /* 랜딩 페이지 배경 */
 
   /* 상태색 (배지·판정용) */
   --success: #16a34a;
@@ -223,6 +220,8 @@
 
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-landing-ink: var(--landing-ink);
+  --color-landing-bg: var(--landing-bg);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
