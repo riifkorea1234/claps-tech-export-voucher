@@ -12,6 +12,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 
@@ -111,28 +112,22 @@ export function NewProjectDialog({
         <div className="flex flex-col gap-4">
           {/* 프로젝트 이름 */}
           <Field label="프로젝트 이름" required>
-            <input
+            <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="예: 썸머 캡슐 컬렉션"
-              className={cn(inputBase, "h-10")}
             />
           </Field>
 
           {/* IP · 파트너 */}
           <Field label="IP · 파트너" required>
-            <input
+            <Input
               type="text"
               value={undecided ? "" : ip}
               onChange={(e) => setIp(e.target.value)}
               disabled={undecided}
               placeholder="예: 산리오 · 시나모롤"
-              className={cn(
-                inputBase,
-                "h-10",
-                undecided && "cursor-not-allowed opacity-50",
-              )}
             />
             {/* 미정 체크박스 */}
             <button

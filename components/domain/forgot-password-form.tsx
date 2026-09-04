@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // 간단한 이메일 형식 검사
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,13 +72,8 @@ export function ForgotPasswordForm() {
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[22px]">
           {/* 이메일 */}
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
-            >
-              이메일
-            </label>
-            <input
+            <Label htmlFor="email">이메일</Label>
+            <Input
               id="email"
               type="email"
               value={email}
@@ -87,12 +83,7 @@ export function ForgotPasswordForm() {
               }}
               placeholder="you@company.com"
               aria-invalid={error}
-              className={cn(
-                "h-11 w-full rounded-lg border bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:outline-none",
-                error
-                  ? "border-destructive focus:ring-destructive/30"
-                  : "border-input focus:ring-ring/40",
-              )}
+              className="h-11"
             />
             {error && (
               <p className="text-sm text-destructive">

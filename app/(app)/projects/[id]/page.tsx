@@ -41,19 +41,11 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDeleteDialog } from "@/components/domain/confirm-delete-dialog";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { SessionRow } from "@/components/domain/session-row";
-import type { GeneratedAsset } from "@/components/domain/asset-result-card";
+import { getStageAssets } from "@/lib/session-assets-store";
+import { ImageLightbox } from "@/components/domain/image-lightbox";
 import { sampleProjectDetail as project } from "@/lib/mock/project-detail";
 import type { ProjectSession } from "@/lib/mock/project-detail";
 import {
@@ -70,26 +62,6 @@ import {
 } from "@/lib/mock/projects";
 import { resolveProjectCover } from "@/lib/project-cover";
 import { cn } from "@/lib/utils";
-
-// 세션(claps:session:{id})의 생성 이미지 읽기 (생성/채택 수 계산용)
-function readSessionImages(sessionId: string): GeneratedAsset[] {
-  try {
-    const raw = sessionStorage.getItem(`claps:session:${sessionId}`);
-    return raw ? (JSON.parse(raw) as GeneratedAsset[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-// 세션(claps:final:{id})의 최종본 이미지 읽기 (프로젝트 라이브러리 = 최종본)
-function readFinalImages(sessionId: string): GeneratedAsset[] {
-  try {
-    const raw = sessionStorage.getItem(`claps:final:${sessionId}`);
-    return raw ? (JSON.parse(raw) as GeneratedAsset[]) : [];
-  } catch {
-    return [];
-  }
-}
 
 type ProjectHeader = {
   name: string;
@@ -130,15 +102,6 @@ export default function ProjectDetailPage() {
   const [libOpen, setLibOpen] = useState(false);
   // 생성 이미지 전체화면(라이트박스) — 그라디언트 값 보관
   const [lightbox, setLightbox] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox]);
 
   // 커버 변경 + 저장소 반영
   function applyCover(next: ProjectCover) {
@@ -224,17 +187,18 @@ export default function ProjectDetailPage() {
     const finalTiles: { id: string; gradient: string }[] = [];
 
     for (const s of linked) {
-      const imgs = readSessionImages(s.id);
-      const adopted = imgs.filter((a) => a.adopted);
+      const imgs = getStageAssets("generated", s.id);
       // 프로젝트 '생성 이미지' = 각 세션의 최종본(추가/제거 반영)
-      readFinalImages(s.id).forEach((a) =>
+      const finals = getStageAssets("final", s.id);
+      finals.forEach((a) =>
         finalTiles.push({ id: a.id, gradient: a.gradient }),
       );
       mappedSessions.push({
         id: s.id,
         title: s.title,
         generated: imgs.length,
-        adopted: adopted.length,
+        // 최종 장수 = 3단계(최종본)에 올라간 이미지 수
+        adopted: finals.length,
         timeLabel: s.timeLabel,
       });
     }
@@ -644,30 +608,12 @@ export default function ProjectDetailPage() {
       </section>
 
       {/* 전체화면 라이트박스 (생성 이미지) */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6"
-          onClick={() => setLightbox(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="닫기"
-            className="absolute top-5 right-5 flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <X className="size-6" />
-          </button>
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-              "aspect-[272/240] w-[min(90vw,760px)] overflow-hidden rounded-xl shadow-2xl",
-              lightbox,
-            )}
-          />
-        </div>
-      )}
+      <ImageLightbox
+        asset={
+          lightbox ? { gradient: lightbox, aspectClass: "aspect-[272/240]" } : null
+        }
+        onClose={() => setLightbox(null)}
+      />
 
       {/* 라이브러리에서 커버 선택 팝업 */}
       <Dialog open={libOpen} onOpenChange={setLibOpen}>
@@ -766,26 +712,17 @@ export default function ProjectDetailPage() {
       </Dialog>
 
       {/* 삭제 확인 팝업 */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>정말 삭제할까요?</AlertDialogTitle>
-            <AlertDialogDescription>
-              <span className="font-medium text-foreground">{header.name}</span>{" "}
-              프로젝트를 삭제하면 되돌릴 수 없어요.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              삭제
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={confirmDelete}
+        description={
+          <>
+            <span className="font-medium text-foreground">{header.name}</span>{" "}
+            프로젝트를 삭제하면 되돌릴 수 없어요.
+          </>
+        }
+      />
     </div>
   );
 }

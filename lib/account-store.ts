@@ -9,6 +9,16 @@ export type Account = {
   role?: string;
 };
 
+// 업종/직무 선택지 (프로필 설정 · 마이페이지 공용 · 추후 조정)
+export const ROLES = [
+  "브랜드/마케팅",
+  "디자인/크리에이티브",
+  "MD/상품기획",
+  "라이선싱/IP",
+  "대표/경영",
+  "기타",
+];
+
 const ACCOUNTS_KEY = "claps:accounts"; // { [email]: Account }
 const CURRENT_KEY = "claps:current-email"; // string
 
@@ -63,6 +73,22 @@ export function getAccount(): Account | null {
     return readAccounts()[email] ?? null;
   } catch {
     return null;
+  }
+}
+
+// 회원 탈퇴 (계정 정보 삭제 + 세션 해제)
+export function deleteAccount() {
+  if (typeof window === "undefined") return;
+  try {
+    const email = localStorage.getItem(CURRENT_KEY);
+    if (email) {
+      const accounts = readAccounts();
+      delete accounts[email];
+      writeAccounts(accounts);
+    }
+    localStorage.removeItem(CURRENT_KEY);
+  } catch {
+    // 무시
   }
 }
 
