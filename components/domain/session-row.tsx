@@ -57,7 +57,7 @@ export function SessionRow({
         </p>
       }
       subtitle={
-        <p className="truncate text-xs text-muted-foreground">
+        <p className="truncate text-sm text-muted-foreground">
           {sessionSubtitle(session)}
         </p>
       }
