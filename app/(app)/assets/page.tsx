@@ -95,6 +95,7 @@ export default function AssetsPage() {
       id,
       title: "제목 없음",
       timeLabel: "방금",
+      createdAt: Date.now(),
     };
     const todayIdx = groups.findIndex((g) => g.label === "오늘");
     const next =

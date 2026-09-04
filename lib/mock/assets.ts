@@ -3,7 +3,8 @@
 export interface AssetSession {
   id: string;
   title: string; // 자동 생성 제목
-  timeLabel: string; // "2시간 전" (임시 표기 · 나중에 실제 시각)
+  timeLabel: string; // 예전 데이터 호환용 표기 (createdAt 없을 때만 사용)
+  createdAt?: number; // 생성 시각 (ms) — 이 값이 있으면 상대시간으로 계산
   projectId?: string; // 소속 프로젝트 (생성 설정에서 프로젝트 선택 시 연결)
   thumbnailUrl?: string;
 }

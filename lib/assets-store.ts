@@ -57,6 +57,7 @@ export function setSessionProject(
       id,
       title: fallbackTitle,
       timeLabel: "방금",
+      createdAt: Date.now(),
       projectId,
     };
     const todayIdx = next.findIndex((g) => g.label === "오늘");
