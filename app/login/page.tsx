@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoginEmailForm } from "@/components/domain/login-email-form";
 
 // 로그인 페이지 — 센터 정렬. 실제 인증 연동 전: 버튼은 앱(/projects)으로 이동.
 
@@ -103,27 +104,12 @@ export default function LoginPage() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        {/* 이메일 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">
-            이메일
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="you@company.com"
-            className="h-11 w-full rounded-lg border border-input bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
-          />
-        </div>
-
-        {/* 계속 */}
-        <Button asChild className="h-11 w-full rounded-lg text-sm font-medium">
-          <Link href="/projects">계속</Link>
-        </Button>
+        {/* 이메일 + 계속 (동작 부품) */}
+        <LoginEmailForm />
 
         {/* 비밀번호 찾기 */}
         <Link
-          href="#"
+          href="/forgot-password"
           className="text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           비밀번호를 잊으셨나요?
