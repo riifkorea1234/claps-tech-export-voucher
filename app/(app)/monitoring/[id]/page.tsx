@@ -352,16 +352,17 @@ export default function MonitoringDetailPage() {
         <div className="relative flex flex-wrap items-center gap-5">
           {hasBase ? (
             <>
-              <div className="relative h-[100px] w-40 overflow-hidden rounded-[10px]">
+              {/* 세로만 고정, 가로는 원본 비율대로 (너무 넓으면 max-w에서 멈춤) */}
+              <div className="relative h-[100px] overflow-hidden rounded-[10px]">
                 {image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={image}
                     alt="탐지 기준"
-                    className="size-full object-cover"
+                    className="h-full w-auto max-w-[280px] object-contain"
                   />
                 ) : (
-                  <div className={cn("size-full", gradient)} />
+                  <div className={cn("h-full w-40", gradient)} />
                 )}
                 {status === "idle" && (
                   <button
@@ -484,79 +485,74 @@ export default function MonitoringDetailPage() {
             </div>
           </EmptyBox>
         ) : status === "scanning" ? (
-          // 탐지 로딩 화면 (상태 텍스트 + 진행바 + 단계)
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-7 rounded-[14px] border border-dashed border-border px-6 py-10">
-            <div className="flex flex-col items-center gap-3 text-center">
+          // 탐지 로딩 화면 (기준 이미지 스캔 연출 + 현재 단계 한 줄 + 진행바)
+          <div className="flex min-h-[300px] flex-col items-center justify-center gap-8 rounded-[14px] border border-border bg-card px-6 py-12">
+            {/* 스캔 중인 기준 이미지 (세로만 고정, 가로는 원본 비율대로) */}
+            <div className="relative h-[164px] overflow-hidden rounded-xl border border-border">
+              {image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={image}
+                  alt=""
+                  className="h-full w-auto max-w-[380px] object-contain"
+                />
+              ) : (
+                <div className={cn("h-full w-[260px]", gradient)} />
+              )}
+
+              {/* 스캔 중에는 살짝 어둡게 깔아서 빛줄이 도드라지게 */}
               <div
                 className={cn(
-                  "flex size-14 items-center justify-center rounded-full transition-colors",
-                  scanDone ? "bg-green-100" : "bg-brand/10",
+                  "absolute inset-0 bg-banner/45 transition-opacity duration-500",
+                  scanDone && "opacity-0",
                 )}
-              >
-                {scanDone ? (
-                  <Check
-                    className="size-6 text-green-600 animate-in zoom-in-50 fade-in duration-500 ease-out"
-                    strokeWidth={2.5}
-                  />
-                ) : (
-                  <Loader2 className="size-6 animate-spin text-brand" />
-                )}
-              </div>
-              <p className="text-base font-semibold text-foreground">
-                {scanDone ? "탐지 완료" : "무단 사용을 탐지하고 있어요"}
-              </p>
+              />
+
+              {/* 위에서 아래로 훑고 지나가는 빛줄 */}
+              {!scanDone && (
+                <div className="pointer-events-none absolute inset-x-0 h-[45%] animate-[scan-sweep_1.9s_ease-in-out_infinite] motion-reduce:hidden">
+                  <div className="size-full bg-gradient-to-b from-transparent to-brand/35" />
+                  <div className="h-0.5 w-full bg-brand" />
+                </div>
+              )}
+
+              {/* 완료 순간 체크 */}
+              {scanDone && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-success text-white shadow-lg animate-in zoom-in-50 fade-in duration-500 ease-out">
+                    <Check className="size-6" strokeWidth={2.5} />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* 진행바 (막대만) */}
-            <div className="w-full max-w-sm">
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+            {/* 현재 단계 + 진행바 */}
+            <div className="flex w-full max-w-sm flex-col gap-2.5">
+              <div className="flex items-baseline justify-between gap-3">
+                {/* key를 바꿔서 단계가 넘어갈 때마다 부드럽게 교체 */}
+                <p
+                  key={scanDone ? "done" : scanStep}
+                  className="text-sm font-medium text-foreground animate-in fade-in slide-in-from-bottom-1 duration-300"
+                >
+                  {scanDone
+                    ? "탐지 완료"
+                    : (SCAN_STEPS[scanStep]?.label ?? "결과 취합 중")}
+                </p>
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                  {Math.min(scanStep + 1, SCAN_STEPS.length)} /{" "}
+                  {SCAN_STEPS.length}
+                </span>
+              </div>
+              <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#6B0096] to-brand transition-[width] duration-500 ease-out"
+                  className={cn(
+                    "h-full rounded-full transition-[width,background-color] duration-500 ease-out",
+                    scanDone ? "bg-success" : "bg-brand",
+                  )}
                   style={{ width: `${scanProgress}%` }}
                 />
               </div>
             </div>
-
-            {/* 단계 표시 */}
-            <ol className="flex w-full max-w-sm flex-col gap-2.5 px-4">
-              {SCAN_STEPS.map((step, i) => {
-                const state =
-                  i < scanStep ? "done" : i === scanStep ? "active" : "pending";
-                return (
-                  <li
-                    key={step.label}
-                    className="flex items-center gap-2.5 text-sm"
-                  >
-                    <span
-                      className={cn(
-                        "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
-                        state === "done"
-                          ? "border-brand bg-brand text-white"
-                          : state === "active"
-                            ? "border-brand text-brand"
-                            : "border-border text-transparent",
-                      )}
-                    >
-                      {state === "done" ? (
-                        <Check className="size-3" strokeWidth={3} />
-                      ) : state === "active" ? (
-                        <span className="size-1.5 animate-pulse rounded-full bg-brand" />
-                      ) : null}
-                    </span>
-                    <span
-                      className={cn(
-                        state === "pending"
-                          ? "text-muted-foreground"
-                          : "text-foreground",
-                        state === "active" && "font-medium",
-                      )}
-                    >
-                      {step.label}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
           </div>
         ) : status === "empty" ? (
           <EmptyBox>

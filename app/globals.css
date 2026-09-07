@@ -78,6 +78,16 @@
   }
 }
 
+/* 모니터링 탐지 중: 기준 이미지 위를 위에서 아래로 훑는 빛줄 */
+@keyframes scan-sweep {
+  0% {
+    top: -45%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
 /* 랜딩 상단 공지바 그라데이션 은은한 이동 */
 @keyframes announce-shimmer {
   0%,
