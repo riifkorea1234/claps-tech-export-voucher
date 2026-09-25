@@ -14,14 +14,14 @@ import { LOCALES, LOCALE_LABEL, useLocale, isLocale } from "@/lib/i18n";
 // 헤더의 언어 버튼 — 피그마의 기존 버튼 자리를 그대로 쓴다.
 // 주소(URL)는 바뀌지 않고, 선택은 브라우저에 기억된다.
 export function LocaleSwitcher() {
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, t } = useLocale();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-lg">
           <Globe className="size-4" />
-          언어
+          {t("nav.language")}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ProfileFields } from "./profile-fields";
 import { upsertAccount } from "@/lib/account-store";
+import { useLocale } from "@/lib/i18n";
 
 // 프로필 설정 폼 (제목 + 입력 + 동작)
 // - 이름·조직명이 채워지면 '시작하기' 활성화
 // - 저장(계정에 반영) 후 /projects로 이동
 export function ProfileSetupForm({ email }: { email: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [org, setOrg] = useState("");
   const [role, setRole] = useState("");
@@ -34,14 +36,14 @@ export function ProfileSetupForm({ email }: { email: string }) {
       {/* 마지막 단계 배지 + 제목 */}
       <div className="flex flex-col items-start gap-3">
         <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-          마지막 단계
+          {t("profile.lastStep")}
         </span>
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold tracking-[-0.6px] text-foreground">
-            프로필 설정
+            {t("profile.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            거의 다 됐어요. 기본 정보를 입력하면 시작합니다.
+            {t("profile.desc")}
           </p>
         </div>
       </div>
@@ -62,7 +64,7 @@ export function ProfileSetupForm({ email }: { email: string }) {
         disabled={!canSubmit}
         className="h-11 w-full rounded-lg text-sm font-medium"
       >
-        시작하기
+        {t("profile.submit")}
       </Button>
     </form>
   );

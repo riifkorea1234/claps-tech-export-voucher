@@ -16,11 +16,13 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { NAV } from "@/lib/nav";
+import { useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLocale();
   const [account, setAccount] = useState<Account | null>(null);
   const [myPageOpen, setMyPageOpen] = useState(false);
 
@@ -29,8 +31,8 @@ export function AppSidebar() {
     setAccount(getAccount());
   }, []);
 
-  const displayName = account?.name || "라이선시 담당자";
-  const displayOrg = account?.org || account?.email || "회사명";
+  const displayName = account?.name || t("account.fallbackName");
+  const displayOrg = account?.org || account?.email || t("account.fallbackOrg");
 
   function handleLogout() {
     clearCurrent();
@@ -73,7 +75,7 @@ export function AppSidebar() {
               )}
             >
               <Icon className="size-4 shrink-0" />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -117,12 +119,12 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setMyPageOpen(true)}>
               <UserRound className="size-4" />
-              마이페이지
+              {t("account.myPage")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
               <LogOut className="size-4" />
-              로그아웃
+              {t("account.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

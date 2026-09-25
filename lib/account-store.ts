@@ -9,15 +9,19 @@ export type Account = {
   role?: string;
 };
 
-// 업종/직무 선택지 (프로필 설정 · 마이페이지 공용 · 추후 조정)
+// 업종/직무 선택지 (프로필 설정 · 마이페이지 공용)
+// 저장에는 아래 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 role.* 에서 가져온다.
+// 언어를 바꿔도 저장된 값은 그대로 유지된다.
 export const ROLES = [
-  "브랜드/마케팅",
-  "디자인/크리에이티브",
-  "MD/상품기획",
-  "라이선싱/IP",
-  "대표/경영",
-  "기타",
-];
+  "brandMarketing",
+  "designCreative",
+  "merchandising",
+  "licensingIp",
+  "executive",
+  "other",
+] as const;
+
+export type Role = (typeof ROLES)[number];
 
 const ACCOUNTS_KEY = "claps:accounts"; // { [email]: Account }
 const CURRENT_KEY = "claps:current-email"; // string
