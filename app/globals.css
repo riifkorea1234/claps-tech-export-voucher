@@ -212,6 +212,91 @@
   --sidebar-ring: #52525b;
 }
 
+/* ============================================================
+   로케일 토큰 — ko · en · ja
+   기준: md/클랩스_로케일_토큰정의서.md (2026.09.22 측정)
+   ko = 현행 측정값 그대로. 한국어 화면은 이 블록으로 바뀌지 않는다.
+   적용: <html data-locale="ko|en|ja">  (lib/i18n/index.tsx)
+
+   Tailwind v4 유틸리티는 전부 CSS 변수를 참조하므로
+   (.text-sm → var(--text-sm)), 변수만 다시 정의하면
+   화면 파일을 고치지 않고도 크기·행간·굵기가 전환된다.
+   ============================================================ */
+
+:root {
+  /* 서체 — 로케일별 스택 */
+  --font-locale: "Pretendard Variable", "Pretendard", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* 밀도 — 현행 측정값 (ko · en 공용) */
+  --pad-page-x: 2rem;      /* 32px  화면 좌우 여백 */
+  --pad-page-y: 1.75rem;   /* 28px  화면 상하 여백 */
+  --pad-card: 1.5rem;      /* 24px  카드 안쪽 여백 */
+  --pad-cell: 0.5rem;      /* 8px   표 셀 여백 */
+  --gap-section: 1.25rem;  /* 20px  섹션 간격 */
+  --row-head-h: 2.5rem;    /* 40px  표 머리행 높이 */
+  --row-thumb: 2.25rem;    /* 36px  목록 썸네일 */
+  --row-card-h: 6rem;      /* 96px  세션 카드 행 높이 */
+  --factor-label-w: 3.75rem; /* 60px 근거 막대 라벨 칸 */
+  --measure-body: none;    /*       본문 문단 최대 폭 */
+}
+
+/* ── 미국 ─────────────────────────────────────────────────
+   측정 결과 현행이 미국 기준과 거의 일치.
+   실제로 바뀌는 것은 본문 행간(143% → 150%)과 서체(Inter)뿐. */
+:root[data-locale="en"] {
+  --font-locale: var(--font-inter), "Pretendard Variable", ui-sans-serif,
+    system-ui, sans-serif;
+
+  --text-sm--line-height: calc(21 / 14);   /* 143% → 150% */
+}
+
+/* ── 일본 ─────────────────────────────────────────────────
+   글자는 키우고 행간·여백은 좁힌다. 일본 업무 소프트웨어의 밀도 규범. */
+:root[data-locale="ja"] {
+  --font-locale: var(--font-noto-jp), "Pretendard Variable", ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* 글자 크기 / 행간 — 디지털청 기준 (본문 16px 이상 · 14px 미만 불허) */
+  --text-xs: 0.875rem;                     /* 12 → 14px  캡션 */
+  --text-xs--line-height: calc(18 / 14);
+  --text-sm: 1rem;                         /* 14 → 16px  본문 */
+  --text-sm--line-height: calc(20 / 16);
+  --text-base: 1.125rem;                   /* 16 → 18px  강조 본문 */
+  --text-base--line-height: calc(23 / 18);
+  --text-lg: 1.25rem;                      /* 18 → 20px  카드 제목 */
+  --text-lg--line-height: calc(25 / 20);
+  --text-xl: 1.375rem;                     /* 20 → 22px  섹션 제목 */
+  --text-xl--line-height: calc(28 / 22);
+  --text-2xl: 1.625rem;                    /* 24 → 26px  페이지 제목 */
+  --text-2xl--line-height: calc(33 / 26);
+  --text-3xl: 2rem;                        /* 30 → 32px */
+  --text-3xl--line-height: calc(40 / 32);
+
+  /* 굵기 2단 — 한자는 인접 굵기 간 차이가 식별되지 않음
+     medium(500) → 400 은 기본 매핑. 강조로 남겨야 할 자리는 작업 3에서 화면별 판정. */
+  --font-weight-medium: 400;
+  --font-weight-semibold: 700;
+
+  /* 자간 — 제목의 음수 자간은 한자 판독을 해치므로 해제 (본문 +0.02em 은 base 레이어) */
+  --tracking-tighter: 0em;
+  --tracking-tight: 0em;
+
+  /* 밀도 */
+  --pad-page-x: 1.5rem;    /* 32 → 24px */
+  --pad-page-y: 1.25rem;   /* 28 → 20px */
+  --pad-card: 1rem;        /* 24 → 16px */
+  --pad-cell: 0.25rem;     /* 8  → 4px  */
+  --gap-section: 1rem;     /* 20 → 16px */
+  --row-head-h: 2.25rem;   /* 40 → 36px */
+  --row-thumb: 2rem;       /* 36 → 32px */
+  --row-card-h: 5rem;      /* 96 → 80px */
+  --factor-label-w: 5.5rem; /* 60 → 88px. 글자가 커져 라벨이 줄바꿈되던 것을 막는다.
+                               작업 3에서 실제 일본어 문구가 들어오면 다시 맞출 값. */
+  --measure-body: 40em;    /* 전각 40자 */
+}
+
+
 @theme inline {
   /* 폰트 — Pretendard (한글 최적화) */
   --font-sans: "Pretendard Variable", "Pretendard", ui-sans-serif, system-ui,
@@ -278,7 +363,12 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-locale);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* 일본어 본문 자간 0.02em — 한자·가나 판독 조건 (tracking-* 유틸이 있는 곳은 그쪽이 우선) */
+  :root[data-locale="ja"] body {
+    letter-spacing: 0.02em;
   }
 }

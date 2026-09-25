@@ -327,7 +327,7 @@ export default function MonitoringDetailPage() {
   const resultCount = status === "results" ? results.length : 0;
 
   return (
-    <div className="flex flex-col gap-6 px-8 py-7">
+    <div className="flex flex-col gap-6 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       <Link
         href="/monitoring"
         className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

@@ -120,7 +120,7 @@ export default function AssetsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-7">
+    <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       {/* 목록 헤더 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">

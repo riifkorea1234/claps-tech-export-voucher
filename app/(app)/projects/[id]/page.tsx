@@ -226,7 +226,7 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 px-8 py-7">
+    <div className="flex flex-col gap-6 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       {/* 서브 헤더: 목록 + 프로젝트 이름 */}
       <div className="flex items-center gap-3 text-sm">
         <Link
@@ -243,7 +243,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* 상단 프로젝트 요약 (다크 배너 · 프로젝트 홈 컨셉) */}
-      <section className="relative flex flex-col gap-5 overflow-hidden rounded-[14px] bg-banner p-6">
+      <section className="relative flex flex-col gap-5 overflow-hidden rounded-[14px] bg-banner p-[var(--pad-card)]">
         <Image src="/kpi-banner-bg.png" alt="" fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black to-black/30" />
         {/* 배너 전체 흰색 dimmer (살짝 밝게) */}

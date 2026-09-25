@@ -76,7 +76,7 @@ export default function FinalPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-7">
+    <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       <WorkspaceTopBar
         title={title}
         activeStep={3}

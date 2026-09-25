@@ -32,7 +32,7 @@ export function SessionRowShell({
       onKeyDown={(e) => {
         if (e.key === "Enter") onOpen?.();
       }}
-      className="flex h-[96px] cursor-pointer items-center gap-3.5 rounded-xl border border-border bg-card p-3.5 transition-colors hover:bg-muted/40"
+      className="flex h-[var(--row-card-h)] cursor-pointer items-center gap-3.5 rounded-xl border border-border bg-card p-3.5 transition-colors hover:bg-muted/40"
     >
       <CoverThumb cover={cover} className="h-[68px] w-[92px] shrink-0 rounded-lg" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">

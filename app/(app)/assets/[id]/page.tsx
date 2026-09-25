@@ -14,7 +14,7 @@ export default async function AssetWorkspacePage({
   const title = titleParam ?? findSession(id)?.title ?? "제목 없음";
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-7">
+    <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       <WorkspaceTopBar
         title={title}
         activeStep={1}
@@ -23,7 +23,7 @@ export default async function AssetWorkspacePage({
         fromLabel={fromLabel}
       />
 
-      <div className="rounded-[14px] border border-border bg-card p-6">
+      <div className="rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
         <AssetWorkspaceBody key={id} sessionId={id} title={title} />
       </div>
     </div>

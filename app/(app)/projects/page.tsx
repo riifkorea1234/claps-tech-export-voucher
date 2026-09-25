@@ -215,7 +215,7 @@ export default function ProjectsPage() {
       </div>
 
       {/* 프로젝트 목록 카드 */}
-      <section className="rounded-[14px] border border-border bg-card p-6">
+      <section className="rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
         {/* 카드 헤더 — 좁으면 세로로 쌓임 */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-2">

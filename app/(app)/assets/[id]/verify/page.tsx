@@ -128,7 +128,7 @@ export default function VerifyPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-7">
+    <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       <WorkspaceTopBar
         title={title}
         activeStep={2}
@@ -176,7 +176,7 @@ export default function VerifyPage() {
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* 좌: 검수 목록 레일 (채택 이미지) */}
-          <div className="w-full shrink-0 rounded-[14px] border border-border bg-card p-6 lg:w-[280px]">
+          <div className="w-full shrink-0 rounded-[14px] border border-border bg-card p-[var(--pad-card)] lg:w-[280px]">
             <h2 className="text-lg font-semibold text-foreground">검수 목록</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {(
@@ -271,7 +271,7 @@ export default function VerifyPage() {
           </div>
 
           {/* 우: 검수 대상 */}
-          <div className="flex min-w-0 flex-1 flex-col gap-6 rounded-[14px] border border-border bg-card p-6">
+          <div className="flex min-w-0 flex-1 flex-col gap-6 rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
             {/* 헤더 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">

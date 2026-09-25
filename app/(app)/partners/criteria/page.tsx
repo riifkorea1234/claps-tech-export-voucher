@@ -62,7 +62,7 @@ export default function PartnersCriteriaPage() {
         </div>
 
         {/* 입력 필드 */}
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5 p-[var(--pad-card)]">
           <Field label="IP 참조 이미지">
             <div className="flex flex-wrap gap-2.5">
               <button

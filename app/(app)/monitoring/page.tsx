@@ -108,7 +108,7 @@ export default function MonitoringListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 px-8 py-7">
+    <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       {/* 헤더 (에셋 생성 목록 참고) */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -204,17 +204,17 @@ export default function MonitoringListPage() {
                           <img
                             src={r.imageData}
                             alt=""
-                            className="size-9 shrink-0 overflow-hidden rounded-md object-cover"
+                            className="size-[var(--row-thumb)] shrink-0 overflow-hidden rounded-md object-cover"
                           />
                         ) : r.imageGradient ? (
                           <div
                             className={cn(
-                              "size-9 shrink-0 rounded-md",
+                              "size-[var(--row-thumb)] shrink-0 rounded-md",
                               r.imageGradient,
                             )}
                           />
                         ) : (
-                          <div className="size-9 shrink-0 rounded-md bg-muted" />
+                          <div className="size-[var(--row-thumb)] shrink-0 rounded-md bg-muted" />
                         )}
                         {editingId === r.id ? (
                           <input

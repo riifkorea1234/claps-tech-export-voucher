@@ -203,7 +203,7 @@ export default function PartnersPage() {
       </div>
 
       {/* 1위 추천 히어로 카드 */}
-      <div className="flex flex-col gap-6 rounded-[15px] border border-border bg-card p-6 lg:flex-row">
+      <div className="flex flex-col gap-6 rounded-[15px] border border-border bg-card p-[var(--pad-card)] lg:flex-row">
         <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-[10px] bg-muted lg:h-auto lg:w-[234px] lg:self-stretch">
           <Image
             src={heroPartner.imageUrl}

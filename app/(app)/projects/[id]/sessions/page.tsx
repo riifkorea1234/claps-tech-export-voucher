@@ -40,7 +40,7 @@ export default function ProjectSessionsPage() {
   }, [id]);
 
   return (
-    <div className="flex flex-col gap-6 px-8 py-7">
+    <div className="flex flex-col gap-6 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">
       {/* 서브 헤더: 프로젝트로 돌아가기 + 현재 위치 */}
       <div className="flex items-center gap-3 text-sm">
         <Link

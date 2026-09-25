@@ -1,9 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Globe } from "lucide-react";
 import { getTitle } from "@/lib/nav";
-import { Button } from "@/components/ui/button";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -15,10 +14,7 @@ export function AppHeader() {
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           {getTitle(pathname)}
         </h1>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-lg">
-          <Globe className="size-4" />
-          언어
-        </Button>
+        <LocaleSwitcher />
       </div>
     </header>
   );
