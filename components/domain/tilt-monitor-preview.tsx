@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProductPreview } from "./product-preview";
 import { useRef } from "react";
 
 // 기본 상태: 살짝 기울어진 사다리꼴(원근) 모양
@@ -45,15 +45,7 @@ export function TiltMonitorPreview() {
         style={{ transform: REST_TRANSFORM }}
         className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
       >
-        <Image
-          src="/preview-monitoring.png"
-          alt="CLAPS 모니터링 화면"
-          width={2984}
-          height={1956}
-          quality={100}
-          sizes="(min-width: 768px) 560px, 100vw"
-          className="h-auto w-full"
-        />
+        <ProductPreview kind="monitoring" />
       </div>
     </div>
   );

@@ -1,0 +1,2 @@
+ALTER TABLE "storage_tickets" DROP CONSTRAINT "storage_tickets_target";--> statement-breakpoint
+ALTER TABLE "storage_tickets" ADD CONSTRAINT "storage_tickets_target" CHECK ("storage_tickets"."target_type" IN ('project','asset','job','partner'));

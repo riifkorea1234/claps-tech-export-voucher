@@ -1,17 +1,13 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EllipsisVertical } from "lucide-react";
 import {
   SessionRowShell,
   StageBadge,
-  resolveStage,
-  type Stage,
 } from "./session-row-shell";
-import { resolveSessionCover } from "@/lib/project-cover";
-import type { ProjectCover } from "@/lib/mock/projects";
-import { sessionSubtitle, type ProjectSession } from "@/lib/mock/project-detail";
+import { type ProjectSession } from "@/lib/mock/project-detail";
 
 // 프로젝트 생성 목록 행 — 클릭 시 해당 세션 워크스페이스로 이동
 // 에셋 생성 목록(AssetRow)과 같은 뼈대(SessionRowShell)를 사용해 디자인을 공유한다.
@@ -25,15 +21,8 @@ export function SessionRow({
   backHref?: string;
   backLabel?: string;
 }) {
+  const t = useT();
   const router = useRouter();
-  // 썸네일 · 진행 단계 (마운트 후 로드)
-  const [cover, setCover] = useState<ProjectCover | undefined>(undefined);
-  const [stage, setStage] = useState<Stage>("생성");
-  useEffect(() => {
-    setCover(resolveSessionCover(session.id));
-    setStage(resolveStage(session.id));
-  }, [session.id]);
-
   function go() {
     const base = `/assets/${session.id}`;
     if (!backHref) {
@@ -47,18 +36,23 @@ export function SessionRow({
 
   return (
     <SessionRowShell
-      cover={cover}
+      cover={undefined}
       onOpen={go}
       timeLabel={session.timeLabel}
-      stage={<StageBadge stage={stage} />}
+      stage={<StageBadge stage={session.adopted ? "final" : "generated"} />}
       title={
         <p className="truncate text-sm font-medium text-card-foreground">
-          {session.title}
+          {session.title || t("common.untitled")}
         </p>
       }
       subtitle={
         <p className="truncate text-sm text-muted-foreground">
-          {sessionSubtitle(session)}
+          {[
+            session.tag,
+            t("assets.sessionSubtitle", { count: session.adopted }),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
       }
       menu={

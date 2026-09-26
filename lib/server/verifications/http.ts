@@ -1,0 +1,22 @@
+import "server-only";
+import { z } from "zod";
+import { assertOrigin, rawSession } from "../auth/http";
+import { withApi, jsonResponse, AppError } from "../errors/http";
+import { readJson } from "../errors/validation";
+import { workspaceService } from "../projects/service";
+import { jobService } from "../jobs/runtime";
+import { acceptedJobResponse } from "../jobs/http";
+import { VerificationService } from "./service";
+import { FinalizationService } from "../finalizations/service";
+import { ExportService } from "../exports/service";
+export const verificationApi = withApi(async (request, context) => {
+  const [kind, id, action] = new URL(request.url).pathname.split("/").filter(Boolean).slice(1);
+  const raw = await rawSession(), workspace = workspaceService();
+  if (request.method !== "GET") assertOrigin(request);
+  if (kind === "assets" && action === "verification" && request.method === "GET") return jsonResponse(await new FinalizationService(workspace).get(raw, id), context);
+  if (kind === "assets" && action === "finalization" && ["PUT", "DELETE"].includes(request.method)) return jsonResponse(await new FinalizationService(workspace).set(raw, id, await readJson(request, z.unknown()), request.method === "PUT"), context);
+  if (kind === "asset-sessions" && action === "verifications" && request.method === "POST") return acceptedJobResponse(await new VerificationService(workspace, jobService()).request(raw, id, await readJson(request, z.unknown())), context);
+  if (kind === "exports" && !id && request.method === "POST") return acceptedJobResponse(await new ExportService(workspace, jobService()).request(raw, await readJson(request, z.unknown())), context);
+  if (kind === "exports" && id && request.method === "GET") return jsonResponse(await new ExportService(workspace, jobService()).download(raw, id), context);
+  throw new AppError("NOT_FOUND");
+});

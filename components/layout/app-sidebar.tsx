@@ -1,9 +1,11 @@
 "use client";
+import { navigateAfterAuth } from "@/lib/account-store";
+import { useT } from "@/lib/i18n/provider";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ChevronsUpDown, LogOut, UserRound } from "lucide-react";
 import { MyPageDialog } from "@/components/domain/my-page-dialog";
 import { getAccount, clearCurrent, type Account } from "@/lib/account-store";
@@ -19,26 +21,27 @@ import { NAV } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
+  const t = useT();
   const pathname = usePathname();
-  const router = useRouter();
+  const [error, setError] = useState("");
   const [account, setAccount] = useState<Account | null>(null);
   const [myPageOpen, setMyPageOpen] = useState(false);
 
   // 저장된 계정(프로필) 로드 → 하단 계정 영역에 표시
   useEffect(() => {
-    setAccount(getAccount());
-  }, []);
+    getAccount().then(setAccount).catch(() => setError(t("auth.requestFailed")));
+  }, [t]);
 
-  const displayName = account?.name || "라이선시 담당자";
-  const displayOrg = account?.org || account?.email || "회사명";
+  const displayName = account?.name || t("navigation.licensee_contact");
+  const displayOrg =
+    account?.org || account?.email || t("navigation.company_name");
 
-  function handleLogout() {
-    clearCurrent();
-    router.push("/");
+  async function handleLogout() {
+    try { await clearCurrent(); navigateAfterAuth("/"); } catch { setError(t("auth.requestFailed")); }
   }
 
   return (
-    <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside className="sticky top-0 flex h-screen w-60 shrink-0 max-md:hidden flex-col border-r border-sidebar-border bg-sidebar">
       {/* 브랜드 (헤더와 높이 정렬) */}
       <div className="flex h-[55px] shrink-0 items-center gap-2 border-b border-sidebar-border px-5">
         <Link href="/" className="flex items-center">
@@ -73,7 +76,7 @@ export function AppSidebar() {
               )}
             >
               <Icon className="size-4 shrink-0" />
-              {item.label}
+              {t(item.label)}
             </Link>
           );
         })}
@@ -101,11 +104,7 @@ export function AppSidebar() {
             </div>
             <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="start"
-            className="w-[212px]"
-          >
+          <DropdownMenuContent side="top" align="start" className="w-[212px]">
             <DropdownMenuLabel className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-foreground">
                 {displayName}
@@ -117,22 +116,23 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setMyPageOpen(true)}>
               <UserRound className="size-4" />
-              마이페이지
+              {t("navigation.my_account")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
               <LogOut className="size-4" />
-              로그아웃
+              {t("navigation.log_out")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
+      {error && <p role="alert" className="px-3 text-sm text-destructive">{error}</p>}
       {/* 마이페이지 모달 */}
       <MyPageDialog
         open={myPageOpen}
         onOpenChange={setMyPageOpen}
-        onSaved={() => setAccount(getAccount())}
+        onSaved={() => { getAccount().then(setAccount).catch(() => setError(t("auth.requestFailed"))); }}
       />
     </aside>
   );

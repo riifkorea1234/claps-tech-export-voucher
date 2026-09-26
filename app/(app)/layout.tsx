@@ -1,11 +1,13 @@
+import { requirePage } from "@/lib/server/authorization/guards";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requirePage();
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar />

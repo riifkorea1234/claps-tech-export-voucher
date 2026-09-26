@@ -1,13 +1,15 @@
+"use client";
+import { useT } from "@/lib/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { ProjectStatus } from "@/lib/mock/projects";
 
 // 상태별 색 (피그마: Tailwind color/100 배경 + color/700 글자)
 const STATUS_STYLES: Record<ProjectStatus, string> = {
-  "준비 중": "bg-green-100 text-green-700",
-  "생성 중": "bg-blue-100 text-blue-700",
-  "검증 중": "bg-violet-100 text-violet-700",
-  "수정 필요": "bg-red-100 text-red-700",
-  완료: "bg-zinc-100 text-zinc-600",
+  preparing: "bg-green-100 text-green-700",
+  generating: "bg-blue-100 text-blue-700",
+  verifying: "bg-violet-100 text-violet-700",
+  needs_fix: "bg-red-100 text-red-700",
+  completed: "bg-zinc-100 text-zinc-600",
 };
 
 export function StatusBadge({
@@ -17,6 +19,7 @@ export function StatusBadge({
   status: ProjectStatus;
   className?: string;
 }) {
+  const t = useT();
   return (
     <span
       className={cn(
@@ -25,7 +28,7 @@ export function StatusBadge({
         className,
       )}
     >
-      {status}
+      {t(`projects.status.${status}`)}
     </span>
   );
 }

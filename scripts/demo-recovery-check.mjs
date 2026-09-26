@@ -1,0 +1,26 @@
+// Read private, synthetic fixtures created by pnpm test:demo.
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const base = process.env.CHECK_ORIGIN || 'http://127.0.0.1:3193';
+assert.ok(['127.0.0.1', 'localhost'].includes(new URL(base).hostname));
+const fixture = JSON.parse(await readFile('/tmp/claps-content-fixture.json', 'utf8'));
+const state = JSON.parse(await readFile('/tmp/claps-content-state.json', 'utf8'));
+const Cookie = state.cookies.map(c => `${c.name}=${c.value}`).join('; ');
+const get = async path => { const r = await fetch(new URL(path, base), {headers:{Cookie,'X-Claps-Locale':'ko'}}); assert.equal(r.status,200,path); return r; };
+const data = async path => (await (await get(path)).json()).data;
+assert.equal((await data('/api/health')).status,'ok');
+assert.equal((await data('/api/me')).locale,'ko');
+const projects = (await data('/api/projects')).items;
+assert.equal(projects.length,3);
+const project = await data(`/api/projects/${fixture.projectId}`);
+assert.equal(project.name,fixture.projectName);
+assert.ok(project.cover);
+const sessions = (await data('/api/asset-sessions')).items;
+assert.deepEqual(sessions.map(s=>s.id).sort(),fixture.sessionIds.sort());
+assert.ok(sessions.every(s=>projects.some(p=>p.id===s.projectId)));
+assert.equal((await data('/api/monitoring-records')).items.length,2);
+assert.deepEqual(Buffer.from(await (await get(`/api/monitoring-records/${fixture.recordId}/image`)).arrayBuffer()),Buffer.from(fixture.image,'base64'));
+assert.equal((await data('/api/matches/latest')).result.jobId,fixture.jobId);
+assert.equal((await data('/api/partners')).items.length,6);
+assert.ok((await (await get('/projects')).text()).includes('lang="ko"'));
+console.log(JSON.stringify({health:true,projects:3,sessions:3,projectCover:true,monitoringOriginals:2,originalBytes:true,partners:6,matchingResult:true,sessionLocale:'ko'}));

@@ -1,0 +1,39 @@
+Phase 5 verification — 2026-09-23 Asia/Seoul
+Environment: isolated claps-phase5-tests, PostgreSQL 17.11, Node 22.22.0,
+pnpm 10.34.5, Next 16.3.3, Chromium / Playwright 1.63.0.
+No operational users, paid providers or real email recipients used.
+
+Required P5-T01..P5-T05: 5 PASS, 0 FAIL/BLOCKED/PENDING.
+Final unique automated results: 19 files, 121 PASS, 0 FAIL, 0 SKIP.
+Unit 28; i18n 6; PostgreSQL integration 60; Chromium 27.
+Vitest final combined run: 14 files / 94 tests, exit 0, 16.46 seconds.
+Chromium regression: 24 existing tests PASS; final jobs subset 3 PASS,
+exit 0, 24.3 seconds. Repeated passes are not counted twice.
+Initial failures are recorded in phase5-test-checklist.md, not hidden.
+
+Static/build: typecheck including tsc exit 0; lint exit 0 (0 errors,
+6 pre-existing warnings); final production web and worker images build exit 0.
+Migration replay/seed idempotency: integration PASS; explicit migrate,
+seed and locale activation exit 0. Compose config/diff whitespace exit 0.
+
+Real fault injection: concurrent DB acquisition; SIGKILL before and after
+provider dispatch; SIGTERM; expired lease; timeout; late output/usage;
+parent archive, suspension and withdrawal; bounded retry chain;
+queue/hour quotas; scoped idempotency; cancellation fences.
+
+Docker smoke 4 PASS:
+1. Worker startup heartbeat health exit 0.
+2. SIGTERM shutdown exit 0; heartbeat path absent afterward.
+3. Worker restart heartbeat health exit 0.
+4. DB stopped -> worker health exit 1 (expected); DB restarted -> worker
+   health exit 0 and web /api/health status ok.
+
+Storage: expired download capabilities removed, expired uploads scheduled;
+repeat/concurrent maintenance safe, physical deletion disabled.
+Mobile job status screenshot inspected directly.
+Synthetic users/projects/jobs/storage_tickets all 0 after fixtures.
+
+Document verification: 3 PASS, exit 0; 31 Markdown links, 5 HTML tables,
+6 HTML links, balanced tags, responsive/print CSS, exact rendered body.
+Final fixture cleanup: 82 rate rows, 6 upload files, 33 sandbox messages.
+Web/worker/db-test stopped; dedicated volumes and images retained.

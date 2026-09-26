@@ -1,7 +1,9 @@
 "use client";
+import { navigateAfterAuth } from "@/lib/account-store";
+import { useT } from "@/lib/i18n/provider";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +34,9 @@ export function MyPageDialog({
   onOpenChange: (open: boolean) => void;
   onSaved?: () => void; // 저장 후 사이드바 등 갱신용
 }) {
-  const router = useRouter();
+  const t = useT();
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const [account, setAccount] = useState<Account | null>(null);
   const [name, setName] = useState("");
   const [org, setOrg] = useState("");
@@ -42,32 +46,31 @@ export function MyPageDialog({
   // 열릴 때마다 저장된 값으로 채움
   useEffect(() => {
     if (!open) return;
-    const a = getAccount();
-    setAccount(a);
-    setName(a?.name ?? "");
-    setOrg(a?.org ?? "");
-    setRole(a?.role ?? "");
-  }, [open]);
+    let cancelled = false;
+    getAccount().then(a => {
+      if (cancelled) return;
+      setError(""); setAccount(a); setName(a.name); setOrg(a.org); setRole(a.role ?? "");
+    }).catch(() => { if (!cancelled) { setAccount(null); setError(t("auth.requestFailed")); } });
+    return () => { cancelled = true; };
+  }, [open, t]);
 
   const canSave = name.trim().length > 0 && org.trim().length > 0;
 
-  function handleSave() {
-    if (!canSave || !account) return;
-    upsertAccount({
-      email: account.email,
-      name: name.trim(),
-      org: org.trim(),
-      role: role || undefined,
-    });
-    onSaved?.();
-    onOpenChange(false);
+  async function handleSave() {
+    if (!canSave || !account || pending) return;
+    setPending(true); setError("");
+    try {
+      await upsertAccount({ name: name.trim(), org: org.trim(), role: role || undefined });
+      onSaved?.(); onOpenChange(false);
+    } catch (e) { setError(e instanceof Error ? e.message : t("auth.requestFailed")); }
+    finally { setPending(false); }
   }
-
-  function handleWithdraw() {
-    deleteAccount();
-    setConfirmOpen(false);
-    onOpenChange(false);
-    router.push("/");
+  async function handleWithdraw() {
+    if (pending) return;
+    setPending(true); setError("");
+    try { await deleteAccount(); navigateAfterAuth("/"); }
+    catch (e) { setConfirmOpen(false); setError(e instanceof Error ? e.message : t("auth.requestFailed")); }
+    finally { setPending(false); }
   }
 
   return (
@@ -75,16 +78,16 @@ export function MyPageDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
-            <DialogTitle>마이페이지</DialogTitle>
+            <DialogTitle>{t("auth.my_account")}</DialogTitle>
             <DialogDescription>
-              계정 정보를 확인하고 수정할 수 있어요.
+              {t("auth.view_and_update_your_account_information")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-4">
             {/* 이메일 (수정 불가) */}
             <div className="flex flex-col gap-2">
-              <Label>이메일</Label>
+              <Label>{t("auth.email")}</Label>
               <div className="flex h-11 items-center rounded-lg border border-input bg-muted px-3 text-sm text-muted-foreground">
                 {account?.email ?? "-"}
               </div>
@@ -104,10 +107,12 @@ export function MyPageDialog({
             <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-foreground">
-                  회원 탈퇴
+                  {t("auth.delete_account")}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  계정 정보가 삭제되며 되돌릴 수 없어요.
+                  {t(
+                    "auth.your_account_information_will_be_deleted_this_cannot_be",
+                  )}
                 </span>
               </div>
               <Button
@@ -116,17 +121,19 @@ export function MyPageDialog({
                 className="shrink-0"
                 onClick={() => setConfirmOpen(true)}
               >
-                탈퇴하기
+                {t("auth.delete_my_account")}
               </Button>
             </div>
           </div>
 
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          <Link href="/change-password" className="text-sm underline">{t("auth.changePassword")}</Link>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">취소</Button>
+              <Button variant="outline">{t("auth.cancel")}</Button>
             </DialogClose>
-            <Button onClick={handleSave} disabled={!canSave}>
-              저장
+            <Button onClick={handleSave} disabled={!canSave || !account || pending}>
+              {t("auth.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -137,9 +144,11 @@ export function MyPageDialog({
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         onConfirm={handleWithdraw}
-        title="정말 탈퇴할까요?"
-        description="계정 정보가 삭제되며 되돌릴 수 없어요."
-        confirmLabel="탈퇴"
+        title={t("auth.are_you_sure_you_want_to_delete_your_account")}
+        description={t(
+          "auth.your_account_information_will_be_deleted_this_cannot_be",
+        )}
+        confirmLabel={t("auth.delete_account_2")}
       />
     </>
   );

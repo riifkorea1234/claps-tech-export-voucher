@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ export function Pagination({
   totalPages: number;
   onChange: (page: number) => void;
 }) {
+  const t = useT();
   if (totalPages <= 1) return null;
 
   return (
@@ -21,7 +23,7 @@ export function Pagination({
         type="button"
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        aria-label="이전 페이지"
+        aria-label={t("common.previous_page")}
         className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
       >
         <ChevronLeft className="size-4" />
@@ -45,7 +47,7 @@ export function Pagination({
         type="button"
         onClick={() => onChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        aria-label="다음 페이지"
+        aria-label={t("common.next_page")}
         className="flex size-9 items-center justify-center rounded-lg border border-input bg-card text-muted-foreground transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:opacity-40"
       >
         <ChevronRight className="size-4" />

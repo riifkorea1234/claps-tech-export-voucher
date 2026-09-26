@@ -2,19 +2,15 @@
 
 // 프로젝트 5단계 상태 (기획 흐름: 준비 → E2 생성 → E3 검증 → (수정) → 완료)
 export type ProjectStatus =
-  | "준비 중"
-  | "생성 중"
-  | "검증 중"
-  | "수정 필요"
-  | "완료";
+  "preparing" | "generating" | "verifying" | "needs_fix" | "completed";
 
 // 상태 선택 UI에서 쓰는 순서 목록
 export const PROJECT_STATUSES: ProjectStatus[] = [
-  "준비 중",
-  "생성 중",
-  "검증 중",
-  "수정 필요",
-  "완료",
+  "preparing",
+  "generating",
+  "verifying",
+  "needs_fix",
+  "completed",
 ];
 
 // 커버 썸네일 = 라이브러리 그라디언트(클래스) 또는 로컬 업로드 이미지(dataURL)

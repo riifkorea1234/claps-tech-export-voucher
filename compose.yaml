@@ -1,0 +1,80 @@
+name: claps
+x-runtime-environment: &runtime-environment
+  DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
+  UPLOADS_DIR: /app/uploads
+  NODE_ENV: production
+  DB_POOL_MAX: ${DB_POOL_MAX:-10}
+  APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+  MAIL_ADAPTER: ${MAIL_ADAPTER:-disabled}
+  MAIL_SANDBOX_DIR: ${MAIL_SANDBOX_DIR:-/tmp/claps-mail}
+  AUTH_TRUSTED_IP_HEADER: ${AUTH_TRUSTED_IP_HEADER:-}
+services:
+  db:
+    image: postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-claps}
+      POSTGRES_DB: ${POSTGRES_DB:-claps}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment: *runtime-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [sh, -c, 'pnpm db:migrate && pnpm db:seed']
+    restart: 'no'
+  web:
+    build:
+      context: .
+      target: web
+    environment: *runtime-environment
+    ports:
+      - '127.0.0.1:${WEB_PORT:-3000}:3000'
+    volumes:
+      - uploads-data:/app/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, node, -e, 'fetch("http://127.0.0.1:3000/api/health").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))']
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 15s
+    init: true
+    restart: unless-stopped
+  worker:
+    build:
+      context: .
+      target: worker
+    environment:
+      <<: *runtime-environment
+      DB_POOL_MAX: 3
+      WORKER_HEARTBEAT_PATH: /tmp/claps-worker-heartbeat
+    volumes:
+      - uploads-data:/app/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, node, scripts/worker-health.mjs]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    init: true
+    stop_grace_period: 20s
+    restart: unless-stopped
+volumes:
+  db-data:
+  uploads-data:

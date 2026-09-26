@@ -25,7 +25,7 @@ export const sampleProjectDetail: ProjectDetail = {
   id: "sample",
   name: "썸머 캡슐 컬렉션",
   ip: "산리오 · 시나모롤",
-  status: "검증 중",
+  status: "verifying",
   updatedLabel: "2일 전",
   sessions: [
     {
@@ -54,11 +54,3 @@ export const sampleProjectDetail: ProjectDetail = {
     },
   ],
 };
-
-// "여름 프로모션 · 최종 6장" 형태로 조립 (tag 없으면 생략)
-export function sessionSubtitle(s: ProjectSession): string {
-  const parts: string[] = [];
-  if (s.tag) parts.push(s.tag);
-  parts.push(`최종 ${s.adopted}장`);
-  return parts.join(" · ");
-}

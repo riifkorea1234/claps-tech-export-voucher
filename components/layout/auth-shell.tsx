@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+import { LanguageSwitcher } from "./language-switcher";
 
 // 로그인 전 화면 공통 틀 (로고 · 언어 버튼 · 가운데 폼 영역)
 // 로그인 / 비밀번호 찾기 / 프로필 설정에서 공용으로 사용
@@ -20,15 +22,8 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         />
       </Link>
 
-      {/* 언어 버튼 (다국어 미구현) */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="absolute top-6 right-6 h-8 gap-1.5 rounded-[10px]"
-      >
-        <Globe className="size-4" />
-        언어
-      </Button>
+      {/* 공통 언어 선택 */}
+      <LanguageSwitcher className="absolute top-6 right-6" />
 
       <div className="flex w-full max-w-[360px] flex-col gap-[22px]">
         {children}

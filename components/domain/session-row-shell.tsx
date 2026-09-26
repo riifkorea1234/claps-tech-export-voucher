@@ -1,7 +1,8 @@
 "use client";
+import { legacyTime } from "@/lib/i18n/format";
+import { useT } from "@/lib/i18n/provider";
 
 import { CoverThumb } from "./cover-thumb";
-import { hasStageAssets } from "@/lib/session-assets-store";
 import type { ProjectCover } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ export function SessionRowShell({
   menu?: React.ReactNode; // ⋮ 메뉴 (선택)
   onOpen?: () => void;
 }) {
+  const t = useT();
   return (
     <div
       role="button"
@@ -34,13 +36,18 @@ export function SessionRowShell({
       }}
       className="flex h-[96px] cursor-pointer items-center gap-3.5 rounded-xl border border-border bg-card p-3.5 transition-colors hover:bg-muted/40"
     >
-      <CoverThumb cover={cover} className="h-[68px] w-[92px] shrink-0 rounded-lg" />
+      <CoverThumb
+        cover={cover}
+        className="h-[68px] w-[92px] shrink-0 rounded-lg"
+      />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {title}
         {subtitle}
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <span className="text-sm text-muted-foreground">{timeLabel}</span>
+        <span className="text-sm text-muted-foreground">
+          {legacyTime(timeLabel, t)}
+        </span>
         {stage}
         {menu}
       </div>
@@ -49,22 +56,18 @@ export function SessionRowShell({
 }
 
 // 진행 단계 = 저장된 데이터로 판별 (최종본 > 검증 > 생성)
-export type Stage = "생성" | "검증" | "최종";
+export type Stage = "generated" | "verify" | "final";
 
-export function resolveStage(sessionId: string): Stage {
-  if (hasStageAssets("final", sessionId)) return "최종";
-  if (hasStageAssets("verify", sessionId)) return "검증";
-  return "생성";
-}
 
 const STAGE_TONES: Record<Stage, string> = {
-  생성: "bg-secondary text-secondary-foreground",
-  검증: "bg-amber-500/10 text-amber-600",
-  최종: "bg-green-500/10 text-green-600",
+  generated: "bg-secondary text-secondary-foreground",
+  verify: "bg-amber-500/10 text-amber-600",
+  final: "bg-green-500/10 text-green-600",
 };
 
 // 진행 단계 배지
 export function StageBadge({ stage }: { stage: Stage }) {
+  const t = useT();
   return (
     <span
       className={cn(
@@ -72,7 +75,7 @@ export function StageBadge({ stage }: { stage: Stage }) {
         STAGE_TONES[stage],
       )}
     >
-      {stage}
+      {t(`assets.stage.${stage}`)}
     </span>
   );
 }

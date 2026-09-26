@@ -1,0 +1,19 @@
+
+> web@0.1.0 typecheck /app
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> web@0.1.0 lint /app
+> eslint
+
+
+/app/app/apple-icon.tsx
+  29:10  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+/app/app/opengraph-image.tsx
+  45:8  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+✖ 2 problems (0 errors, 2 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.

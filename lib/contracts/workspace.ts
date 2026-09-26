@@ -1,0 +1,18 @@
+import { z } from "zod";
+import { idSchema, paginationSchema, versionSchema } from "./common";
+export const projectStatus = z.enum(["preparing", "generating", "verifying", "needs_fix", "completed"]);
+const name = z.string().trim().min(1).max(200);
+export const projectCreate = z.strictObject({ name, ip: z.string().trim().max(500).default(""), description: z.string().max(10000).default(""), status: projectStatus.default("preparing") });
+export const projectPatch = z.strictObject({ name: name.optional(), ip: z.string().trim().max(500).optional(), description: z.string().max(10000).optional(), status: projectStatus.optional(), version: versionSchema, archived: z.boolean().optional(), cover: z.discriminatedUnion("kind", [z.strictObject({ kind: z.literal("default") }), z.strictObject({ kind: z.literal("upload"), ticket: idSchema }), z.strictObject({ kind: z.literal("asset"), assetId: idSchema })]).optional() });
+export const sessionCreate = z.strictObject({ title: name, projectId: idSchema.nullable().optional() });
+export const sessionPatch = sessionCreate.partial().extend({ version: versionSchema, archived: z.boolean().optional() });
+export const assetPatch = z.strictObject({ version: versionSchema, adopted: z.boolean().optional(), deleted: z.literal(true).optional() });
+export const listQuery = paginationSchema.extend({ q: z.string().trim().max(200).default(""), archived: z.enum(["true", "false"]).default("false"), sort: z.enum(["recent", "oldest"]).default("recent"), projectId: idSchema.optional() });
+export type ProjectInput = z.input<typeof projectCreate>;
+export type ProjectPatch = z.infer<typeof projectPatch>;
+export type SessionPatch = z.infer<typeof sessionPatch>;
+export type AssetDto = { id: string; sessionId: string; version: number; adopted: boolean; finalizedAt: string | null; createdAt: string; imageUrl: string; thumbnailUrl: string };
+export type SessionDto = { id: string; title: string; version: number; projectId: string | null; projectName: string | null; createdAt: string; updatedAt: string; archivedAt: string | null; generated: number; adopted: number; finalized: number; thumbnailUrl?: string };
+export type ProjectDto = { id: string; name: string; ip: string; description: string; status: z.infer<typeof projectStatus>; version: number; createdAt: string; updatedAt: string; archivedAt: string | null; cover?: { kind: "local"; value: string }; sessions: number; generated: number; finalized: number };
+export type PageResult<T> = { items: T[]; page: number; pageSize: number; total: number; totalPages: number };
+export type ProjectStats = { activeCount: number; inReviewCount: number; needsFixCount: number };

@@ -13,10 +13,10 @@ export type NavItem = {
 
 // 사이드바 4개 영역 (사이트맵 v2 · 피그마 4936:6043 기준)
 export const NAV: NavItem[] = [
-  { href: "/projects", label: "프로젝트", icon: Folder },
-  { href: "/partners", label: "파트너 추천", icon: Search },
-  { href: "/assets", label: "에셋 생성", icon: Sparkle },
-  { href: "/monitoring", label: "모니터링", icon: IconRadar2 },
+  { href: "/projects", label: "navigation.projects", icon: Folder },
+  { href: "/partners", label: "navigation.partners", icon: Search },
+  { href: "/assets", label: "navigation.assets", icon: Sparkle },
+  { href: "/monitoring", label: "navigation.monitoring", icon: IconRadar2 },
 ];
 
 // 현재 경로에 해당하는 화면 제목 (헤더용)

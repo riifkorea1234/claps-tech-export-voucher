@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils";
 export function SearchBar({
   value,
   onChange,
-  placeholder = "검색",
+  placeholder,
   className,
 }: {
   value: string;
@@ -16,6 +17,7 @@ export function SearchBar({
   placeholder?: string;
   className?: string;
 }) {
+  const t = useT();
   return (
     <div className={cn("relative", className)}>
       <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -23,7 +25,7 @@ export function SearchBar({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("common.search")}
         className="pr-3 pl-9"
       />
     </div>

@@ -1,0 +1,238 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.68kB 0.2s done
+#1 DONE 0.2s
+
+#2 [internal] load metadata for docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 188B 0.1s
+#3 transferring context: 190B 0.1s done
+#3 DONE 0.1s
+
+#4 [base 1/3] FROM docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 ...
+
+#6 [base 2/3] WORKDIR /app
+#6 CACHED
+
+#7 [base 3/3] RUN npm install --global pnpm@10.34.5
+#7 CACHED
+
+#5 [internal] load build context
+#5 transferring context: 499.28kB 3.1s done
+#5 DONE 3.1s
+
+#8 [dependencies 1/2] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#8 DONE 0.1s
+
+#9 [dependencies 2/2] RUN pnpm install --frozen-lockfile
+#9 1.482 Lockfile is up to date, resolution step is skipped
+#9 1.635 Progress: resolved 1, reused 0, downloaded 0, added 0
+#9 1.896 Packages: +724
+#9 1.896 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#9 2.636 Progress: resolved 724, reused 0, downloaded 38, added 0
+#9 2.928
+#9 2.928    ╭─────────────────────────────────────────╮
+#9 2.928    │                                         │
+#9 2.928    │   Update available! 10.34.5 → 12.6.0.   │
+#9 2.928    │   Changelog: https://pnpm.io/v/12.6.0   │
+#9 2.928    │    To update, run: pnpm add -g pnpm     │
+#9 2.928    │                                         │
+#9 2.928    ╰─────────────────────────────────────────╯
+#9 2.928
+#9 3.640 Progress: resolved 724, reused 0, downloaded 107, added 105
+#9 4.640 Progress: resolved 724, reused 0, downloaded 178, added 178
+#9 5.641 Progress: resolved 724, reused 0, downloaded 292, added 291
+#9 6.641 Progress: resolved 724, reused 0, downloaded 436, added 436
+#9 7.641 Progress: resolved 724, reused 0, downloaded 510, added 508
+#9 8.649 Progress: resolved 724, reused 0, downloaded 646, added 643
+#9 9.649 Progress: resolved 724, reused 0, downloaded 709, added 708
+#9 10.65 Progress: resolved 724, reused 0, downloaded 714, added 714
+#9 11.65 Progress: resolved 724, reused 0, downloaded 716, added 716
+#9 12.65 Progress: resolved 724, reused 0, downloaded 718, added 718
+#9 13.65 Progress: resolved 724, reused 0, downloaded 721, added 720
+#9 14.65 Progress: resolved 724, reused 0, downloaded 721, added 721
+#9 20.17 Progress: resolved 724, reused 0, downloaded 722, added 721
+#9 21.17 Progress: resolved 724, reused 0, downloaded 722, added 722
+#9 23.11 Progress: resolved 724, reused 0, downloaded 723, added 722
+#9 23.93 Progress: resolved 724, reused 0, downloaded 724, added 724, done
+#9 24.47 .../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+#9 24.47 .../esbuild@0.18.20/node_modules/esbuild postinstall$ node install.js
+#9 24.48 .../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+#9 24.55 .../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+#9 24.59 .../esbuild@0.18.20/node_modules/esbuild postinstall: Done
+#9 24.61 .../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+#9 24.82
+#9 24.82 dependencies:
+#9 24.82 + @better-auth/drizzle-adapter 1.7.5
+#9 24.82 + @next/env 16.3.3
+#9 24.82 + @phosphor-icons/react 2.1.10
+#9 24.82 + @tabler/icons-react 3.46.0
+#9 24.82 + better-auth 1.7.5
+#9 24.82 + class-variance-authority 0.7.1
+#9 24.82 + clsx 2.1.1
+#9 24.82 + drizzle-orm 0.45.3
+#9 24.82 + lucide-react 1.34.0
+#9 24.82 + next 16.3.3
+#9 24.82 + pg 8.23.0
+#9 24.82 + pretendard 1.3.9
+#9 24.82 + radix-ui 1.6.7
+#9 24.82 + react 19.2.8
+#9 24.82 + react-dom 19.2.8
+#9 24.82 + server-only 0.0.1
+#9 24.82 + shadcn 4.19.0
+#9 24.82 + sharp 0.35.3
+#9 24.82 + tailwind-merge 3.6.0
+#9 24.82 + tsx 4.23.15
+#9 24.82 + tw-animate-css 1.4.0
+#9 24.82 + zod 4.6.5
+#9 24.82
+#9 24.82 devDependencies:
+#9 24.82 + @playwright/test 1.63.0
+#9 24.82 + @tailwindcss/postcss 4.3.3
+#9 24.82 + @types/node 22.20.4
+#9 24.82 + @types/pg 8.20.0
+#9 24.82 + @types/react 19.2.18
+#9 24.82 + @types/react-dom 19.2.5
+#9 24.82 + drizzle-kit 0.31.11
+#9 24.82 + eslint 9.39.5
+#9 24.82 + eslint-config-next 16.3.3
+#9 24.82 + tailwindcss 4.3.3
+#9 24.82 + typescript 5.9.3
+#9 24.82 + vite 8.3.0
+#9 24.82 + vitest 5.0.1
+#9 24.82
+#9 24.97 Done in 24.5s using pnpm v10.34.5
+#9 DONE 26.5s
+
+#10 [dependencies 1/2] COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+#10 CACHED
+
+#11 [dependencies 2/2] RUN pnpm install --frozen-lockfile
+#11 CACHED
+
+#12 [builder 1/2] COPY . .
+#12 DONE 0.2s
+
+#13 [builder 2/2] RUN pnpm build
+#13 1.535
+#13 1.535 > web@0.1.0 build /app
+#13 1.535 > next build
+#13 1.535
+#13 2.088 ▲ Next.js 16.3.3 (Turbopack)
+#13 2.133 ✓ Running next.config.ts took 44ms
+#13 2.154
+#13 2.214   Creating an optimized production build ...
+#13 11.02 ✓ Compiled successfully in 8.6s
+#13 11.02   Running TypeScript ...
+#13 26.41   Finished TypeScript in 15.4s ...
+#13 26.41   Collecting page data using 9 workers ...
+#13 28.16   Generating static pages using 9 workers (0/36) ...
+#13 28.30   Generating static pages using 9 workers (9/36)
+#13 28.36   Generating static pages using 9 workers (18/36)
+#13 28.43   Generating static pages using 9 workers (27/36)
+#13 28.54 ✓ Generating static pages using 9 workers (36/36) in 386ms
+#13 28.55   Finalizing page optimization ...
+#13 29.38
+#13 29.38 Route (app)
+#13 29.38 ┌ ƒ /
+#13 29.38 ├ ƒ /_not-found
+#13 29.38 ├ ƒ /admin/[[...path]]
+#13 29.38 ├ ƒ /api/admin/[...path]
+#13 29.38 ├ ƒ /api/admin/access
+#13 29.38 ├ ƒ /api/asset-sessions
+#13 29.38 ├ ƒ /api/asset-sessions/[id]
+#13 29.38 ├ ƒ /api/asset-sessions/[id]/assets
+#13 29.38 ├ ƒ /api/asset-sessions/[id]/verifications
+#13 29.38 ├ ƒ /api/assets/[id]
+#13 29.38 ├ ƒ /api/assets/[id]/finalization
+#13 29.38 ├ ƒ /api/assets/[id]/verification
+#13 29.38 ├ ƒ /api/auth/[action]
+#13 29.38 ├ ƒ /api/exports
+#13 29.38 ├ ƒ /api/exports/[id]
+#13 29.38 ├ ƒ /api/files/[token]
+#13 29.38 ├ ƒ /api/health
+#13 29.38 ├ ƒ /api/jobs/[id]
+#13 29.38 ├ ƒ /api/jobs/[id]/cancel
+#13 29.38 ├ ƒ /api/locale
+#13 29.38 ├ ƒ /api/locales
+#13 29.38 ├ ƒ /api/matches
+#13 29.38 ├ ƒ /api/matches/latest
+#13 29.38 ├ ƒ /api/me
+#13 29.38 ├ ƒ /api/me/matching-criteria
+#13 29.38 ├ ƒ /api/me/matching-images
+#13 29.38 ├ ƒ /api/me/matching-images/[id]
+#13 29.38 ├ ƒ /api/me/preferences
+#13 29.38 ├ ƒ /api/monitoring-records
+#13 29.38 ├ ƒ /api/monitoring-records/[id]
+#13 29.38 ├ ƒ /api/monitoring-records/[id]/image
+#13 29.38 ├ ƒ /api/monitoring-records/[id]/scans
+#13 29.38 ├ ƒ /api/monitoring-records/uploads
+#13 29.38 ├ ƒ /api/partners
+#13 29.38 ├ ƒ /api/partners/[id]
+#13 29.38 ├ ƒ /api/partners/[id]/images/[index]
+#13 29.38 ├ ƒ /api/projects
+#13 29.38 ├ ƒ /api/projects/[id]
+#13 29.38 ├ ƒ /api/projects/[id]/library
+#13 29.38 ├ ƒ /api/projects/[id]/sessions
+#13 29.38 ├ ƒ /api/projects/stats
+#13 29.38 ├ ƒ /api/uploads
+#13 29.38 ├ ƒ /api/uploads/[token]
+#13 29.38 ├ ○ /apple-icon
+#13 29.38 ├ ƒ /assets
+#13 29.38 ├ ƒ /assets/[id]
+#13 29.38 ├ ƒ /assets/[id]/final
+#13 29.38 ├ ƒ /assets/[id]/verify
+#13 29.38 ├ ƒ /change-password
+#13 29.38 ├ ƒ /forgot-password
+#13 29.38 ├ ○ /icon.svg
+#13 29.38 ├ ƒ /jobs/[id]
+#13 29.38 ├ ƒ /login
+#13 29.38 ├ ƒ /monitoring
+#13 29.38 ├ ƒ /monitoring/[id]
+#13 29.38 ├ ƒ /opengraph-image
+#13 29.38 ├ ƒ /partners
+#13 29.38 ├ ƒ /partners/criteria
+#13 29.38 ├ ƒ /profile-setup
+#13 29.38 ├ ƒ /projects
+#13 29.38 ├ ƒ /projects/[id]
+#13 29.38 ├ ƒ /projects/[id]/sessions
+#13 29.38 ├ ƒ /reset-password
+#13 29.38 ├ ƒ /sign-in
+#13 29.38 ├ ƒ /sign-up
+#13 29.38 └ ƒ /verify-email
+#13 29.38
+#13 29.38
+#13 29.38 ○  (Static)   prerendered as static content
+#13 29.38 ƒ  (Dynamic)  server-rendered on demand
+#13 29.38
+#13 DONE 29.6s
+
+#14 [web 1/5] RUN mkdir -p /app/uploads && chown node:node /app/uploads
+#14 CACHED
+
+#15 [web 2/5] COPY --from=builder --chown=node:node /app/.next/standalone ./
+#15 DONE 0.8s
+
+#16 [web 3/5] COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+#16 DONE 0.1s
+
+#17 [web 4/5] COPY --from=builder --chown=node:node /app/public ./public
+#17 DONE 0.1s
+
+#18 [web 5/5] COPY --from=builder --chown=node:node /app/messages ./messages
+#18 DONE 0.1s
+
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 0.4s done
+#19 writing image sha256:d6801a97abae5a726e97cb641a7227a03d7dd9ca4063cd38510e496f8dbb9947
+#19 writing image sha256:d6801a97abae5a726e97cb641a7227a03d7dd9ca4063cd38510e496f8dbb9947 done
+#19 naming to docker.io/library/claps-content-web done
+#19 DONE 0.5s

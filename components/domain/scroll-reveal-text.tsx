@@ -41,18 +41,17 @@ export function ScrollRevealText({
     };
   }, []);
 
-  const lines = text.split("\n");
-  const total = text.split(/\s+/).filter(Boolean).length;
-  let idx = -1;
+  const lines = text.split("\n").map((line) => line.split(/\s+/).filter(Boolean));
+  const total = lines.reduce((count, words) => count + words.length, 0);
 
   return (
     <p ref={ref} className={className}>
-      {lines.map((line, li) => {
-        const words = line.split(/\s+/).filter(Boolean);
+      {lines.map((words, li) => {
+        const offset = lines.slice(0, li).reduce((count, line) => count + line.length, 0);
         return (
           <span key={li}>
             {words.map((w, wi) => {
-              idx += 1;
+              const idx = offset + wi;
               const wp = Math.max(0, Math.min(1, progress * total - idx));
               const opacity = 0.18 + 0.82 * wp;
               return (

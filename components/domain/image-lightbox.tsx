@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
@@ -13,6 +14,7 @@ export function ImageLightbox({
   asset: { gradient: string; aspectClass: string } | null;
   onClose: () => void;
 }) {
+  const t = useT();
   // Escape로 닫기
   useEffect(() => {
     if (!asset) return;
@@ -35,7 +37,7 @@ export function ImageLightbox({
       <button
         type="button"
         onClick={onClose}
-        aria-label="닫기"
+        aria-label={t("common.close")}
         className="absolute top-5 right-5 flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
       >
         <X className="size-6" />

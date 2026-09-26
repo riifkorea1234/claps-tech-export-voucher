@@ -1,0 +1,6 @@
+{
+  "verifySubject": "Verify your CLAPS email",
+  "verifyBody": "Verify your email within 24 hours: {url}",
+  "resetSubject": "Reset your CLAPS password",
+  "resetBody": "Reset your password within 1 hour: {url}"
+}

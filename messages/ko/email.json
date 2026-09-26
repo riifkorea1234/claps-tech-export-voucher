@@ -1,0 +1,6 @@
+{
+  "verifySubject": "CLAPS 이메일 확인",
+  "verifyBody": "24시간 이내에 이메일을 확인해 주세요: {url}",
+  "resetSubject": "CLAPS 비밀번호 재설정",
+  "resetBody": "1시간 이내에 비밀번호를 재설정해 주세요: {url}"
+}

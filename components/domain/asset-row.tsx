@@ -1,6 +1,8 @@
 "use client";
+import { relativeTime } from "@/lib/i18n/format";
+import { useLanguage, useT } from "@/lib/i18n/provider";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EllipsisVertical, PencilLine, Trash2 } from "lucide-react";
 import {
@@ -12,12 +14,7 @@ import {
 import {
   SessionRowShell,
   StageBadge,
-  resolveStage,
-  type Stage,
 } from "./session-row-shell";
-import { resolveSessionCover } from "@/lib/project-cover";
-import { getProject, formatRelativeTime } from "@/lib/projects-store";
-import type { ProjectCover } from "@/lib/mock/projects";
 import type { AssetSession } from "@/lib/mock/assets";
 
 // 에셋 생성 목록 행 — 클릭 시 워크스페이스로 이동. ⋮는 이름 변경/삭제.
@@ -30,22 +27,11 @@ export function AssetRow({
   onRename: (id: string, title: string) => void;
   onDelete: (session: AssetSession) => void;
 }) {
+  const t = useT();
+  const { locale } = useLanguage();
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(session.title);
-  // 썸네일 = 이 세션 최종본의 최근 이미지 (마운트 후 로드 · 없으면 기본 썸네일)
-  const [cover, setCover] = useState<ProjectCover | undefined>(undefined);
-  // 연결된 프로젝트명 · 진행 단계 (마운트 후 로드)
-  const [projectName, setProjectName] = useState<string | undefined>(undefined);
-  const [stage, setStage] = useState<Stage>("생성");
-  useEffect(() => {
-    setCover(resolveSessionCover(session.id));
-    setStage(resolveStage(session.id));
-    setProjectName(
-      session.projectId ? getProject(session.projectId)?.name : undefined,
-    );
-  }, [session.id, session.projectId]);
-
   function startRename() {
     setValue(session.title);
     setEditing(true);
@@ -60,19 +46,21 @@ export function AssetRow({
   // 워크스페이스 제목이 목록과 맞도록 제목을 주소에 담아 이동
   function open() {
     if (editing) return;
-    router.push(`/assets/${session.id}?title=${encodeURIComponent(session.title)}`);
+    router.push(
+      `/assets/${session.id}?title=${encodeURIComponent(session.title)}`,
+    );
   }
 
   return (
     <SessionRowShell
-      cover={cover}
+      cover={undefined}
       onOpen={open}
       timeLabel={
         session.createdAt
-          ? formatRelativeTime(session.createdAt)
+          ? relativeTime(session.createdAt, locale)
           : session.timeLabel
       }
-      stage={<StageBadge stage={stage} />}
+      stage={<StageBadge stage="generated" />}
       title={
         editing ? (
           <input
@@ -90,14 +78,14 @@ export function AssetRow({
           />
         ) : (
           <p className="truncate text-sm font-medium text-card-foreground">
-            {session.title}
+            {session.title || t("common.untitled")}
           </p>
         )
       }
       subtitle={
         !editing && (
           <span className="truncate text-sm text-muted-foreground">
-            {projectName ?? "프로젝트 미연결"}
+            {t("assets.no_linked_project")}
           </span>
         )
       }
@@ -116,14 +104,14 @@ export function AssetRow({
           >
             <DropdownMenuItem onSelect={startRename}>
               <PencilLine className="size-4" />
-              이름 변경
+              {t("assets.rename")}
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
               onSelect={() => onDelete(session)}
             >
               <Trash2 className="size-4" />
-              삭제
+              {t("assets.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,0 +1,12 @@
+
+> web@0.1.0 test:demo /mnt/f/claps-product
+> playwright test --config playwright.demo.config.ts
+
+
+Running 1 test using 1 worker
+
+(node:2371755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › tests/demo/content.spec.ts:4:5 › sample content: real projects/sessions, originals, recommendations, bilingual UI and recovery fixture (9.7s)
+
+  1 passed (18.2s)

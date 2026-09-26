@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CLAPS Phase 0 결과 보고서</title><style>
+:root{color-scheme:light;--ink:#172b3a;--muted:#546572;--line:#dbe4e9;--accent:#166657}
+*{box-sizing:border-box}body{margin:0;background:#edf2f4;color:var(--ink);font:16px/1.75 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1120px;margin:40px auto;padding:48px;background:white;border-top:7px solid var(--accent);box-shadow:0 8px 32px #172b3a0d}
+h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.35;letter-spacing:-.04em;margin:0 0 32px}h2{margin:42px 0 16px;font-size:1.35rem;color:var(--accent)}p,li{overflow-wrap:anywhere}p{margin:14px 0}li{margin:10px 0}a{color:#075eab;text-underline-offset:3px}a:focus-visible{outline:3px solid #efba45;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:8px}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;vertical-align:top;padding:12px 15px;border-bottom:1px solid var(--line)}th{background:#eaf3f0;font-weight:650}tr:last-child td{border-bottom:0}td:first-child{min-width:110px;font-weight:550}code{background:#edf2f4;padding:2px 5px;border-radius:3px}
+@media(max-width:640px){main{margin:0;padding:24px 18px;box-shadow:none}th,td{padding:9px 10px}h2{margin-top:32px}body{font-size:15px}}
+@media print{body{background:white;color:black;font-size:10pt}main{max-width:none;margin:0;padding:0;border-top:0;box-shadow:none}h1{font-size:22pt}h2{break-after:avoid;font-size:14pt}.table-wrap{overflow:visible;border:0}table{font-size:9pt}thead{display:table-header-group}tr{break-inside:avoid}a{color:inherit}th{background:#eee}p{orphans:3;widows:3}}
+</style></head><body><main>
+<h1>Phase 0 결과 보고서 — 요구사항·정책·데이터 계약</h1>
+<h2>1. 판정</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">항목</th><th scope="col">결과</th></tr></thead><tbody>
+<tr><td>상태</td><td>COMPLETED</td></tr>
+<tr><td>작업 기간</td><td>2026-09-22~23, Asia/Seoul</td></tr>
+<tr><td>완료일</td><td>2026-09-23</td></tr>
+<tr><td>기준</td><td>feature/backend · 7f488bb 및 기존 미추적 md 문서</td></tr>
+<tr><td>필수 검증</td><td>4 PASS / 0 FAIL / 0 BLOCKED / 0 PENDING</td></tr>
+<tr><td>문서 검사</td><td>1 suite / 4 tests / 4 passed / 0 failed / 0 skipped</td></tr>
+<tr><td>요구사항 추적</td><td>32/32</td></tr>
+<tr><td>공통 테스트 책임 매핑</td><td>24/24</td></tr>
+<tr><td>런타임 테스트</td><td>0개 실행, 적용 제외 7개 범주</td></tr>
+<tr><td>기반 확정 / 후속 이월</td><td>7건 / 10건</td></tr>
+<tr><td>Phase 1 차단 결정</td><td>0건</td></tr>
+</tbody></table></div>
+<p>Phase 0의 설계·문서 검증을 완료했다. 회원가입 화면·인증 서버·DB·Docker 구현 완료를 의미하지 않는다. Phase 1~11은 미착수이며 공통 T-01~24의 제품 실행 검증은 PENDING이다.</p>
+<h2>2. 실제 완료 범위와 주요 결정</h2>
+<ul>
+<li>인증은 이메일·비밀번호 방식이다. 이메일 입력 후 미가입자는 비밀번호 설정·회원가입 화면, 기존 회원은 비밀번호 로그인으로 진행한다. 신규 가입 후 이메일 확인 링크와 프로필 단계를 거치며 비밀번호 찾기·재설정·변경을 Phase 3에 포함했다.</li>
+<li>lookup은 화면 분기만 제공한다. 가입 여부가 드러나는 사용자 지정 UX를 계약에 명시했으며 계정 ID/상태/프로필은 노출하지 않는다. 최종 가입 시 중복 검사, 비밀번호 검증, 확인/복구 토큰과 세션 폐기를 별도 검증한다.</li>
+<li>개인 소유, 조직명은 프로필, PostgreSQL 17.11·Next API·동일 저장소 worker·단일 호스트 Compose와 공유 파일 볼륨을 확정했다. 큐는 PostgreSQL jobs 테이블을 사용한다.</li>
+<li>Drizzle/pg, Better Auth 이메일·비밀번호/DB 세션, Vitest/Vite, Playwright, Zod, tsx를 선정하고 정확한 버전·공식 근거·peer 범위를 전체 플랜 9.2절에 기록했다. 기존 Node 타입 ^20은 선택한 Vitest와 맞지 않아 Phase 1에서 22.20.4로 변경한다.</li>
+<li>업무/언어 11개 테이블에 인증 3개를 추가하고 users를 공유한다. FK·순환 관계·인덱스·JSONB·version/source_revision·멱등성·seed·파일 책임을 구체화했다. 실제 schema 생성/DB 검증은 Phase 1이다.</li>
+<li>권한·오류·pagination·locale·상태 전이, 32개 요구사항과 24개 공통 검증 책임, 후속 결정 10건의 담당/기한/차단 조건을 기록했다.</li>
+</ul>
+<p>계약 원본은 <a href="development-plan.md">전체 개발 플랜</a> 5.5·6.6·9.1~9.3·10.3절이다. 작업 범위는 <a href="phase0-plan.md">Phase 0 계획</a>을 따른다.</p>
+<h2>3. 계획 대비 차이</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">항목</th><th scope="col">반영 결과</th></tr></thead><tbody>
+<tr><td>인증 권장안</td><td>사용자 최종 정정에 따라 OTP 로그인 제안을 이메일·비밀번호 가입/로그인으로 대체</td></tr>
+<tr><td>외부 호출 제외</td><td>메일/AI/변경 호출은 하지 않음. 호환성 조사를 위한 공식 문서/npm 메타데이터 읽기만 수행</td></tr>
+<tr><td>후속 미결정</td><td>사용자 위임에 따라 보존·공급자·상한 등을 해당 Phase 게이트로 이월, 임의 수치 확정 없음</td></tr>
+<tr><td>추가 문서</td><td>계약은 전체 플랜 안에서 보완하고 Phase 1·3 인수인계를 갱신. 검증 코드는 체크리스트에 보존</td></tr>
+<tr><td>실행 범위</td><td>의존성 설치·앱 코드·migration·seed·API·화면·인프라 변경 없음</td></tr>
+</tbody></table></div>
+<h2>4. 변경 파일</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">구분</th><th scope="col">파일·내용</th></tr></thead><tbody>
+<tr><td>수정</td><td>development-plan.md — 기반 결정, 도구 버전, DB/API 계약, 인증 변경, 요구 추적, Phase 0 상태</td></tr>
+<tr><td>수정</td><td>phase0-plan.md — 실제 범위·결정·상태·검증·완료 조건</td></tr>
+<tr><td>수정</td><td>phase1-plan.md — 도구/타입 버전·인증 schema·계약 인수인계</td></tr>
+<tr><td>수정</td><td>phase3-plan.md — 이메일 분기·비밀번호 가입/로그인/복구/변경·검증 시나리오</td></tr>
+<tr><td>생성</td><td>phase0-test-checklist.md — 명령·환경·실제 결과·수동 사례·재현 검사</td></tr>
+<tr><td>생성</td><td>phase0-result.md, phase0-result.html — 동일한 완료 판정·수치·이월·인수인계</td></tr>
+<tr><td>삭제</td><td>없음</td></tr>
+</tbody></table></div>
+<p>모든 파일은 md/ 아래에 있다. 착수 시 사용자 문서 14개는 미추적 상태였으며 원본 진행 규칙을 보존했다. tracked 앱 파일 변경·커밋·브랜치 변경은 하지 않았다.</p>
+<h2>5. 검증 결과</h2>
+<p><a href="phase0-test-checklist.md">테스트 체크리스트</a>에 실제 명령·종료 코드·재현 가능한 Python 검사와 수동 계약 리뷰 12사례를 기록했다. 자동 검사는 문서 구성·필수 필드·링크를 확인하고, 계약 의미는 수동 대조했다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">검증</th><th scope="col">상태</th><th scope="col">실제 증거</th></tr></thead><tbody>
+<tr><td>P0-T01</td><td>PASS</td><td>git 상태·HEAD·파일 대조, tracked 변경 0, 원본 규칙 hash 동일</td></tr>
+<tr><td>P0-T02</td><td>PASS</td><td>기반 결정 7건·후속 결정 10건의 선택/담당/기한 확인, 공식 도구 메타데이터 대조</td></tr>
+<tr><td>P0-T03</td><td>PASS</td><td>인증 정정·14개 테이블·권한/충돌/삭제/번역 계약 및 수동 사례 대조</td></tr>
+<tr><td>P0-T04</td><td>PASS</td><td>요구 32/32, 공통 검증 책임 24/24, 순차 의존성·로컬 링크·보고서 구조/본문 일치 검사</td></tr>
+</tbody></table></div>
+<p>문서 검사 1 suite / 4 tests가 통과했고 실행 실패는 없었다. 보고서 생성 전 검사와 생성 후 --reports 검사를 구분해 체크리스트에 기록했다. 앱 lint/typecheck/build, 단위/통합/E2E, migration/seed, 실제 인증/권한, 성능/공급자, 브라우저, Docker/복구는 적용 제외 7개 범주다. 이를 성공 또는 skip 수로 합산하지 않았다.</p>
+<p>HTML은 외부 CDN/JavaScript 없이 단일 파일이며 viewport·반응형·인쇄 CSS와 표 구조를 정적으로 확인했다. 브라우저 시각 검수는 수행하지 않았다.</p>
+<h2>6. 완료 게이트</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">조건</th><th scope="col">판정</th><th scope="col">근거</th></tr></thead><tbody>
+<tr><td>기반 정책·도구 확정</td><td>충족</td><td>사용자 최신 비밀번호 지시 및 기술 선정 위임, B-01~07</td></tr>
+<tr><td>후속 결정 담당·기한·차단</td><td>충족</td><td>D-01~10, 제품/운영 결정 사용자·실행 Codex</td></tr>
+<tr><td>요구/공통 테스트 책임</td><td>충족</td><td>32개 요구 개별 행, T-01~24 전체 Phase 매핑</td></tr>
+<tr><td>필수 검증 PASS</td><td>충족</td><td>P0-T01~04 모두 PASS, 런타임과 구분</td></tr>
+<tr><td>계획 차이·변경·실행 증거</td><td>충족</td><td>계획·본 보고서·체크리스트에 기록</td></tr>
+<tr><td>체크리스트·MD·HTML</td><td>충족</td><td>세 파일 생성, 로컬 링크·구조·동일 본문 검증</td></tr>
+<tr><td>다음 Phase 차단 없음</td><td>충족</td><td>Phase 1 도구/schema 계약 전달, 후속 운영 결정은 해당 게이트</td></tr>
+</tbody></table></div>
+<h2>7. 미완료·위험·이월</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">ID</th><th scope="col">남은 결정·준비</th><th scope="col">책임 및 기한·차단</th></tr></thead><tbody>
+<tr><td>D-01</td><td>메일 공급자·발신/수신 환경, 비밀번호·세션·토큰/요청 제한</td><td>사용자 결정 / Phase 3 Codex 실행, Phase 3 착수 전; 실제 인증/복구 완료 차단</td></tr>
+<tr><td>D-02</td><td>최초 관리자·추가 인증, 소셜 앱/연결 정책</td><td>사용자 / Phase 3 Codex, Phase 3 착수 전; 관리자 공개 차단·미준비 소셜 비활성</td></tr>
+<tr><td>D-03</td><td>탈퇴·파일·감사·작업·백업 보존 기간/익명화</td><td>사용자 / Phase 3~5 Codex, 탈퇴/파일/정리 구현 전; 영구 삭제·정리 차단</td></tr>
+<tr><td>D-04</td><td>실제 호스트·TLS·볼륨, 별도 백업/주기/RPO/RTO</td><td>사용자 / Phase 1·11 Codex, 운영 데이터 투입 전·늦어도 Phase 11 착수 전; 실배포/복구 차단</td></tr>
+<tr><td>D-05</td><td>무가이드 생성·새 가이드 최종본·생성 후 세션 이동</td><td>사용자 / Phase 7·8 Codex, Phase 7 착수 전; 해당 상태 정책 차단</td></tr>
+<tr><td>D-06</td><td>PDF/OCR·생성·검증 실제 엔진/계정/평가 데이터</td><td>사용자 / Phase 7·8 Codex, 해당 Phase 착수 전; 실제 연동/품질 완료 차단</td></tr>
+<tr><td>D-07</td><td>파일·요청·비용·재시도 상한·공급자 품질/지연 기준</td><td>사용자 / Phase 4·5·7~10 Codex, 각 기능 착수 전; 무제한 공개·품질 PASS 차단</td></tr>
+<tr><td>D-08</td><td>실제 파트너/추천 엔진·공개 연락처·평가 데이터</td><td>사용자 / Phase 9 Codex, Phase 9 착수 전; 추천 완료 차단</td></tr>
+<tr><td>D-09</td><td>검색 API·coverage·외부 이미지 정책·평가 데이터</td><td>사용자 / Phase 10 Codex, Phase 10 착수 전; 탐지 완료 차단</td></tr>
+<tr><td>D-10</td><td>ko/en 검수자·업무 콘텐츠·랜딩 링크</td><td>사용자 / Phase 2·6·11 Codex, 파일 배포/콘텐츠 게시/출시 전; 미검수 공개·출시 차단</td></tr>
+</tbody></table></div>
+<p>실제 설치·native 의존성·DB·Docker 호환성은 Phase 1에서 검증한다. 설치된 Next 로컬 가이드는 아직 없으며 코드 작성 전에 확보해야 한다. 공급자 선택과 평가 수치는 아직 없고 sandbox 통과를 실제 품질 검증으로 대체할 수 없다.</p>
+<h2>8. 다음 Phase 인수인계</h2>
+<p><a href="phase1-plan.md">Phase 1 계획</a>에 따라 고정 버전 설치 → Next 로컬 가이드 확인 → DB/schema/migration/seed → 공통 DTO·오류·로그 → Docker·검증 실행기를 진행할 수 있다. Phase 1의 worker는 실행 골격, 실제 PostgreSQL 큐 처리는 Phase 5다. 인증의 실제 화면·서버 동작은 <a href="phase3-plan.md">Phase 3 계획</a>을 따른다.</p>
+<p>이번 작업에서 Phase 1 구현을 시작하지 않았다. 롤백이 필요하면 이번 4개 수정 문서의 변경 부분과 3개 생성 파일만 대상으로 하며 기존 미추적 사용자 문서 전체를 초기화하지 않는다.</p>
+</main></body></html>

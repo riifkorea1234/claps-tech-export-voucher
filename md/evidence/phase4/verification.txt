@@ -1,0 +1,26 @@
+Phase 4 verification — synthetic isolated environment only
+Node 22.22.0 / pnpm 10.34.5 / Next 16.3.3 / sharp 0.35.3 / PostgreSQL 17.11 / Playwright 1.63.0
+Final unique suites: 16 files, 93 PASS, 0 FAIL, 0 SKIP
+Unit: 6 files / 24 PASS
+I18n: 2 files / 6 PASS, ko/en 558 keys each
+PostgreSQL integration: 4 files / 39 PASS (workspace 14 + prior 25)
+Vitest combined: 12 files / 69 PASS, 11.05s, exit 0
+Chromium: 4 files / 24 PASS, 1.5m, exit 0
+Intermediate affected workspace UI/API rerun: 6 PASS, 37.5s, exit 0 (not added to unique total)
+Static: typecheck + tsc exit 0; lint exit 0, 0 errors / 6 pre-existing warnings
+Production Docker web build: exit 0
+Migration, seed, locale activation: exit 0
+Compose config and git diff --check: exit 0
+Required P4-T01..05: 5 PASS, 0 FAIL/BLOCKED/PENDING
+Docker smoke: 4 PASS
+PASS prepare: server IDs, authenticated original/thumbnail, distinct checksums and private headers
+PASS restart: same account/session/project/asset IDs and both file checksums after PostgreSQL + web restart
+PASS lifecycle: previously issued file link blocked by parent archive and restored without file loss
+PASS cleanup: synthetic account/DB fixture and private session state removed
+Retained synthetic volume sample before fixture cleanup (not production data):
+{"retainedOriginalSha256":"d04e82665553033574fe6bb9996d13e06f49857cccd1d225d0207e181c06181c","retainedThumbnailSha256":"242db535decdf0c6ec0bc85b60dc3e925187677abbf0faa900e1a9d493e4fca7"}
+Synthetic files removed: 18
+Cleanup counts: users/projects/sessions/assets/tickets/jobs = 0 each; removed 124 synthetic auth rate buckets and 50 sandbox JSON mails. Private persistence cookie state removed. Test web/DB stopped; named volumes/images preserved.
+Document verification: 3/3 PASS — 43 local Markdown links; 8 HTML links, 5 tables, balanced HTML/no scripts/external assets, responsive+print CSS; exact Markdown-generated HTML body and completion counts match.
+Final review correction: Zod 4 optional/default PATCH overwrite reproduced and fixed with a default-free strict PATCH schema. Integration name-edit and E2E cover upload assert omitted IP/description/status preservation. Final full Vitest 69 PASS + Chromium 24 PASS, static/build exit 0.
+Final rerun cleanup: 58 additional synthetic rate buckets, 6 additional files and 21 additional sandbox mails removed. Total cleanup across both stages: 182 rate buckets, 24 files, 71 sandbox mails. Users/projects/sessions/assets/tickets/jobs remain 0 each. Test web/DB stopped again.

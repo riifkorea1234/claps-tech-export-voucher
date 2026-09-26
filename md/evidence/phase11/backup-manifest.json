@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "project": "claps-phase11",
+  "createdAt": "2026-09-24T12:43:21Z",
+  "images": {
+    "web": [
+      "sha256:d7b62289c094b305c0947c35626d11f617646a3db44f9173eec73c895f9f63fd"
+    ],
+    "worker": [
+      "sha256:24b400a93015b36f5dc7c9e258668419d0d67e4074e4e34eb16e2d15bb5d8d7d"
+    ],
+    "db": [
+      "sha256:248efd5e58cd743f2a0e0daec8ea4649e5580145ec2a12e2345bc710d4a77201"
+    ]
+  },
+  "sha256": {
+    "database.dump": "7b460e802a152d0c2060922fc39c86f74a8648c62a3c9d0a8fda2f1471e29222",
+    "uploads.tar": "330cc0e862894d7e13e0c003a52b1bc8a3b08b5b58c037be920b547d864e14b8"
+  }
+}

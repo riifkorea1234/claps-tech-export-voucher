@@ -1,6 +1,8 @@
 "use client";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { useT } from "@/lib/i18n/provider";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Check, Info } from "lucide-react";
 import {
   Dialog,
@@ -13,7 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Project } from "@/lib/mock/projects";
+import type { ProjectInput } from "@/lib/contracts/workspace";
+import { WorkspaceError } from "./workspace-data";
 import { cn } from "@/lib/utils";
 
 // 입력 한 칸 (라벨 + 필수/선택 표시)
@@ -28,6 +31,7 @@ function Field({
   optional?: boolean;
   children: React.ReactNode;
 }) {
+  const t = useT();
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-1 text-sm font-medium text-foreground">
@@ -35,7 +39,7 @@ function Field({
         {required && <span className="text-brand">*</span>}
         {optional && (
           <span className="text-xs font-normal text-muted-foreground">
-            (선택)
+            {t("projects.optional")}
           </span>
         )}
       </label>
@@ -54,8 +58,9 @@ export function NewProjectDialog({
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onCreate: (project: Project) => void;
+  onCreate: (project: ProjectInput) => Promise<unknown>;
 }) {
+  const t = useT();
   const [name, setName] = useState("");
   const [ip, setIp] = useState("");
   const [undecided, setUndecided] = useState(false); // 파트너 미정
@@ -72,28 +77,22 @@ export function NewProjectDialog({
   }
 
   function handleOpenChange(next: boolean) {
+    if (pending) return;
     if (!next) reset(); // 닫으면 입력 초기화
     onOpenChange(next);
   }
 
-  function handleCreate() {
-    if (!canCreate) return;
-    const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const today = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(
-      now.getDate(),
-    )}`;
-    onCreate({
-      id: `local-${Date.now()}`,
-      name: name.trim(),
-      ip: undecided ? "미정" : ip.trim(),
-      status: "준비 중",
-      description: desc.trim() || undefined,
-      createdAt: today,
-      updatedAt: now.getTime(),
-    });
-    reset();
-    onOpenChange(false);
+  const lock = useRef(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<Error>();
+  async function handleCreate() {
+    if (!canCreate || lock.current) return;
+    lock.current = true; setPending(true); setError(undefined);
+    try {
+      await onCreate({ name: name.trim(), ip: undecided ? "" : ip.trim(), description: desc.trim() });
+      reset(); onOpenChange(false);
+    } catch (e) { setError(e instanceof Error ? e : new Error()); }
+    finally { lock.current = false; setPending(false); }
   }
 
   return (
@@ -101,33 +100,33 @@ export function NewProjectDialog({
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
-            새 프로젝트 만들기
+            {t("projects.create_a_new_project")}
           </DialogTitle>
           <DialogDescription>
-            IP를 선택하고 프로젝트를 만들면 에셋 생성·가이드 검증을 시작할 수
-            있어요.
+            {t("projects.choose_an_ip_and_create_a_project_to_start")}
           </DialogDescription>
         </DialogHeader>
+        <LanguageSwitcher className="justify-self-end" />
 
         <div className="flex flex-col gap-4">
           {/* 프로젝트 이름 */}
-          <Field label="프로젝트 이름" required>
+          <Field label={t("projects.project_name")} required>
             <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="예: 썸머 캡슐 컬렉션"
+              placeholder={t("projects.e_g_summer_capsule_collection")}
             />
           </Field>
 
           {/* IP · 파트너 */}
-          <Field label="IP · 파트너" required>
+          <Field label={t("projects.ip_partner")} required>
             <Input
               type="text"
               value={undecided ? "" : ip}
               onChange={(e) => setIp(e.target.value)}
               disabled={undecided}
-              placeholder="예: 산리오 · 시나모롤"
+              placeholder={t("projects.e_g_sanrio_cinnamoroll")}
             />
             {/* 미정 체크박스 */}
             <button
@@ -147,16 +146,18 @@ export function NewProjectDialog({
               >
                 <Check className="size-3" strokeWidth={3} />
               </span>
-              아직 파트너가 정해지지 않았어요 (미정)
+              {t("projects.i_haven_t_chosen_a_partner_yet")}
             </button>
           </Field>
 
           {/* 프로젝트 설명 */}
-          <Field label="프로젝트 설명" optional>
+          <Field label={t("projects.project_description")} optional>
             <textarea
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              placeholder="이 프로젝트가 어떤 작업인지 간단히 적어주세요."
+              placeholder={t(
+                "projects.briefly_describe_the_work_in_this_project",
+              )}
               rows={3}
               className={cn(inputBase, "resize-none py-2.5")}
             />
@@ -166,21 +167,18 @@ export function NewProjectDialog({
           <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2.5">
             <Info className="size-4 shrink-0 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              브랜드 가이드는 프로젝트를 만든 뒤{" "}
-              <span className="font-medium text-foreground">
-                ‘브랜드 가이드’
-              </span>{" "}
-              탭에서 업로드할 수 있어요.
+              {t("projects.guideUploadHelp")}
             </p>
           </div>
         </div>
 
+        <WorkspaceError error={error} />
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">취소</Button>
+            <Button variant="outline">{t("projects.cancel")}</Button>
           </DialogClose>
-          <Button disabled={!canCreate} onClick={handleCreate}>
-            프로젝트 생성
+          <Button disabled={!canCreate || pending} onClick={handleCreate}>
+            {t("projects.create_project")}
           </Button>
         </DialogFooter>
       </DialogContent>

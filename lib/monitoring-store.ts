@@ -1,9 +1,10 @@
+import { normalizePlatform } from "./i18n/legacy";
 // 탐지 기록 저장소 (브라우저 localStorage · 백엔드 붙기 전 임시)
 
 // 탐지된 항목 (검색 결과 1건)
 export interface ScanResult {
   id: number;
-  platform: "구글" | "네이버";
+  platform: "google" | "naver";
   similarity: number;
   timeLabel: string;
   url: string;
@@ -26,7 +27,17 @@ const KEY = "claps:monitoring:records";
 export function getRecords(): SavedMonitoringRecord[] {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as SavedMonitoringRecord[]) : [];
+    return raw
+      ? (JSON.parse(raw) as SavedMonitoringRecord[]).map((record) => ({
+          ...record,
+          results: record.results?.map((result) => ({
+            ...result,
+            platform: normalizePlatform(
+              result.platform,
+            ) as ScanResult["platform"],
+          })),
+        }))
+      : [];
   } catch {
     return [];
   }

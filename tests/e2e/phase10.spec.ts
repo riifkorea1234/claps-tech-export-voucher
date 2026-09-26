@@ -1,0 +1,45 @@
+import { test, expect } from "@playwright/test";
+import sharp from "sharp";
+import { Pool } from "pg";
+import { createAccount, cleanupAccounts, fixturePassword } from "../helpers/auth-fixture";
+test.afterAll(async () => cleanupAccounts());
+test("monitoring original CRUD, isolation, unavailable scan, admin operations and ko/en mobile", async ({ page, baseURL, browser }) => {
+  test.setTimeout(180000); page.setDefaultTimeout(15000);
+  if (!process.env.TEST_DATABASE_URL || new URL(process.env.TEST_DATABASE_URL).pathname !== "/claps_test") throw new Error("ISOLATED_DB_REQUIRED");
+  const email = await createAccount(page.request, baseURL!), headers = { Origin: baseURL! };
+  await page.request.post("/api/locale", { headers, data: { locale: "en" } });
+  await page.goto("/monitoring/new");
+  await page.getByLabel("Record name", { exact: true }).fill("P10 original");
+  const png = await sharp({ create: { width: 640, height: 480, channels: 3, background: "red" } }).png().toBuffer();
+  await page.locator('input[type="file"]').setInputFiles({ name: "original.png", mimeType: "image/png", buffer: png });
+  await page.getByRole("button", { name: "Save record", exact: true }).click();
+  await expect(page).toHaveURL(/\/monitoring\/(?!new)[A-Za-z0-9_-]+$/);
+  const id = page.url().split("/").at(-1)!;
+  await expect(page.getByRole("heading", { name: "P10 original", exact: true })).toBeVisible();
+  expect(await (await page.request.get(`/api/monitoring-records/${id}/image`)).body()).toEqual(png);
+  await expect(page.getByText("No executions yet.", { exact: true })).toBeVisible();
+  expect((await page.request.post(`/api/monitoring-records/${id}/scans`, { headers, data: { outputLocale: "en", idempotencyKey: "unavailable" } })).status()).toBe(503);
+  expect((await page.request.patch(`/api/monitoring-records/${id}`, { headers: { Origin: "https://foreign.test" }, data: { version: 1, name: "bad" } })).status()).toBe(403);
+  await page.getByLabel("Record name", { exact: true }).fill("P10 renamed"); await page.getByRole("button", { name: "Rename", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "P10 renamed", exact: true })).toBeVisible(); await page.reload();
+  await expect(page.getByRole("heading", { name: "P10 renamed", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Archive", exact: true }).click(); await expect(page.getByRole("button", { name: "Restore", exact: true })).toBeVisible();
+  expect((await page.request.get(`/api/monitoring-records/${id}/image`)).status()).toBe(404);
+  await page.getByRole("button", { name: "Restore", exact: true }).click(); await expect(page.getByRole("img", { name: "original.png", exact: true })).toBeVisible();
+  const other = await browser.newContext(); await createAccount(other.request, baseURL!); expect((await other.request.get(`/api/monitoring-records/${id}`)).status()).toBe(404); await other.close();
+  const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  try {
+    await pool.query("UPDATE users SET app_role='admin' WHERE email=$1", [email]);
+    await page.goto(`/admin/monitoring/${id}`);
+    expect((await page.request.post("/api/admin/reauthenticate", { headers, data: { password: fixturePassword } })).status()).toBe(200); await page.reload();
+    await page.getByLabel("Reason", { exact: true }).fill("Isolated monitoring check");
+    await page.getByRole("button", { name: "Archive", exact: true }).click(); await expect(page.getByRole("button", { name: "Restore", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Restore", exact: true }).click(); await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
+    expect((await pool.query("SELECT 1 FROM admin_audit_logs WHERE entity_id=$1 AND action='monitoring.restore'", [id])).rowCount).toBe(1);
+  } finally { await pool.end(); }
+  await page.request.post("/api/locale", { headers, data: { locale: "ko" } }); await page.goto(`/monitoring/${id}`);
+  await expect(page.getByRole("heading", { name: "실행 이력", exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "md/evidence/phase10/monitoring-mobile.png", fullPage: true });
+  await page.goto("/monitoring"); await page.getByRole("textbox", { name: "기록 검색", exact: true }).fill("P10 renamed"); await expect(page.getByRole("link", { name: "P10 renamed", exact: true })).toBeVisible();
+});

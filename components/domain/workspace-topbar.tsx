@@ -1,13 +1,9 @@
+"use client";
+import { useT } from "@/lib/i18n/provider";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buildBackQuery } from "@/lib/workspace-nav";
-
-const STEPS = [
-  { n: 1, label: "에셋 생성" },
-  { n: 2, label: "가이드 검증" },
-  { n: 3, label: "최종본" },
-];
 
 // 단계 번호 → 라우트
 function stepHref(sessionId: string, n: number) {
@@ -31,8 +27,15 @@ export function WorkspaceTopBar({
   from?: string; // 어디서 왔는지 (없으면 에셋 생성 목록)
   fromLabel?: string; // 뒤로가기 라벨 (없으면 "목록")
 }) {
+  const t = useT();
+  const STEPS = [
+    { n: 1, label: t("navigation.asset_generation") },
+    { n: 2, label: t("navigation.guideline_verification") },
+    { n: 3, label: t("navigation.final_assets") },
+  ];
+
   const backHref = from ?? "/assets";
-  const backLabel = fromLabel ?? "목록";
+  const backLabel = fromLabel ?? t("navigation.back_to_list");
   const suffix = buildBackQuery(from, fromLabel); // 스텝 이동에도 계속 붙임
 
   return (

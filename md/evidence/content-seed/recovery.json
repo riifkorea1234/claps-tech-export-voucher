@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "scope": "local fictional samples only",
+  "rowsAndFilesUnchanged": true,
+  "snapshot": {
+    "projects": {
+      "rows": 3,
+      "sha256": "c2984bd31b99b3f9c2db7d883177af7e00ad44696510b0645098b274b0f97baa"
+    },
+    "asset_sessions": {
+      "rows": 3,
+      "sha256": "82c9869f52ccc7d98edc7c758c855c21338305dfaa693a65c827b402f64a34d0"
+    },
+    "partners": {
+      "rows": 6,
+      "sha256": "b9038cbd055b37bfb7d2b6a34995db8fc48e88e933f914cd29066a3bfd0bc9d2"
+    },
+    "localized_contents": {
+      "rows": 12,
+      "sha256": "5ad6ec7aab3fc77e847d78674fa9881d51e3708901d46d8beeb7f3930be7788f"
+    },
+    "monitoring_records": {
+      "rows": 2,
+      "sha256": "7f61d9b7b215b66083ef601ff6cf521401cb3ebb03ea82874e8297ec64485a5f"
+    },
+    "files": {
+      "count": 6,
+      "sha256": "3a576b45720b32c5d7a8152924c8954fe3a7f6b192b8f4a0950a3b437cfdcd13"
+    }
+  },
+  "restoreAndHealthySmokeSeconds": 22.34
+}

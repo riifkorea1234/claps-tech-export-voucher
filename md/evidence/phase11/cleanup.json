@@ -1,0 +1,21 @@
+{
+  "isolatedDatabases": [
+    {
+      "port": 55434,
+      "users": 0,
+      "records": 0,
+      "jobs": 0,
+      "tickets": 0
+    },
+    {
+      "port": 55435,
+      "users": 0,
+      "records": 0,
+      "jobs": 0,
+      "tickets": 0
+    }
+  ],
+  "testFilePackRemoved": true,
+  "syntheticSessionFilesRemoved": true,
+  "backupRetained": "/tmp/claps-p11-backup"
+}

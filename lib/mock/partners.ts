@@ -1,6 +1,9 @@
 // 임시 목업 데이터 — 나중에 E1 추천엔진 API 응답으로 교체 (구조 유지)
 
-export type Factor = { label: string; value: number };
+export type Factor = {
+  code: "world" | "price" | "fandom" | "industry";
+  value: number;
+};
 
 export interface Partner {
   id: string;
@@ -28,10 +31,10 @@ function makeFactors(
   industry: number,
 ): Factor[] {
   return [
-    { label: "세계관 적합", value: worldview },
-    { label: "가격 적합", value: price },
-    { label: "팬덤 중첩", value: fandom },
-    { label: "업종 연관", value: industry },
+    { code: "world", value: worldview },
+    { code: "price", value: price },
+    { code: "fandom", value: fandom },
+    { code: "industry", value: industry },
   ];
 }
 
@@ -52,7 +55,10 @@ export const heroPartner: HeroPartner = {
 
 export const partners: Partner[] = [
   {
-    id: "2", rank: 2, name: "카카오프렌즈", matchScore: 88,
+    id: "2",
+    rank: 2,
+    name: "카카오프렌즈",
+    matchScore: 88,
     email: "partner@kakaofriends.com",
     factors: makeFactors(90, 65, 88, 60),
     aiSummary:
@@ -60,15 +66,26 @@ export const partners: Partner[] = [
     stats: ["팬덤 900만", "콜라보 15건", "예상 리드타임 5주", "MZ 선호 상위"],
   },
   {
-    id: "3", rank: 3, name: "라인프렌즈", matchScore: 85,
+    id: "3",
+    rank: 3,
+    name: "라인프렌즈",
+    matchScore: 85,
     email: "biz@linefriends.com",
     factors: makeFactors(82, 78, 80, 72),
     aiSummary:
       "라인프렌즈는 일본·동남아 등 글로벌 팬덤이 강하고 네 항목이 고르게 높습니다. 해외 판로를 고려한 협업에 특히 유리합니다.",
-    stats: ["글로벌 팬덤", "콜라보 12건", "해외 진출 유리", "예상 리드타임 6주"],
+    stats: [
+      "글로벌 팬덤",
+      "콜라보 12건",
+      "해외 진출 유리",
+      "예상 리드타임 6주",
+    ],
   },
   {
-    id: "4", rank: 4, name: "잔망루피", matchScore: 81,
+    id: "4",
+    rank: 4,
+    name: "잔망루피",
+    matchScore: 81,
     email: "collab@zanmang.co.kr",
     factors: makeFactors(88, 60, 72, 55),
     aiSummary:
@@ -76,7 +93,10 @@ export const partners: Partner[] = [
     stats: ["SNS 화제성 상위", "콜라보 9건", "2030 여성 인기"],
   },
   {
-    id: "5", rank: 5, name: "시나모롤", matchScore: 79,
+    id: "5",
+    rank: 5,
+    name: "시나모롤",
+    matchScore: 79,
     email: "partnership@cinnamoroll.jp",
     factors: makeFactors(76, 85, 68, 64),
     aiSummary:
@@ -84,7 +104,10 @@ export const partners: Partner[] = [
     stats: ["가격 조건 우수", "콜라보 7건", "안정적 승인"],
   },
   {
-    id: "6", rank: 6, name: "마시마로", matchScore: 76,
+    id: "6",
+    rank: 6,
+    name: "마시마로",
+    matchScore: 76,
     email: "contact@mashimaro.co.kr",
     factors: makeFactors(70, 72, 60, 80),
     aiSummary:
@@ -92,7 +115,10 @@ export const partners: Partner[] = [
     stats: ["레트로 인기", "업종 접점 높음", "콜라보 6건"],
   },
   {
-    id: "7", rank: 7, name: "무민", matchScore: 74,
+    id: "7",
+    rank: 7,
+    name: "무민",
+    matchScore: 74,
     email: "licensing@moomin.com",
     factors: makeFactors(84, 58, 55, 50),
     aiSummary:
@@ -100,7 +126,10 @@ export const partners: Partner[] = [
     stats: ["감성·프리미엄", "콜라보 5건", "해외 라이선스"],
   },
   {
-    id: "8", rank: 8, name: "쿠로미", matchScore: 71,
+    id: "8",
+    rank: 8,
+    name: "쿠로미",
+    matchScore: 71,
     email: "partner@kuromi.jp",
     factors: makeFactors(66, 90, 74, 48),
     aiSummary:
@@ -108,7 +137,10 @@ export const partners: Partner[] = [
     stats: ["가격 조건 최상", "팬덤 상승세", "콜라보 8건"],
   },
   {
-    id: "9", rank: 9, name: "어피치", matchScore: 68,
+    id: "9",
+    rank: 9,
+    name: "어피치",
+    matchScore: 68,
     email: "biz@apeach.kakao.com",
     factors: makeFactors(72, 63, 66, 86),
     aiSummary:
@@ -116,7 +148,10 @@ export const partners: Partner[] = [
     stats: ["업종 적합 최상", "카카오 연계", "콜라보 6건"],
   },
   {
-    id: "10", rank: 10, name: "브라운", matchScore: 65,
+    id: "10",
+    rank: 10,
+    name: "브라운",
+    matchScore: 65,
     email: "biz@brown.linefriends.com",
     factors: makeFactors(60, 80, 58, 70),
     aiSummary:
@@ -126,10 +161,10 @@ export const partners: Partner[] = [
 ];
 
 // 매칭 기준 요약 칩 (상단 다크 배너)
-export const matchCriteria: string[] = [
-  "IP: 헬로키티",
-  "세계관: 명랑·우정·일상",
-  "라이선시: 자사 굿즈",
-  "업종: 문구 제조",
-  "콜라보 8건",
+export const matchCriteria = [
+  { code: "ip", value: "헬로키티" },
+  { code: "world", value: "명랑·우정·일상" },
+  { code: "licensee", value: "자사 굿즈" },
+  { code: "industry", value: "문구 제조" },
+  { code: "history", value: "콜라보 8건" },
 ];

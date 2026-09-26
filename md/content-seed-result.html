@@ -1,0 +1,112 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLAPS 콘텐츠·시드 검수 결과</title><style>body{font:16px/1.75 system-ui,sans-serif;background:#f6f7fa;color:#172033;max-width:1050px;margin:auto;padding:32px 20px}h1{font-size:30px}h2{margin-top:36px}table{border-collapse:collapse;width:100%;display:block;overflow:auto;background:white}td,th{border:1px solid #dde2ec;padding:10px;text-align:left}a{color:#1357b4}code{background:#e7ecf4;padding:2px 5px;border-radius:4px}p,li{overflow-wrap:anywhere}</style><main><h1>콘텐츠 검수·가상 샘플 시드 결과</h1>
+<p>2026-09-25 · <strong>요청 범위 완료 / PASS</strong></p>
+<p>사용자가 승인한 가상 샘플 데이터를 로컬 체험 DB에 입력하고, 한·영 콘텐츠 검수와 최종 확인을 완료했다. 실제 AI 연동·배포 설정·운영 정책은 이번 범위에서 제외했다. 기존 Phase 11 결과를 대체하지 않는 후속 검증이다.</p>
+<h2>입력한 데이터</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th style="text-align: right;">수량</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>가상 파트너</td>
+<td style="text-align: right;">6</td>
+<td>문구·의류·리빙·완구·패키지·디지털</td>
+</tr>
+<tr>
+<td>한·영 파트너 게시 소개</td>
+<td style="text-align: right;">12</td>
+<td>이름·소개·시장 설명, 샘플 표시</td>
+</tr>
+<tr>
+<td>프로젝트</td>
+<td style="text-align: right;">3</td>
+<td>구름친구 문구·파도친구 의류·숲속친구 리빙</td>
+</tr>
+<tr>
+<td>생성 작업 세션</td>
+<td style="text-align: right;">3</td>
+<td>프로젝트별 기획 세션 1개, 생성 결과는 없음</td>
+</tr>
+<tr>
+<td>모니터링 원본</td>
+<td style="text-align: right;">2</td>
+<td>단색 PNG 업로드 fixture, 실제 탐지 결과는 없음</td>
+</tr>
+<tr>
+<td>실제 규칙 기반 추천</td>
+<td style="text-align: right;">1</td>
+<td>worker가 계산한 키워드 일치도, 문구 파트너 1위</td>
+</tr>
+<tr>
+<td>프로젝트 커버</td>
+<td style="text-align: right;">1</td>
+<td>브라우저 검사에서 정상 업로드·연결</td>
+</tr>
+</tbody>
+</table>
+<p>파트너 이름과 소개에 가상 샘플임을 표시했고 실제 연락처·실적·인증을 기재하지 않았다. 규칙 추천 점수는 키워드 일치도이며 AI 분석이나 제휴 성공 확률이 아니다. 모니터링 원본과 커버를 포함해 저장 파일은 원본·썸네일 총 6개다.</p>
+<h2>콘텐츠 검수</h2>
+<ul>
+<li>ko/en 랜딩·FAQ·기능 소개에서 실제 생성·검증·PDF 분석·웹 검색은 준비 중 또는 미리보기로 안내했다.</li>
+<li>추천 설명을 현재 구현된 IP·세계관·브랜드·업종 키워드 비교에 맞췄다. 추천 근거에 AI 분석이라는 표현을 제거했다.</li>
+<li>팀 협업·권한·우선 지원은 예정 기능으로 표시하고, 협업 문의의 응답 보장 표현을 수정했다.</li>
+<li>가상 파트너 6개의 한국어·영어 의미와 표기를 확인했다. 사용자 입력인 프로젝트 이름·추천 기준은 언어 변경 때 자동 번역하지 않는다.</li>
+<li>모바일 390px에서 프로젝트·추천·전체 파트너 목록을 확인했다. <a href="evidence/content-seed/projects-mobile.png">프로젝트 화면</a> · <a href="evidence/content-seed/partners-mobile.png">추천 화면</a></li>
+</ul>
+<h2>시드 동작</h2>
+<p>별도 <code>db:seed:demo</code>는 <code>claps_demo</code> 또는 <code>claps_test</code> 계열 DB에서만 실행된다. 기존 활성 계정에 정상 로그인하고, 안정된 ID와 DB 잠금으로 동시 실행/재실행 중복을 막는다. 사용자 편집·보관·게시 번역·선호를 덮어쓰지 않는다. 기존 locale-only <code>db:seed</code>는 유지한다.</p>
+<p>이미지 파일은 기존 업로드 검증과 티켓 처리로 생성한다. 파일을 보존하려면 web과 같은 uploads 볼륨을 쓰는 <strong>worker 서비스</strong>로 실행한다. 초기 검수에서 migrate의 임시 파일 저장소 문제를 발견해, 이번에 생성한 해당 원본 2개만 정리하고 공용 볼륨으로 다시 입력했다. 이후 HTTP 원본 다운로드와 복원 검사가 통과했다.</p>
+<h2>최종 확인</h2>
+<table>
+<thead>
+<tr>
+<th>검사</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TypeScript·ESLint</td>
+<td>통과, 오류 0; 기존 불필요 eslint-disable 경고 2개</td>
+</tr>
+<tr>
+<td>프로덕션 web·worker·migrate 이미지 빌드</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>단위 43 + i18n 8 + 통합 115</td>
+<td><strong>166개 통과</strong></td>
+</tr>
+<tr>
+<td>샘플 Chromium 흐름</td>
+<td><strong>1개 통과</strong></td>
+</tr>
+<tr>
+<td>시드 동시 실행·중복 방지·편집 보존·계정 격리</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>한·영 추천·새로고침·모바일·미인증 접근</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>프로젝트·세션이 있는 DB+파일 백업/빈 환경 복원</td>
+<td>통과</td>
+</tr>
+</tbody>
+</table>
+<p>이번 실행에서 자동 테스트는 총 <strong>167개</strong>다. 기존 Phase 11의 전체 브라우저 35개는 이번에 다시 실행하지 않았으며 중복 합산하지 않았다. 프로덕션 web 이미지에서 샘플 전용 브라우저 검사를 실행했다. AI 공급자가 없는 검색 요청은 의도대로 503이며 가짜 결과를 만들지 않는다.</p>
+<p>복원 전후 프로젝트 3·세션 3·파트너 6·게시 소개 12·모니터링 2의 전체 행 SHA-256과 파일 6개의 checksum 목록이 일치했다. 복원 환경에서 기존 로그인 세션·한국어 선호·프로젝트 커버·세션 연결·원본 바이트·추천 결과를 확인했다. 복원부터 healthy/HTTP 확인까지 로컬 측정은 <strong>22.34초</strong>이며 운영 SLA를 의미하지 않는다. <a href="evidence/content-seed/recovery.json">복원 증거</a></p>
+<h2>체험과 인수인계</h2>
+<ul>
+<li>체험 URL: <a href="http://127.0.0.1:3193">http://127.0.0.1:3193</a></li>
+<li>로그인 정보: Git에서 제외한 로컬 <code>.env.seed.local</code>의 <code>DEMO_EMAIL</code>·<code>DEMO_PASSWORD</code>. 비밀번호는 보고서에 넣지 않았다.</li>
+<li>샘플 DB·파일은 체험 서버에 보존한다. 별도 복원 시험 서버와 테스트 DB는 검사 후 정지하며 볼륨은 삭제하지 않는다.</li>
+<li>실행 방법: <a href="../scripts/README.md">로컬 시드 가이드</a> · <a href="../db/README.md">DB 가이드</a></li>
+<li>검증 자료: <a href="content-seed-test-checklist.md">체크리스트</a> · <a href="evidence/content-seed/automated-tests.log">자동 테스트</a> · <a href="evidence/content-seed/browser.log">브라우저</a> · <a href="evidence/content-seed/static-checks.log">정적 검사</a> · <a href="evidence/content-seed/web-build.log">web 빌드</a></li>
+</ul>
+<p>콘텐츠·가상 시드·이번 최종 확인 범위에 미완료 항목은 없다. 실제 AI와 운영 출시 여부는 별도 후속 범위다.</p></main></html>

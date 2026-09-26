@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,43 +31,44 @@ export function ProfileFields({
   onOrgChange: (value: string) => void;
   onRoleChange: (value: string) => void;
 }) {
+  const t = useT();
   return (
     <>
       {/* 이름 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-name`}>이름</Label>
+        <Label htmlFor={`${idPrefix}-name`}>{t("auth.name")}</Label>
         <Input
           id={`${idPrefix}-name`}
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="홍길동"
+          placeholder={t("auth.your_name")}
           className="h-11"
         />
       </div>
 
       {/* 조직명 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-org`}>조직명</Label>
+        <Label htmlFor={`${idPrefix}-org`}>{t("auth.organization")}</Label>
         <Input
           id={`${idPrefix}-org`}
           value={org}
           onChange={(e) => onOrgChange(e.target.value)}
-          placeholder="회사 / 브랜드명"
+          placeholder={t("auth.company_brand_name")}
           className="h-11"
         />
       </div>
 
       {/* 업종 / 직무 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-role`}>업종 / 직무</Label>
+        <Label htmlFor={`${idPrefix}-role`}>{t("auth.industry_role")}</Label>
         <Select value={role} onValueChange={onRoleChange}>
           <SelectTrigger id={`${idPrefix}-role`} className="h-11">
-            <SelectValue placeholder="선택하세요" />
+            <SelectValue placeholder={t("auth.select_an_option")} />
           </SelectTrigger>
           <SelectContent>
             {ROLES.map((r) => (
               <SelectItem key={r} value={r}>
-                {r}
+                {t(`auth.role.${r}`)}
               </SelectItem>
             ))}
           </SelectContent>

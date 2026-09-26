@@ -1,0 +1,46 @@
+
+> web@0.1.0 test:e2e /mnt/f/claps-product
+> playwright test
+
+
+Running 35 tests using 1 worker
+
+(node:3533398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › tests/e2e/admin.spec.ts:25:5 › member cannot access any admin endpoint; same-origin and strict bodies required (1.8s)
+  ✓   2 [chromium] › tests/e2e/admin.spec.ts:36:5 › reauthentication, all seven menus, mobile keyboard navigation and expiration (6.7s)
+  ✓   3 [chromium] › tests/e2e/admin.spec.ts:57:5 › partner create, language switching preserves form and content language; draft and publish update real catalog (4.8s)
+  ✓   4 [chromium] › tests/e2e/admin.spec.ts:90:5 › import preview/export, conflict handling, image decoding and private catalog boundary (4.6s)
+  ✓   5 [chromium] › tests/e2e/auth.spec.ts:4:5 › email-first signup, eight-character password, verification, profile, password change and logout (8.7s)
+  ✓   6 [chromium] › tests/e2e/auth.spec.ts:28:5 › recovery UI resets password, rejects reuse and invalidates another browser session (3.1s)
+  ✓   7 [chromium] › tests/e2e/auth.spec.ts:39:5 › URL/localStorage/social bypasses and malformed, cross-origin or privilege-escalating requests are rejected (2.3s)
+  ✓   8 [chromium] › tests/e2e/auth.spec.ts:54:5 › account language follows A/B across sessions; persistence errors leave the selected language unchanged (3.3s)
+  ✓   9 [chromium] › tests/e2e/auth.spec.ts:70:5 › profile pending cannot enter app and mobile account withdrawal blocks all previous sessions (3.4s)
+  ✓  10 [chromium] › tests/e2e/auth.spec.ts:84:5 › lookup is rate limited and never issues a session cookie (812ms)
+  ✓  11 [chromium] › tests/e2e/foundation.spec.ts:2:5 › web readiness serves the API envelope and a generated request ID (59ms)
+  ✓  12 [chromium] › tests/e2e/foundation.spec.ts:7:5 › existing login screen renders and accepts an email without runtime errors (535ms)
+  ✓  13 [chromium] › tests/e2e/i18n.spec.ts:16:5 › API matches regional languages, rejects invalid origins/locales and sets a private cookie (481ms)
+  ✓  14 [chromium] › tests/e2e/i18n.spec.ts:56:5 › SSR chooses browser language and cookie without hydration errors (1.8s)
+  ✓  15 [chromium] › tests/e2e/i18n.spec.ts:74:5 › login and recovery inputs survive language changes and failed persistence can be retried (2.7s)
+  ✓  16 [chromium] › tests/e2e/i18n.spec.ts:108:5 › project search and open form retain original input and server status (2.5s)
+  ✓  17 [chromium] › tests/e2e/i18n.spec.ts:150:5 › asset prompt, style, generated output and URL survive changing locale without a new job (2.1s)
+  ✓  18 [chromium] › tests/e2e/i18n.spec.ts:180:7 › landing and application selector are visible and keyboard accessible at 390px (2.6s)
+  ✓  19 [chromium] › tests/e2e/i18n.spec.ts:180:7 › landing and application selector are visible and keyboard accessible at 1280px (2.5s)
+  ✓  20 [chromium] › tests/e2e/i18n.spec.ts:202:5 › all existing page families render localized UI with no runtime errors (7.6s)
+  ✓  21 [chromium] › tests/e2e/i18n.spec.ts:254:5 › profile role uses a stable code and entered values survive switching (1.9s)
+  ✓  22 [chromium] › tests/e2e/i18n.spec.ts:276:5 › partner sorting remains selected while business source content is preserved (1.4s)
+  ✓  23 [chromium] › tests/e2e/jobs.spec.ts:24:5 › restores real job status on reload, polls completion, and recovers transient polling errors (8.8s)
+  ✓  24 [chromium] › tests/e2e/jobs.spec.ts:32:5 › distinguishes cancellation requests from canceled and uses ko/en labels (5.2s)
+  ✓  25 [chromium] › tests/e2e/jobs.spec.ts:40:5 › forces job ownership, origin and strict mutation DTO at real HTTP boundaries (1.2s)
+  ✓  26 [chromium] › tests/e2e/phase10.spec.ts:6:5 › monitoring original CRUD, isolation, unavailable scan, admin operations and ko/en mobile (7.4s)
+  ✓  27 [chromium] › tests/e2e/phase11.spec.ts:6:5 › third file pack deploy → register → publish → activate → disable with preference and file persistence (5.1s)
+  ✓  28 [chromium] › tests/e2e/phase8.spec.ts:16:5 › production server blocks fake verification and supports final → ZIP → cancel in ko/en (9.1s)
+  ✓  29 [chromium] › tests/e2e/phase9.spec.ts:11:5 › real matching worker: criteria restore, sorting, failure retention, privacy and ko/en mobile (19.2s)
+  ✓  30 [chromium] › tests/e2e/workspace.spec.ts:7:5 › creates projects with server IDs, preserves failures, searches, edits and restores archives (3.7s)
+  ✓  31 [chromium] › tests/e2e/workspace.spec.ts:21:5 › persists cover original/thumbnail and refuses wrong MIME without false success (3.2s)
+  ✓  32 [chromium] › tests/e2e/workspace.spec.ts:32:5 › creates and links a session, keeps one server title across all steps, adopts a synthetic asset (6.9s)
+  ✓  33 [chromium] › tests/e2e/workspace.spec.ts:44:5 › forces API ownership, strict fields, origin, version conflicts and real missing pages (2.5s)
+  ✓  34 [chromium] › tests/e2e/workspace.spec.ts:54:5 › uses server pagination and ignores unowned browser data (2.9s)
+  ✓  35 [chromium] › tests/e2e/workspace.spec.ts:61:5 › shows failed loads distinctly and works on mobile (1.8s)
+
+  35 passed (2.9m)

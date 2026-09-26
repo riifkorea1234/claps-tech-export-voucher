@@ -1,3 +1,5 @@
+"use client";
+import { useT } from "@/lib/i18n/provider";
 import Link from "next/link";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { ForgotPasswordForm } from "@/components/domain/forgot-password-form";
@@ -6,6 +8,7 @@ import { ForgotPasswordForm } from "@/components/domain/forgot-password-form";
 // 실제 발송은 백엔드 연동 후 (지금은 화면 전환만)
 
 export default function ForgotPasswordPage() {
+  const t = useT();
   return (
     <AuthShell>
       {/* 제목 + 이메일 + 발송 (동작 부품) */}
@@ -16,7 +19,7 @@ export default function ForgotPasswordPage() {
         href="/login"
         className="text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        로그인으로 돌아가기
+        {t("auth.back_to_login")}
       </Link>
     </AuthShell>
   );

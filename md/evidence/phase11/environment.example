@@ -1,0 +1,7 @@
+POSTGRES_USER=claps_test
+POSTGRES_DB=claps_test
+POSTGRES_PASSWORD=claps_test_local_only
+DATABASE_URL=postgresql://claps_test:claps_test_local_only@db:5432/claps_test
+APP_ORIGIN=http://127.0.0.1:3191
+WEB_PORT=3191
+MAIL_ADAPTER=sandbox

@@ -1,0 +1,1 @@
+{"requests": 100, "concurrency": 5, "errors": 0, "seconds": 2.898, "requestsPerSecond": 34.5, "p50Ms": 139.41, "p95Ms": 173.76, "maxMs": 244.73}

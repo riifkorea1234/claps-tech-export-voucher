@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { useEffect, useRef } from "react";
 import type { Factor } from "@/lib/mock/partners";
@@ -6,6 +7,7 @@ import type { Factor } from "@/lib/mock/partners";
 // 매칭 근거 바 (라벨 + 그라디언트 바 + %) — 히어로/파트너 카드 공용.
 // 마운트마다 0%를 그린 뒤 목표값으로 transition (초기 로드 + 재매칭 모두 재생).
 export function FactorBars({ factors }: { factors: Factor[] }) {
+  const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,9 +30,9 @@ export function FactorBars({ factors }: { factors: Factor[] }) {
       className="flex h-full w-full flex-col justify-center gap-1.5 rounded-lg bg-muted px-4 py-3"
     >
       {factors.map((f, i) => (
-        <div key={f.label} className="flex items-center gap-3">
-          <span className="w-[60px] shrink-0 text-xs text-muted-foreground">
-            {f.label}
+        <div key={f.code} className="flex items-center gap-3">
+          <span className="w-[90px] shrink-0 text-xs text-muted-foreground">
+            {t(`partners.factorLabel.${f.code}`)}
           </span>
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-200">
             <div

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import { Check, EllipsisVertical } from "lucide-react";
 import {
@@ -18,7 +19,6 @@ export type GeneratedAsset = {
 };
 
 // 툴팁에 보여줄 세부 준수 항목
-const COMPLIANCE = ["IP 정체성", "품질", "IP 정합"];
 
 // 생성된 에셋 결과 카드 — 채택 체크박스 + (호버) Compliance 오버레이·⋮
 export function AssetResultCard({
@@ -30,6 +30,13 @@ export function AssetResultCard({
   onToggle: () => void;
   onOpen?: () => void;
 }) {
+  const t = useT();
+  const COMPLIANCE = [
+    t("assets.ip_identity"),
+    t("assets.quality"),
+    t("assets.ip_alignment"),
+  ];
+
   return (
     <div
       onClick={onOpen}
@@ -77,7 +84,7 @@ export function AssetResultCard({
                 className="pointer-events-none flex min-w-0 items-center gap-1.5 rounded-full bg-foreground px-2.5 py-1 text-sm whitespace-nowrap text-white outline-none group-hover:pointer-events-auto"
               >
                 <span className="size-2 shrink-0 rounded-full bg-success" />
-                가이드 통과
+                {t("assets.guidelines_passed")}
               </button>
             </TooltipTrigger>
             <TooltipContent side="top">

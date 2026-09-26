@@ -1,0 +1,36 @@
+
+> web@0.1.0 test:integration /app
+> vitest run --project integration
+
+
+ RUN  v5.0.1 /app
+
+ ✓  integration  tests/integration/phase8.test.ts (18 tests) 2691ms
+   ✓ exports valid ZIPs, verifies checksum and rechecks owner, final state and expiry 310ms
+ ✓  integration  tests/integration/admin.test.ts (16 tests) 3167ms
+   ✓ requires active admin plus same-session 15 minute reauthentication; expiry and revocation fail closed 384ms
+   ✓ limits failed reconfirmations independently of rollback and never records passwords 569ms
+   ✓ serializes two admins acting on one another without deadlock 368ms
+   ✓ enforces deployed-pack intersection, default language and acyclic locale registration 337ms
+   ✓ password changes and account suspension invalidate an already verified admin session 583ms
+ ✓  integration  tests/integration/workspace.test.ts (14 tests) 1256ms
+ ✓  integration  tests/integration/jobs.test.ts (21 tests) 4864ms
+   ✓ enforces queue/hour quotas with concurrent registration and permits idempotent replays at quota 691ms
+   ✓ recovers a real worker process SIGKILL at before-dispatch without double dispatch 1504ms
+   ✓ recovers a real worker process SIGKILL at after-dispatch without double dispatch 670ms
+   ✓ renews a live lease and safely stops before dispatch on SIGTERM 827ms
+ ✓  integration  tests/integration/phase10.test.ts (9 tests) 1149ms
+ ✓  integration  tests/integration/phase9.test.ts (8 tests) 979ms
+ ✓  integration  tests/integration/auth.test.ts (12 tests) 3827ms
+   ✓ lookup is not authentication, simultaneous duplicate signup preserves the original credential 344ms
+   ✓ reset consumes token once, rejects expired links, revokes all old sessions and preserves profile 828ms
+   ✓ password change verifies the current password and revokes sessions and outstanding reset links 682ms
+   ✓ rejects identity/role injection and retains isolated account language preferences 380ms
+   ✓ suspension/withdrawal revoke sessions and tokens, preserve data and audit the lifecycle 382ms
+ ✓  integration  tests/integration/database.test.ts (10 tests) 164ms
+ ✓  integration  tests/integration/i18n.test.ts (3 tests) 281ms
+
+ Test Files  9 passed (9)
+      Tests  111 passed (111)
+   Start at  12:40:54
+   Duration  28.83s (tests 67%, import 29%, transform 4%)

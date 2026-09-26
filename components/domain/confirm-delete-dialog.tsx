@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n/provider";
 
 import {
   AlertDialog,
@@ -16,31 +17,37 @@ export function ConfirmDeleteDialog({
   open,
   onOpenChange,
   onConfirm,
-  title = "정말 삭제할까요?",
+  title,
   description,
-  confirmLabel = "삭제",
+  confirmLabel,
+  pending = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
+  pending?: boolean;
   title?: string;
   description: React.ReactNode;
   confirmLabel?: string;
 }) {
+  const t = useT();
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={next => { if (!pending) onOpenChange(next); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {title ?? t("common.are_you_sure_you_want_to_delete_this")}
+          </AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            disabled={pending}
+            onClick={e => { e.preventDefault(); void onConfirm(); }}
             className="bg-destructive text-white hover:bg-destructive/90"
           >
-            {confirmLabel}
+            {confirmLabel ?? t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

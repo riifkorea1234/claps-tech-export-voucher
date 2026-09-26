@@ -1,0 +1,13 @@
+import { z } from "zod";
+import { idSchema, localeCodeSchema } from "./common";
+import { jobDtoSchema } from "./jobs";
+import { matchingCriteriaSchema, matchingResultSchema } from "./matching-data";
+export { matchingCriteriaSchema } from "./matching-data";
+export const saveCriteriaSchema = z.strictObject({ revision: z.number().int().nonnegative(), criteria: matchingCriteriaSchema, referenceIds: z.array(idSchema).max(3).refine(ids => new Set(ids).size === ids.length) });
+export const criteriaDtoSchema = z.strictObject({ revision: z.number().int().nonnegative(), criteria: matchingCriteriaSchema, references: z.array(z.strictObject({ id: idSchema, name: z.string(), url: z.string() })).max(3) });
+export const matchRequestSchema = z.strictObject({ revision: z.number().int().positive(), outputLocale: localeCodeSchema, idempotencyKey: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/) });
+export const partnerDtoSchema = z.object({ id: idSchema, name: z.string(), description: z.string(), contactEmail: z.string().nullable(), tags: z.array(z.string()), ipNames: z.array(z.string()), marketDescription: z.string(), imageCount: z.number(), imageAlt: z.string(), requestedLocale: z.string(), resolvedLocale: z.string(), fallbackUsed: z.boolean(), publishedVersion: z.number() });
+export const latestMatchesSchema = z.strictObject({ attempt: jobDtoSchema.nullable(), result: z.strictObject({ jobId: idSchema, outputLocale: z.string(), engineVersion: z.string(), revision: z.number(), createdAt: z.string(), items: z.array(z.strictObject({ ...matchingResultSchema.shape, partner: partnerDtoSchema })) }).nullable() });
+export type MatchingCriteria = z.infer<typeof matchingCriteriaSchema>;
+export type CriteriaDto = z.infer<typeof criteriaDtoSchema>;
+export type LatestMatches = z.infer<typeof latestMatchesSchema>;
