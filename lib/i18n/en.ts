@@ -632,4 +632,14 @@ export const en: Record<string, string> = {
   "landing.footer.website": "Website",
   "landing.footer.news": "News",
   "landing.footer.message": "Message",
+
+  // 일본어 성명 입력 (성·이름 분리 + 후리가나)
+  "profile.lastName": "Last name",
+  "profile.firstName": "First name",
+  "profile.lastNamePlaceholder": "Yamada",
+  "profile.firstNamePlaceholder": "Taro",
+  "profile.lastNameKana": "Last name (reading)",
+  "profile.firstNameKana": "First name (reading)",
+  "profile.lastNameKanaPlaceholder": "やまだ",
+  "profile.firstNameKanaPlaceholder": "たろう",
 };

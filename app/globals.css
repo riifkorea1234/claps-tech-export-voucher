@@ -238,6 +238,8 @@
   --row-thumb: 2.25rem;    /* 36px  목록 썸네일 */
   --row-card-h: 6rem;      /* 96px  세션 카드 행 높이 */
   --factor-label-w: 3.75rem; /* 60px 근거 막대 라벨 칸 */
+  --col-updated-w: 5.625rem; /* 90px  목록의 업데이트 열 */
+  --col-created-w: 6.25rem;  /* 100px 목록의 생성일 열 */
   --measure-body: none;    /*       본문 문단 최대 폭 */
 }
 
@@ -296,6 +298,9 @@
   --row-card-h: 5rem;      /* 96 → 80px */
   --factor-label-w: 5.5rem; /* 60 → 88px. 글자가 커져 라벨이 줄바꿈되던 것을 막는다.
                                작업 3에서 실제 일본어 문구가 들어오면 다시 맞출 값. */
+  /* 일본어 날짜(2026年8月28日)가 길어 열을 넓힌다 */
+  --col-updated-w: 7.25rem;  /* 90  → 116px */
+  --col-created-w: 7.25rem;  /* 100 → 116px */
   --measure-body: 40em;    /* 전각 40자 */
 }
 

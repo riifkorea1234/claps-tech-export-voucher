@@ -32,7 +32,7 @@ export function AssetRow({
   onDelete: (session: AssetSession) => void;
 }) {
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(session.title);
   // 썸네일 = 이 세션 최종본의 최근 이미지 (마운트 후 로드 · 없으면 기본 썸네일)
@@ -71,7 +71,7 @@ export function AssetRow({
       onOpen={open}
       timeLabel={
         session.createdAt
-          ? formatRelativeTime(session.createdAt, t)
+          ? formatRelativeTime(session.createdAt, t, locale)
           : session.timeLabel
       }
       stage={<StageBadge stage={stage} />}

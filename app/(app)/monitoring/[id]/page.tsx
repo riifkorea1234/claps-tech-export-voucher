@@ -48,6 +48,7 @@ import { getProjectLibrary, resolveProjectCover } from "@/lib/project-cover";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { toISODateTime, formatDateTime } from "@/lib/format-date";
 
 // 탐지 진행 단계 (UX 연출용 · 실제 검색엔진 붙기 전)
 // 단계마다 소요 시간을 다르게 (합계 ≈ 4.5초)
@@ -71,10 +72,9 @@ const MOCK_RESULTS: ScanResult[] = [
   { id: 8, platform: "google", similarity: 76, timeLabelKey: "time.minutesAgo", timeLabelN: 8, url: "etsy.com/listing/33421" },
 ];
 
+// 탐지 일시는 ISO 로 저장하고, 표기는 화면에서 언어별로 바꾼다
 function formatNow() {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  return toISODateTime(Date.now());
 }
 
 // 업로드 이미지를 작게 줄여 저장 (localStorage 용량 초과 방지 · 썸네일 안정 표시)
@@ -155,7 +155,7 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
 }
 
 export default function MonitoringDetailPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const params = useParams<{ id: string }>();
   const routeId = params.id;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -464,7 +464,7 @@ export default function MonitoringDetailPage() {
             </div>
             {lastScan && (
               <span className="text-sm text-muted-foreground">
-                {t("scan.lastScan", { when: lastScan })}
+                {t("scan.lastScan", { when: formatDateTime(lastScan, locale) })}
               </span>
             )}
           </div>

@@ -52,6 +52,7 @@ import {
 import { resolveProjectCover } from "@/lib/project-cover";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { formatDate } from "@/lib/format-date";
 
 const PAGE_SIZE = 20; // 한 페이지에 최대 20개
 
@@ -108,7 +109,7 @@ function KpiCard({
 
 export default function ProjectsPage() {
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [query, setQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -280,10 +281,10 @@ export default function ProjectsPage() {
               <div className="w-[120px] text-xs font-medium text-muted-foreground">
                 {t("projects.colStatus")}
               </div>
-              <div className="w-[90px] text-right text-xs font-medium text-muted-foreground">
+              <div className="w-[var(--col-updated-w)] text-right text-xs font-medium text-muted-foreground">
                 {t("projects.colUpdated")}
               </div>
-              <div className="w-[100px] text-right text-xs font-medium text-muted-foreground">
+              <div className="w-[var(--col-created-w)] text-right text-xs font-medium text-muted-foreground">
                 {t("projects.colCreated")}
               </div>
               <div className="w-6" />
@@ -367,13 +368,13 @@ export default function ProjectsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="w-[90px] text-right text-sm text-muted-foreground">
+                  <div className="w-[var(--col-updated-w)] text-right text-sm text-muted-foreground">
                     {p.updatedAt
-                      ? formatRelativeTime(p.updatedAt, t)
+                      ? formatRelativeTime(p.updatedAt, t, locale)
                       : (p.updatedLabel ?? "-")}
                   </div>
-                  <div className="w-[100px] text-right text-sm text-muted-foreground">
-                    {p.createdAt ?? "-"}
+                  <div className="w-[var(--col-created-w)] text-right text-sm text-muted-foreground">
+                    {formatDate(p.createdAt, locale)}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger

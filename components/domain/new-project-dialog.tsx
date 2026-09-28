@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { toISODate } from "@/lib/format-date";
 
 // 입력 한 칸 (라벨 + 필수/선택 표시)
 function Field({
@@ -83,17 +84,13 @@ export function NewProjectDialog({
   function handleCreate() {
     if (!canCreate) return;
     const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const today = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(
-      now.getDate(),
-    )}`;
     onCreate({
       id: `local-${Date.now()}`,
       name: name.trim(),
       ip: undecided ? "" : ip.trim(), // 미정은 빈 값으로 저장하고 표시할 때 언어별로 채운다
       status: "ready",
       description: desc.trim() || undefined,
-      createdAt: today,
+      createdAt: toISODate(now.getTime()), // 저장은 ISO, 표시는 화면에서
       updatedAt: now.getTime(),
     });
     reset();

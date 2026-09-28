@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ProfileFields } from "./profile-fields";
+import {
+  ProfileFields,
+  composeName,
+  type NameParts,
+} from "./profile-fields";
+import { normalizeName } from "@/lib/normalize-input";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import {
   getAccount,
@@ -34,9 +39,12 @@ export function MyPageDialog({
   onSaved?: () => void; // 저장 후 사이드바 등 갱신용
 }) {
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [account, setAccount] = useState<Account | null>(null);
   const [name, setName] = useState("");
+  const [nameParts, setNameParts] = useState<NameParts>(
+    { lastName: "", firstName: "", lastNameKana: "", firstNameKana: "" },
+  );
   const [org, setOrg] = useState("");
   const [role, setRole] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -47,19 +55,36 @@ export function MyPageDialog({
     const a = getAccount();
     setAccount(a);
     setName(a?.name ?? "");
+    setNameParts({
+      lastName: a?.lastName ?? "",
+      firstName: a?.firstName ?? "",
+      lastNameKana: a?.lastNameKana ?? "",
+      firstNameKana: a?.firstNameKana ?? "",
+    });
     setOrg(a?.org ?? "");
     setRole(a?.role ?? "");
   }, [open]);
 
-  const canSave = name.trim().length > 0 && org.trim().length > 0;
+  const filledName =
+    locale === "ja"
+      ? nameParts.lastName.trim().length > 0 &&
+        nameParts.firstName.trim().length > 0
+      : name.trim().length > 0;
+  const canSave = filledName && org.trim().length > 0;
 
   function handleSave() {
     if (!canSave || !account) return;
     upsertAccount({
       email: account.email,
-      name: name.trim(),
-      org: org.trim(),
+      name: normalizeName(composeName(locale, name, nameParts)),
+      org: normalizeName(org),
       role: role || undefined,
+      ...(locale === "ja" && {
+        lastName: normalizeName(nameParts.lastName),
+        firstName: normalizeName(nameParts.firstName),
+        lastNameKana: normalizeName(nameParts.lastNameKana),
+        firstNameKana: normalizeName(nameParts.firstNameKana),
+      }),
     });
     onSaved?.();
     onOpenChange(false);
@@ -95,7 +120,9 @@ export function MyPageDialog({
               name={name}
               org={org}
               role={role}
+              nameParts={nameParts}
               onNameChange={setName}
+              onNamePartsChange={setNameParts}
               onOrgChange={setOrg}
               onRoleChange={setRole}
             />

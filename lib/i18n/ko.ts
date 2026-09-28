@@ -631,4 +631,14 @@ export const ko: Record<string, string> = {
   "landing.footer.website": "웹사이트",
   "landing.footer.news": "소식",
   "landing.footer.message": "메시지",
+
+  // 일본어 성명 입력 (성·이름 분리 + 후리가나)
+  "profile.lastName": "성",
+  "profile.firstName": "이름",
+  "profile.lastNamePlaceholder": "야마다",
+  "profile.firstNamePlaceholder": "타로",
+  "profile.lastNameKana": "성 (읽기)",
+  "profile.firstNameKana": "이름 (읽기)",
+  "profile.lastNameKanaPlaceholder": "やまだ",
+  "profile.firstNameKanaPlaceholder": "たろう",
 };

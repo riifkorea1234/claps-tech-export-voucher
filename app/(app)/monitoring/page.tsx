@@ -39,6 +39,7 @@ import { SearchBar } from "@/components/domain/search-bar";
 import { Pagination } from "@/components/domain/pagination";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { formatDate, formatDateTime } from "@/lib/format-date";
 
 type SortKey = "recent" | "created";
 // 정렬 이름의 사전 열쇠말
@@ -50,7 +51,7 @@ const SORT_LABEL_KEY: Record<SortKey, string> = {
 const PAGE_SIZE = 20;
 
 export default function MonitoringListPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const [records, setRecords] = useState<SavedMonitoringRecord[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -250,10 +251,10 @@ export default function MonitoringListPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {r.scannedAt}
+                      {formatDateTime(r.scannedAt, locale)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {r.firstScannedAt ?? "-"}
+                      {formatDate(r.firstScannedAt, locale)}
                     </TableCell>
                     <TableCell>
                       <span

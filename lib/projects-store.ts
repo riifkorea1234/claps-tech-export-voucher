@@ -1,6 +1,8 @@
 // 프로젝트 저장소 (브라우저 localStorage · 백엔드 붙기 전 임시)
 
 import type { Project } from "@/lib/mock/projects";
+import { formatDate } from "./format-date";
+import type { Locale } from "./i18n/config";
 
 const KEY = "claps:projects";
 
@@ -41,19 +43,15 @@ export function updateProject(id: string, patch: Partial<Project>) {
   );
 }
 
-// 시각(ms) → "2026.10.30" 날짜 포맷
-export function formatDate(ms?: number): string {
-  if (!ms) return "-";
-  const d = new Date(ms);
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;
-}
-
 // 최근 수정 시각(ms) → 상대표기. 1주 넘으면 날짜로.
 // 문구는 언어별로 다르므로 화면에서 사전(t)을 넘겨받는다.
 type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
-export function formatRelativeTime(ms: number | undefined, t: Translate): string {
+export function formatRelativeTime(
+  ms: number | undefined,
+  t: Translate,
+  locale: Locale,
+): string {
   if (!ms) return "-";
   const diff = Date.now() - ms;
   const min = Math.floor(diff / 60000);
@@ -63,9 +61,8 @@ export function formatRelativeTime(ms: number | undefined, t: Translate): string
   if (hr < 24) return t("time.hoursAgo", { n: hr });
   const day = Math.floor(hr / 24);
   if (day < 7) return t("time.daysAgo", { n: day });
-  const d = new Date(ms);
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;
+  // 1주가 넘으면 날짜로 (표기는 화면에서 언어별로 바꾼다)
+  return formatDate(ms, locale);
 }
 
 // 프로젝트 삭제

@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ProfileFields } from "./profile-fields";
+import {
+  ProfileFields,
+  composeName,
+  type NameParts,
+} from "./profile-fields";
+import { normalizeName } from "@/lib/normalize-input";
 import { upsertAccount } from "@/lib/account-store";
 import { useLocale } from "@/lib/i18n";
 
@@ -12,21 +17,36 @@ import { useLocale } from "@/lib/i18n";
 // - 저장(계정에 반영) 후 /projects로 이동
 export function ProfileSetupForm({ email }: { email: string }) {
   const router = useRouter();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [name, setName] = useState("");
+  const [nameParts, setNameParts] = useState<NameParts>(
+    { lastName: "", firstName: "", lastNameKana: "", firstNameKana: "" },
+  );
   const [org, setOrg] = useState("");
   const [role, setRole] = useState("");
 
-  const canSubmit = name.trim().length > 0 && org.trim().length > 0;
+  // 일본어는 성·이름이 모두 채워져야 한다
+  const filledName =
+    locale === "ja"
+      ? nameParts.lastName.trim().length > 0 &&
+        nameParts.firstName.trim().length > 0
+      : name.trim().length > 0;
+  const canSubmit = filledName && org.trim().length > 0;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
     upsertAccount({
       email,
-      name: name.trim(),
-      org: org.trim(),
+      name: normalizeName(composeName(locale, name, nameParts)),
+      org: normalizeName(org),
       role: role || undefined,
+      ...(locale === "ja" && {
+        lastName: normalizeName(nameParts.lastName),
+        firstName: normalizeName(nameParts.firstName),
+        lastNameKana: normalizeName(nameParts.lastNameKana),
+        firstNameKana: normalizeName(nameParts.firstNameKana),
+      }),
     });
     router.push("/projects");
   }
@@ -53,7 +73,9 @@ export function ProfileSetupForm({ email }: { email: string }) {
         name={name}
         org={org}
         role={role}
+        nameParts={nameParts}
         onNameChange={setName}
+        onNamePartsChange={setNameParts}
         onOrgChange={setOrg}
         onRoleChange={setRole}
       />

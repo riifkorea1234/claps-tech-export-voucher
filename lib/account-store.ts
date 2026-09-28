@@ -4,9 +4,15 @@
 
 export type Account = {
   email: string;
-  name: string;
+  name: string; // 화면에 보이는 이름. 일본어에서는 "성 이름"으로 조립해 넣는다.
   org: string;
   role?: string;
+  // 일본어 전용 — 성과 이름을 따로 받고 읽기(후리가나)를 병기한다.
+  // 한자 성명은 읽는 법이 여러 가지라 표기만으로 특정할 수 없기 때문.
+  lastName?: string;
+  firstName?: string;
+  lastNameKana?: string;
+  firstNameKana?: string;
 };
 
 // 업종/직무 선택지 (프로필 설정 · 마이페이지 공용)

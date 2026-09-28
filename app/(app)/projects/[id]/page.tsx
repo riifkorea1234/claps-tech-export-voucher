@@ -52,7 +52,6 @@ import {
   getProject,
   updateProject,
   deleteProject,
-  formatDate,
 } from "@/lib/projects-store";
 import { getAllSessions } from "@/lib/assets-store";
 import {
@@ -63,6 +62,7 @@ import {
 import { resolveProjectCover } from "@/lib/project-cover";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { formatDate } from "@/lib/format-date";
 
 type ProjectHeader = {
   name: string;
@@ -75,7 +75,7 @@ type ProjectHeader = {
 
 
 export default function ProjectDetailPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const params = useParams();
   const id = String(params.id);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -390,13 +390,13 @@ export default function ProjectDetailPage() {
                 <div className="flex gap-2">
                   <span className="text-white/50">{t("detail.createdAt")}</span>
                   <span className="text-white/80">
-                    {header.createdAt ?? "-"}
+                    {formatDate(header.createdAt, locale)}
                   </span>
                 </div>
                 <div className="flex gap-2">
                   <span className="text-white/50">{t("detail.updatedAt")}</span>
                   <span className="text-white/80">
-                    {formatDate(header.updatedAt)}
+                    {formatDate(header.updatedAt, locale)}
                   </span>
                 </div>
               </div>
