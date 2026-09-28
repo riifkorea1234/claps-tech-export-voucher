@@ -41,6 +41,7 @@ import {
 import { FactorBars } from "@/components/domain/factor-bars";
 import { PartnerCard } from "@/components/domain/partner-card";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 import {
   heroPartner,
   partners,
@@ -49,28 +50,29 @@ import {
   type HeroPartner,
 } from "@/lib/mock/partners";
 
-// 근거 값 → 정성 표기
-function factorNote(v: number) {
-  if (v >= 85) return "매우 높음";
-  if (v >= 70) return "높은 편";
-  if (v >= 55) return "보통";
-  return "낮은 편";
+// 근거 값 → 정성 표기의 열쇠말
+function factorNoteKey(v: number) {
+  if (v >= 85) return "factorNote.veryHigh";
+  if (v >= 70) return "factorNote.high";
+  if (v >= 55) return "factorNote.medium";
+  return "factorNote.low";
 }
 
-// 정렬 옵션 (종합순 = 매칭점수, 나머지는 각 근거 항목값)
+// 정렬 옵션 — overall = 매칭점수, 나머지는 같은 이름의 근거 항목값
 const SORT_OPTIONS = [
-  "종합순",
-  "세계관 적합순",
-  "가격 적합순",
-  "팬덤 중첩순",
-  "업종 연관순",
+  "overall",
+  "worldview",
+  "price",
+  "fandom",
+  "industry",
 ] as const;
 type SortKey = (typeof SORT_OPTIONS)[number];
 
 export default function PartnersPage() {
   // 재매칭 시 이 값이 바뀌면서 바들이 재마운트 → 다시 차오름
+  const { t } = useLocale();
   const [runKey, setRunKey] = useState(0);
-  const [sortKey, setSortKey] = useState<SortKey>("종합순");
+  const [sortKey, setSortKey] = useState<SortKey>("overall");
 
   // 협업 요청 팝업 — 선택한 파트너 {이름, 이메일} (null = 닫힘)
   const [collab, setCollab] = useState<{ name: string; email: string } | null>(
@@ -95,12 +97,11 @@ export default function PartnersPage() {
   // 선택한 기준으로 파트너 그리드 정렬
   const sortedPartners = useMemo(() => {
     const arr = [...partners];
-    if (sortKey === "종합순") {
+    if (sortKey === "overall") {
       return arr.sort((a, b) => b.matchScore - a.matchScore);
     }
-    const factorLabel = sortKey.replace(/순$/, ""); // "가격 적합순" → "가격 적합"
     const val = (p: (typeof partners)[number]) =>
-      p.factors.find((f) => f.label === factorLabel)?.value ?? 0;
+      p.factors.find((f) => f.key === sortKey)?.value ?? 0;
     return arr.sort((a, b) => val(b) - val(a) || b.matchScore - a.matchScore);
   }, [sortKey]);
 
@@ -110,12 +111,14 @@ export default function PartnersPage() {
       <div className="flex flex-col gap-3 rounded-[14px] bg-muted p-3">
         {/* 제목 줄 */}
         <div className="flex items-center justify-between gap-3 px-1.5 pt-1">
-          <span className="text-sm font-medium text-foreground">매칭 기준</span>
+          <span className="text-sm font-medium text-foreground">
+            {t("partners.criteria")}
+          </span>
           <Link
             href="/partners/criteria"
             className="flex shrink-0 items-center gap-0.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            수정
+            {t("partners.criteriaEdit")}
             <ChevronRight className="size-4" />
           </Link>
         </div>
@@ -123,18 +126,11 @@ export default function PartnersPage() {
         {/* 항목마다 개별 흰 카드 */}
         <div className="flex flex-wrap gap-2">
           {matchCriteria.map((c) => {
-            // "IP: 헬로키티" → 라벨 "IP" / 값 "헬로키티" (콜론 없으면 값만)
-            const idx = c.indexOf(":");
-            const label = idx > -1 ? c.slice(0, idx).trim() : "";
-            const value = idx > -1 ? c.slice(idx + 1).trim() : c;
-            // 값에 "·"가 있으면 키워드 여러 개 → 칩으로 표시
-            const keywords = value
-              .split("·")
-              .map((k) => k.trim())
-              .filter(Boolean);
+            const label = t(c.labelKey);
+            const keywords = c.keywords ?? [];
             return (
               <div
-                key={c}
+                key={c.labelKey}
                 className="flex min-w-[140px] flex-1 flex-col gap-1.5 rounded-[10px] border border-border bg-card px-4 py-3"
               >
                 <span
@@ -144,7 +140,7 @@ export default function PartnersPage() {
                     keywords.length > 1 && "pl-0.5",
                   )}
                 >
-                  {label || "기준"}
+                  {label || t("partners.criteriaFallback")}
                 </span>
                 {keywords.length > 1 ? (
                   <div className="flex flex-wrap gap-1">
@@ -159,7 +155,7 @@ export default function PartnersPage() {
                   </div>
                 ) : (
                   <span className="text-sm font-medium text-card-foreground">
-                    {value}
+                    {c.value}
                   </span>
                 )}
               </div>
@@ -177,13 +173,13 @@ export default function PartnersPage() {
           onClick={() => setRunKey((k) => k + 1)}
         >
           <RefreshCw className="size-4" />
-          재매칭
+          {t("partners.rematch")}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5">
               <SlidersHorizontal className="size-4" />
-              {sortKey}
+              {t(`sort.${sortKey}`)}
               <ChevronDown className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -194,7 +190,7 @@ export default function PartnersPage() {
                 onSelect={() => setSortKey(opt)}
                 className="justify-between gap-4"
               >
-                {opt}
+                {t(`sort.${opt}`)}
                 {opt === sortKey && <Check className="size-4" />}
               </DropdownMenuItem>
             ))}
@@ -220,7 +216,7 @@ export default function PartnersPage() {
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-brand px-2.5 py-1 text-xs font-medium text-brand-foreground">
-                  #1 추천
+                  {t("partners.rank1")}
                 </span>
                 <span className="text-lg font-semibold text-card-foreground">
                   {heroPartner.name}
@@ -238,7 +234,9 @@ export default function PartnersPage() {
               </div>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-0.5">
-              <span className="text-xs text-muted-foreground">종합 매칭</span>
+              <span className="text-xs text-muted-foreground">
+                {t("partners.matchScore")}
+              </span>
               <span className="text-3xl font-bold tracking-tight text-brand">
                 {heroPartner.matchScore}%
               </span>
@@ -251,7 +249,7 @@ export default function PartnersPage() {
               <div className="flex items-center gap-1.5">
                 <Sparkle className="size-3.5 text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">
-                  AI 추천 근거
+                  {t("partners.aiReason")}
                 </span>
               </div>
               <p className="text-sm text-card-foreground">
@@ -271,7 +269,7 @@ export default function PartnersPage() {
               className="h-9"
               onClick={() => setDetail(heroPartner)}
             >
-              IP 상세
+              {t("partners.ipDetail")}
             </Button>
             <Button
               size="sm"
@@ -280,7 +278,7 @@ export default function PartnersPage() {
                 setCollab({ name: heroPartner.name, email: heroPartner.email })
               }
             >
-              협업 요청
+              {t("partners.collab")}
             </Button>
           </div>
         </div>
@@ -315,7 +313,7 @@ export default function PartnersPage() {
             <>
               <SheetHeader className="gap-4 border-b border-border p-6">
                 <SheetDescription className="sr-only">
-                  {detail.name} IP 상세 정보
+                  {t("partners.detailSr", { name: detail.name })}
                 </SheetDescription>
                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-muted">
                   {"imageUrl" in detail && detail.imageUrl && (
@@ -330,13 +328,13 @@ export default function PartnersPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col items-start gap-1.5">
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-                      #{detail.rank} 추천
+                      {t("partners.rankN", { n: detail.rank })}
                     </span>
                     <SheetTitle className="text-lg">{detail.name}</SheetTitle>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-0.5">
                     <span className="text-xs text-muted-foreground">
-                      종합 매칭
+                      {t("partners.matchScore")}
                     </span>
                     <span className="text-2xl font-bold text-brand">
                       {detail.matchScore}%
@@ -352,7 +350,7 @@ export default function PartnersPage() {
                     <div className="flex items-center gap-1.5">
                       <Sparkle className="size-3.5 text-muted-foreground" />
                       <span className="text-xs font-medium text-muted-foreground">
-                        AI 추천 근거
+                        {t("partners.aiReason")}
                       </span>
                     </div>
                     <p className="rounded-lg bg-muted px-4 py-3 text-sm text-card-foreground">
@@ -364,16 +362,18 @@ export default function PartnersPage() {
                 {/* 매칭 근거 상세 */}
                 <section className="flex flex-col gap-3">
                   <h3 className="text-sm font-semibold text-foreground">
-                    매칭 근거
+                    {t("partners.factorsTitle")}
                   </h3>
                   <div className="flex flex-col gap-3.5 rounded-xl bg-muted p-5 pt-4">
                     {detail.factors.map((f) => (
-                      <div key={f.label} className="flex flex-col gap-1.5">
+                      <div key={f.key} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-foreground">{f.label}</span>
+                          <span className="text-foreground">
+                            {t(`factor.${f.key}`)}
+                          </span>
                           <span className="flex items-center gap-2">
                             <span className="text-muted-foreground">
-                              {factorNote(f.value)}
+                              {t(factorNoteKey(f.value))}
                             </span>
                             <span className="font-semibold text-foreground">
                               {f.value}%
@@ -395,7 +395,7 @@ export default function PartnersPage() {
                 {"stats" in detail && detail.stats && (
                   <section className="flex flex-col gap-2">
                     <h3 className="text-sm font-semibold text-foreground">
-                      팬덤 · 시장
+                      {t("partners.fandomMarket")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {detail.stats.map((s) => (
@@ -413,10 +413,10 @@ export default function PartnersPage() {
                 {/* 협업 담당 */}
                 <section className="flex flex-col gap-2">
                   <h3 className="text-sm font-semibold text-foreground">
-                    협업 담당
+                    {t("partners.contact")}
                   </h3>
                   <div className="rounded-lg bg-muted p-3.5">
-                    <p className="text-xs text-muted-foreground">이메일</p>
+                    <p className="text-xs text-muted-foreground">{t("partners.email")}</p>
                     <p className="text-sm font-medium text-foreground">
                       {detail.email}
                     </p>
@@ -427,7 +427,7 @@ export default function PartnersPage() {
               <SheetFooter className="flex-row gap-2 border-t border-border p-6">
                 <SheetClose asChild>
                   <Button variant="outline" className="flex-1">
-                    닫기
+                    {t("common.close")}
                   </Button>
                 </SheetClose>
                 <Button
@@ -438,7 +438,7 @@ export default function PartnersPage() {
                     setCollab({ name: d.name, email: d.email });
                   }}
                 >
-                  협업 요청
+                  {t("partners.collab")}
                 </Button>
               </SheetFooter>
             </>
@@ -460,14 +460,24 @@ export default function PartnersPage() {
             </div>
             <div className="flex flex-col gap-4">
               <DialogTitle className="text-base font-semibold">
-                이메일로 협업을 요청하세요
+                {t("partners.collabTitle")}
               </DialogTitle>
               <DialogDescription>
-                <span className="font-medium text-foreground">
-                  {collab?.name}
-                </span>
-                은 아직 앱 내 협업 채널을 제공하지 않아요. 아래 이메일로 제안을
-                보내면 담당자가 검토 후 회신드려요.
+                {/* 언어마다 어순이 달라서 사전 문구를 {name} 자리에서 잘라 강조를 준다 */}
+                {(() => {
+                  const [before, after] = t("partners.collabDesc").split(
+                    "{name}",
+                  );
+                  return (
+                    <>
+                      {before}
+                      <span className="font-medium text-foreground">
+                        {collab?.name}
+                      </span>
+                      {after}
+                    </>
+                  );
+                })()}
               </DialogDescription>
             </div>
           </DialogHeader>
@@ -476,7 +486,7 @@ export default function PartnersPage() {
           <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted p-3.5">
             <div className="flex min-w-0 flex-col">
               <span className="text-xs text-muted-foreground">
-                협업 담당 이메일
+                {t("partners.contactEmail")}
               </span>
               <span className="truncate text-sm font-medium text-foreground">
                 {collab?.email}
@@ -490,12 +500,12 @@ export default function PartnersPage() {
               {copied ? (
                 <>
                   <Check className="size-3.5 text-brand" />
-                  복사됨
+                  {t("partners.copied")}
                 </>
               ) : (
                 <>
                   <Copy className="size-3.5" />
-                  복사
+                  {t("partners.copy")}
                 </>
               )}
             </button>
@@ -504,20 +514,20 @@ export default function PartnersPage() {
           {/* 포함하면 좋은 내용 */}
           <div className="flex flex-col gap-2">
             <span className="text-sm text-muted-foreground">
-              메일에 이런 내용을 담아주세요
+              {t("partners.mailChecklist")}
             </span>
             <ul className="flex flex-col gap-1.5 px-2">
               {[
-                "회사·브랜드 소개",
-                "협업 제안 내용과 목표",
-                "희망 일정·규모",
-              ].map((t) => (
+                "partners.mailItem1",
+                "partners.mailItem2",
+                "partners.mailItem3",
+              ].map((key) => (
                 <li
-                  key={t}
+                  key={key}
                   className="flex items-center gap-2 text-sm text-foreground"
                 >
                   <span className="size-1.5 shrink-0 rounded-full bg-brand" />
-                  {t}
+                  {t(key)}
                 </li>
               ))}
             </ul>
@@ -526,7 +536,7 @@ export default function PartnersPage() {
           {/* 본문과 16px 간격 (카드 기본 24px에서 -8px) */}
           <DialogFooter className="-mt-2">
             <DialogClose asChild>
-              <Button variant="outline">닫기</Button>
+              <Button variant="outline">{t("common.close")}</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

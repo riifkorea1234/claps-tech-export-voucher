@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/i18n";
 
 function Field({
   label,
@@ -36,41 +39,44 @@ function Chip({ children }: { children: React.ReactNode }) {
 }
 
 function AddChip() {
+  const { t } = useLocale();
+
   return (
     <button
       type="button"
       className="rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
     >
-      + 추가
+      {t("criteria.add")}
     </button>
   );
 }
 
 export default function PartnersCriteriaPage() {
+  const { t } = useLocale();
+
   return (
     <div className="px-6 py-10">
       <div className="mx-auto w-full max-w-[800px] overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_8px_30px_-6px_rgba(0,0,0,0.10)]">
         {/* 다크 헤더 */}
         <div className="border-b border-border bg-primary px-6 py-5">
           <h2 className="text-xl font-semibold tracking-tight text-primary-foreground">
-            매칭 기준 정보
+            {t("criteria.title")}
           </h2>
           <p className="mt-1.5 text-sm text-primary-foreground/70">
-            입력한 정보를 기준으로 파트너를 추천해 드립니다. 언제든 수정할 수
-            있어요.
+            {t("criteria.desc")}
           </p>
         </div>
 
         {/* 입력 필드 */}
         <div className="flex flex-col gap-5 p-[var(--pad-card)]">
-          <Field label="IP 참조 이미지">
+          <Field label={t("criteria.refImage")}>
             <div className="flex flex-wrap gap-2.5">
               <button
                 type="button"
                 className="flex size-24 flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border bg-muted text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
               >
                 <ImagePlus className="size-5" />
-                <span className="text-xs">이미지 업로드</span>
+                <span className="text-xs">{t("criteria.upload")}</span>
               </button>
               {[0, 1, 2].map((i) => (
                 <div key={i} className="size-24 rounded-lg bg-muted" />
@@ -78,14 +84,14 @@ export default function PartnersCriteriaPage() {
             </div>
           </Field>
 
-          <Field label="IP 메타">
+          <Field label={t("criteria.ipMeta")}>
             <div className="flex flex-col gap-3.5 sm:flex-row">
-              <TextInput placeholder="IP 이름 (예: 헬로키티)" />
-              <TextInput placeholder="카테고리 (예: 캐릭터)" />
+              <TextInput placeholder={t("criteria.ipNamePlaceholder")} />
+              <TextInput placeholder={t("criteria.categoryPlaceholder")} />
             </div>
           </Field>
 
-          <Field label="세계관 속성">
+          <Field label={t("criteria.worldview")}>
             <div className="flex flex-wrap items-center gap-2">
               <Chip>명랑</Chip>
               <Chip>우정</Chip>
@@ -95,18 +101,18 @@ export default function PartnersCriteriaPage() {
             </div>
           </Field>
 
-          <Field label="라이선시 속성 (자사)">
-            <TextInput placeholder="자사 브랜드 · 타깃 · 톤앤매너" />
+          <Field label={t("criteria.licensee")}>
+            <TextInput placeholder={t("criteria.licenseePlaceholder")} />
           </Field>
 
-          <Field label="업종 · 매출">
+          <Field label={t("criteria.industry")}>
             <div className="flex flex-col gap-3.5 sm:flex-row">
-              <TextInput placeholder="업종 (예: 문구 제조)" />
-              <TextInput placeholder="연매출 (예: 50억)" />
+              <TextInput placeholder={t("criteria.industryPlaceholder")} />
+              <TextInput placeholder={t("criteria.revenuePlaceholder")} />
             </div>
           </Field>
 
-          <Field label="콜라보 이력">
+          <Field label={t("criteria.collabHistory")}>
             <div className="flex flex-wrap items-center gap-2">
               <Chip>산리오 2023</Chip>
               <Chip>디즈니 2022</Chip>
@@ -119,10 +125,10 @@ export default function PartnersCriteriaPage() {
         {/* 푸터 */}
         <div className="flex justify-end gap-2 border-t border-border px-6 py-5">
           <Button variant="outline" asChild>
-            <Link href="/partners">취소</Link>
+            <Link href="/partners">{t("common.cancel")}</Link>
           </Button>
           <Button asChild>
-            <Link href="/partners">저장하고 매칭 결과 보기</Link>
+            <Link href="/partners">{t("criteria.submit")}</Link>
           </Button>
         </div>
       </div>

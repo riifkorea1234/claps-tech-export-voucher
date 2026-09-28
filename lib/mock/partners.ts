@@ -1,6 +1,9 @@
 // 임시 목업 데이터 — 나중에 E1 추천엔진 API 응답으로 교체 (구조 유지)
 
-export type Factor = { label: string; value: number };
+// 매칭 근거 4항목. 저장에는 코드를 쓰고, 화면에 보일 이름은
+// lib/i18n 사전의 factor.* 에서 가져온다.
+export type FactorKey = "worldview" | "price" | "fandom" | "industry";
+export type Factor = { key: FactorKey; value: number };
 
 export interface Partner {
   id: string;
@@ -28,10 +31,10 @@ function makeFactors(
   industry: number,
 ): Factor[] {
   return [
-    { label: "세계관 적합", value: worldview },
-    { label: "가격 적합", value: price },
-    { label: "팬덤 중첩", value: fandom },
-    { label: "업종 연관", value: industry },
+    { key: "worldview", value: worldview },
+    { key: "price", value: price },
+    { key: "fandom", value: fandom },
+    { key: "industry", value: industry },
   ];
 }
 
@@ -126,10 +129,18 @@ export const partners: Partner[] = [
 ];
 
 // 매칭 기준 요약 칩 (상단 다크 배너)
-export const matchCriteria: string[] = [
-  "IP: 헬로키티",
-  "세계관: 명랑·우정·일상",
-  "라이선시: 자사 굿즈",
-  "업종: 문구 제조",
-  "콜라보 8건",
+// 매칭 기준 요약 카드. 라벨은 사전에서, 값은 사용자가 입력한 내용(지금은 목업).
+// keywords 가 있으면 칩 여러 개로, 없으면 값 한 줄로 그린다.
+export type MatchCriterion = {
+  labelKey: string;
+  value?: string;
+  keywords?: string[];
+};
+
+export const matchCriteria: MatchCriterion[] = [
+  { labelKey: "criteria.ip", value: "헬로키티" },
+  { labelKey: "criteria.worldview", keywords: ["명랑", "우정", "일상"] },
+  { labelKey: "criteria.licensee", value: "자사 굿즈" },
+  { labelKey: "criteria.industry", value: "문구 제조" },
+  { labelKey: "criteria.collabHistory", value: "콜라보 8건" },
 ];

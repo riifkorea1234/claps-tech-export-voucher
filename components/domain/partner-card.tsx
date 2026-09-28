@@ -2,6 +2,7 @@ import { Sparkle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FactorBars } from "@/components/domain/factor-bars";
 import type { Partner } from "@/lib/mock/partners";
+import { useLocale } from "@/lib/i18n";
 
 // 추천 파트너 카드 (#2~) — 아바타·랭크·이름·매칭%·근거바·액션
 export function PartnerCard({
@@ -13,6 +14,8 @@ export function PartnerCard({
   onCollab?: () => void;
   onDetail?: () => void;
 }) {
+  const { t } = useLocale();
+
   return (
     <div className="flex flex-col gap-3.5 rounded-[14px] border border-border bg-card p-5">
       {/* 상단: 아바타 + 랭크/이름 + 매칭 */}
@@ -27,7 +30,9 @@ export function PartnerCard({
           </span>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-0.5">
-          <span className="text-xs text-muted-foreground">종합 매칭</span>
+          <span className="text-xs text-muted-foreground">
+            {t("partners.matchScore")}
+          </span>
           <span className="text-lg font-semibold text-card-foreground">
             {partner.matchScore}%
           </span>
@@ -38,7 +43,9 @@ export function PartnerCard({
       <div className="flex w-full flex-col gap-1.5">
         <div className="flex items-center gap-1 px-2">
           <Sparkle className="size-3.5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">AI 추천 근거</span>
+          <span className="text-xs text-muted-foreground">
+            {t("partners.aiReason")}
+          </span>
         </div>
         <FactorBars factors={partner.factors} />
       </div>
@@ -51,7 +58,7 @@ export function PartnerCard({
           className="h-9 flex-1"
           onClick={onDetail}
         >
-          IP 상세
+          {t("partners.ipDetail")}
         </Button>
         <Button
           variant="outline"
@@ -59,7 +66,7 @@ export function PartnerCard({
           className="h-9 flex-1"
           onClick={onCollab}
         >
-          협업 요청
+          {t("partners.collab")}
         </Button>
       </div>
     </div>
