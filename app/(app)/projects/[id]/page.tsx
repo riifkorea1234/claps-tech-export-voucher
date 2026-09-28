@@ -62,6 +62,7 @@ import {
 } from "@/lib/mock/projects";
 import { resolveProjectCover } from "@/lib/project-cover";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 type ProjectHeader = {
   name: string;
@@ -74,6 +75,7 @@ type ProjectHeader = {
 
 
 export default function ProjectDetailPage() {
+  const { t } = useLocale();
   const params = useParams();
   const id = String(params.id);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -373,7 +375,7 @@ export default function ProjectDetailPage() {
                 {/* IP · 파트너 칩 */}
                 <div className="flex items-center gap-4 rounded-lg bg-white/10 px-3 py-2 text-sm text-white">
                   <span className="font-medium">IP · 파트너</span>
-                  <span>{header.ip}</span>
+                  <span>{header.ip || t("common.undecided")}</span>
                 </div>
               </div>
             </div>

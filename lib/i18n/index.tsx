@@ -54,8 +54,16 @@ export function useLocale() {
   }, []);
 
   // 문구 사전에서 꺼내기. 없으면 한국어로, 그것도 없으면 열쇠말을 그대로 보여준다.
+  // 두 번째 인자로 값을 넘기면 문구 안의 {이름} 자리에 끼워넣는다.
+  // 언어마다 어순이 달라도 사전 쪽에서 자리를 정할 수 있다.
   const t = useCallback(
-    (key: string) => DICTS[locale][key] ?? DICTS.ko[key] ?? key,
+    (key: string, vars?: Record<string, string | number>) => {
+      const text = DICTS[locale][key] ?? DICTS.ko[key] ?? key;
+      if (!vars) return text;
+      return text.replace(/\{(\w+)\}/g, (whole, name) =>
+        name in vars ? String(vars[name]) : whole,
+      );
+    },
     [locale],
   );
 

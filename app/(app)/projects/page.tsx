@@ -51,6 +51,7 @@ import {
 } from "@/lib/projects-store";
 import { resolveProjectCover } from "@/lib/project-cover";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 const PAGE_SIZE = 20; // 한 페이지에 최대 20개
 
@@ -66,12 +67,14 @@ function KpiCard({
   value,
   tone,
   hint,
+  hintLabel,
 }: {
   icon: LucideIcon;
   label: string;
   value: number;
   tone: keyof typeof KPI_TONES;
   hint: string;
+  hintLabel: string; // 도움말 버튼 읽어주기용
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-[14px] bg-muted p-3">
@@ -82,7 +85,7 @@ function KpiCard({
           <TooltipTrigger asChild>
             <button
               type="button"
-              aria-label={`${label} 설명`}
+              aria-label={hintLabel}
               className="flex items-center text-muted-foreground outline-none transition-colors hover:text-foreground"
             >
               <Info className="size-3.5" />
@@ -105,6 +108,7 @@ function KpiCard({
 
 export default function ProjectsPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const [query, setQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -150,9 +154,9 @@ export default function ProjectsPage() {
   }
 
   // KPI 집계 (실제 프로젝트 기준)
-  const activeCount = items.filter((p) => p.status !== "완료").length; // 완료만 제외
-  const inReviewCount = items.filter((p) => p.status === "검증 중").length;
-  const needsFixCount = items.filter((p) => p.status === "수정 필요").length;
+  const activeCount = items.filter((p) => p.status !== "done").length; // 완료만 제외
+  const inReviewCount = items.filter((p) => p.status === "verifying").length;
+  const needsFixCount = items.filter((p) => p.status === "needsFix").length;
 
   // 이름·IP로 실시간 필터 (대소문자·앞뒤 공백 무시)
   const filtered = useMemo(() => {
@@ -181,34 +185,37 @@ export default function ProjectsPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1 pl-2">
           <h1 className="text-2xl font-bold tracking-[-0.3px] text-foreground">
-            개요
+            {t("projects.overview")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            브랜드 프로젝트의 진행 상황을 한눈에 확인하세요.
+            {t("projects.overviewDesc")}
           </p>
         </div>
         <TooltipProvider delayDuration={100}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <KpiCard
               icon={Folders}
-              label="진행 중 프로젝트"
+              label={t("projects.kpiActive")}
               value={activeCount}
               tone="green"
-              hint="완료되지 않은 전체 프로젝트 수예요."
+              hint={t("projects.kpiActiveHint")}
+              hintLabel={t("common.hintFor", { label: t("projects.kpiActive") })}
             />
             <KpiCard
               icon={FolderClock}
-              label="검증 중"
+              label={t("projects.kpiVerifying")}
               value={inReviewCount}
               tone="amber"
-              hint="가이드 검증이 진행 중인 프로젝트 수예요."
+              hint={t("projects.kpiVerifyingHint")}
+              hintLabel={t("common.hintFor", { label: t("projects.kpiVerifying") })}
             />
             <KpiCard
               icon={FolderX}
-              label="수정 필요"
+              label={t("projects.kpiNeedsFix")}
               value={needsFixCount}
               tone="red"
-              hint="검증에서 수정이 필요하다고 나온 프로젝트 수예요."
+              hint={t("projects.kpiNeedsFixHint")}
+              hintLabel={t("common.hintFor", { label: t("projects.kpiNeedsFix") })}
             />
           </div>
         </TooltipProvider>
@@ -220,7 +227,7 @@ export default function ProjectsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <h2 className="truncate text-lg font-semibold text-card-foreground">
-              전체 프로젝트
+              {t("projects.all")}
             </h2>
             {items.length > 0 && (
               <Badge variant="secondary" className="h-auto text-sm">
@@ -233,7 +240,7 @@ export default function ProjectsPage() {
           <SearchBar
             value={query}
             onChange={setQuery}
-            placeholder="프로젝트 검색..."
+            placeholder={t("projects.searchPlaceholder")}
             className="w-full sm:w-[300px]"
           />
 
@@ -241,7 +248,8 @@ export default function ProjectsPage() {
             className="shrink-0 gap-1.5"
             onClick={() => setDialogOpen(true)}
           >
-            <Plus className="size-4" />새 프로젝트
+            <Plus className="size-4" />
+            {t("projects.new")}
           </Button>
         </div>
 
@@ -250,17 +258,12 @@ export default function ProjectsPage() {
           <EmptyState
             className="mt-8"
             icon={FolderPlus}
-            title="아직 프로젝트가 없어요"
-            description={
-              <>
-                &lsquo;새 프로젝트&rsquo;를 눌러 IP와 브랜드 가이드를 등록하면
-                <br />
-                여기에 프로젝트가 쌓여요.
-              </>
-            }
+            title={t("projects.emptyTitle")}
+            description={t("projects.emptyDesc")}
             action={
               <Button className="mt-1 gap-1.5" onClick={() => setDialogOpen(true)}>
-                <Plus className="size-4" />새 프로젝트 만들기
+                <Plus className="size-4" />
+                {t("projects.emptyAction")}
               </Button>
             }
           />
@@ -272,16 +275,16 @@ export default function ProjectsPage() {
             {/* 컬럼 헤더 */}
             <div className="flex items-center gap-3 border-b border-border px-2 pb-2">
               <div className="min-w-0 flex-1 pl-1 text-xs font-medium text-muted-foreground">
-                프로젝트 / IP
+                {t("projects.colName")}
               </div>
               <div className="w-[120px] text-xs font-medium text-muted-foreground">
-                상태
+                {t("projects.colStatus")}
               </div>
               <div className="w-[90px] text-right text-xs font-medium text-muted-foreground">
-                업데이트
+                {t("projects.colUpdated")}
               </div>
               <div className="w-[100px] text-right text-xs font-medium text-muted-foreground">
-                생성일
+                {t("projects.colCreated")}
               </div>
               <div className="w-6" />
             </div>
@@ -331,7 +334,7 @@ export default function ProjectsPage() {
                         </div>
                       )}
                       <div className="truncate text-xs text-muted-foreground">
-                        {p.ip}
+                        {p.ip || t("common.undecided")}
                       </div>
                     </div>
                   </div>
@@ -348,7 +351,7 @@ export default function ProjectsPage() {
                         className="w-[160px]"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <DropdownMenuLabel>상태 변경</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("projects.changeStatus")}</DropdownMenuLabel>
                         {PROJECT_STATUSES.map((s) => (
                           <DropdownMenuItem
                             key={s}
@@ -366,7 +369,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="w-[90px] text-right text-sm text-muted-foreground">
                     {p.updatedAt
-                      ? formatRelativeTime(p.updatedAt)
+                      ? formatRelativeTime(p.updatedAt, t)
                       : (p.updatedLabel ?? "-")}
                   </div>
                   <div className="w-[100px] text-right text-sm text-muted-foreground">
@@ -386,14 +389,14 @@ export default function ProjectsPage() {
                     >
                       <DropdownMenuItem onSelect={() => startRename(p)}>
                         <PencilLine className="size-4" />
-                        이름 변경
+                        {t("projects.rename")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         variant="destructive"
                         onSelect={() => setDeleteTarget(p)}
                       >
                         <Trash2 className="size-4" />
-                        삭제
+                        {t("common.delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -404,11 +407,10 @@ export default function ProjectsPage() {
               {filtered.length === 0 && (
                 <div className="flex flex-col items-center gap-1 py-12 text-center">
                   <p className="text-sm font-medium text-foreground">
-                    검색 결과가 없어요
+                    {t("projects.noResultTitle")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    &lsquo;{query.trim()}&rsquo;와 일치하는 프로젝트를 찾지
-                    못했어요.
+                    {t("projects.noResultDesc", { query: query.trim() })}
                   </p>
                 </div>
               )}

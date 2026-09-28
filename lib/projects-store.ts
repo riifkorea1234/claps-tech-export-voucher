@@ -50,16 +50,19 @@ export function formatDate(ms?: number): string {
 }
 
 // 최근 수정 시각(ms) → 상대표기. 1주 넘으면 날짜로.
-export function formatRelativeTime(ms?: number): string {
+// 문구는 언어별로 다르므로 화면에서 사전(t)을 넘겨받는다.
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+export function formatRelativeTime(ms: number | undefined, t: Translate): string {
   if (!ms) return "-";
   const diff = Date.now() - ms;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "방금";
-  if (min < 60) return `${min}분 전`;
+  if (min < 1) return t("time.justNow");
+  if (min < 60) return t("time.minutesAgo", { n: min });
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}시간 전`;
+  if (hr < 24) return t("time.hoursAgo", { n: hr });
   const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}일 전`;
+  if (day < 7) return t("time.daysAgo", { n: day });
   const d = new Date(ms);
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;

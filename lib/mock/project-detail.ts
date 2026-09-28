@@ -25,7 +25,7 @@ export const sampleProjectDetail: ProjectDetail = {
   id: "sample",
   name: "썸머 캡슐 컬렉션",
   ip: "산리오 · 시나모롤",
-  status: "검증 중",
+  status: "verifying",
   updatedLabel: "2일 전",
   sessions: [
     {

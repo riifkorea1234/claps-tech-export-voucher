@@ -23,6 +23,7 @@ import { ImageLightbox } from "./image-lightbox";
 import type { Project } from "@/lib/mock/projects";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 const STYLE_CHIPS = [
   "선택 안함",
@@ -73,6 +74,7 @@ export function AssetWorkspaceBody({
   sessionId: string;
   title: string;
 }) {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   // 다음 스텝으로 이동할 때도 "어디서 왔는지"를 계속 유지
@@ -395,7 +397,7 @@ export function AssetWorkspaceBody({
                       {p.name}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {p.ip}
+                      {p.ip || t("common.undecided")}
                     </span>
                   </div>
                   <StatusBadge status={p.status} />

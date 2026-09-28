@@ -1,20 +1,21 @@
 // 임시 목업 데이터 — 나중에 백엔드 API 응답으로 교체 (구조는 유지)
 
 // 프로젝트 5단계 상태 (기획 흐름: 준비 → E2 생성 → E3 검증 → (수정) → 완료)
+// 저장에는 아래 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 status.* 에서 가져온다.
 export type ProjectStatus =
-  | "준비 중"
-  | "생성 중"
-  | "검증 중"
-  | "수정 필요"
-  | "완료";
+  | "ready"
+  | "generating"
+  | "verifying"
+  | "needsFix"
+  | "done";
 
 // 상태 선택 UI에서 쓰는 순서 목록
 export const PROJECT_STATUSES: ProjectStatus[] = [
-  "준비 중",
-  "생성 중",
-  "검증 중",
-  "수정 필요",
-  "완료",
+  "ready",
+  "generating",
+  "verifying",
+  "needsFix",
+  "done",
 ];
 
 // 커버 썸네일 = 라이브러리 그라디언트(클래스) 또는 로컬 업로드 이미지(dataURL)
@@ -56,5 +57,5 @@ export const projectStats: ProjectStats = {
 // 프로젝트 없음(empty)이 기본. 나중에 백엔드 API 응답으로 채워짐.
 // 데이터가 들어오면 아래 형태로 배열에 담김 (테스트용 예시):
 //   { id: "1", name: "썸머 캡슐 컬렉션", ip: "산리오 · 시나모롤",
-//     status: "검증 대기", updatedLabel: "2일 전" }
+//     status: "verifying", updatedLabel: "2일 전" }
 export const projects: Project[] = [];

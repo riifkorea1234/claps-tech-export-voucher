@@ -19,6 +19,7 @@ import { resolveSessionCover } from "@/lib/project-cover";
 import { getProject, formatRelativeTime } from "@/lib/projects-store";
 import type { ProjectCover } from "@/lib/mock/projects";
 import type { AssetSession } from "@/lib/mock/assets";
+import { useLocale } from "@/lib/i18n";
 
 // 에셋 생성 목록 행 — 클릭 시 워크스페이스로 이동. ⋮는 이름 변경/삭제.
 export function AssetRow({
@@ -31,6 +32,7 @@ export function AssetRow({
   onDelete: (session: AssetSession) => void;
 }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(session.title);
   // 썸네일 = 이 세션 최종본의 최근 이미지 (마운트 후 로드 · 없으면 기본 썸네일)
@@ -69,7 +71,7 @@ export function AssetRow({
       onOpen={open}
       timeLabel={
         session.createdAt
-          ? formatRelativeTime(session.createdAt)
+          ? formatRelativeTime(session.createdAt, t)
           : session.timeLabel
       }
       stage={<StageBadge stage={stage} />}

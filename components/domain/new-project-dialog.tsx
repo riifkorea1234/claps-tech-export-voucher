@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 // 입력 한 칸 (라벨 + 필수/선택 표시)
 function Field({
@@ -28,6 +29,8 @@ function Field({
   optional?: boolean;
   children: React.ReactNode;
 }) {
+  const { t } = useLocale();
+
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-1 text-sm font-medium text-foreground">
@@ -35,7 +38,7 @@ function Field({
         {required && <span className="text-brand">*</span>}
         {optional && (
           <span className="text-xs font-normal text-muted-foreground">
-            (선택)
+            {t("common.optional")}
           </span>
         )}
       </label>
@@ -56,6 +59,7 @@ export function NewProjectDialog({
   onOpenChange: (v: boolean) => void;
   onCreate: (project: Project) => void;
 }) {
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [ip, setIp] = useState("");
   const [undecided, setUndecided] = useState(false); // 파트너 미정
@@ -86,8 +90,8 @@ export function NewProjectDialog({
     onCreate({
       id: `local-${Date.now()}`,
       name: name.trim(),
-      ip: undecided ? "미정" : ip.trim(),
-      status: "준비 중",
+      ip: undecided ? "" : ip.trim(), // 미정은 빈 값으로 저장하고 표시할 때 언어별로 채운다
+      status: "ready",
       description: desc.trim() || undefined,
       createdAt: today,
       updatedAt: now.getTime(),
@@ -101,33 +105,32 @@ export function NewProjectDialog({
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
-            새 프로젝트 만들기
+            {t("newProject.title")}
           </DialogTitle>
           <DialogDescription>
-            IP를 선택하고 프로젝트를 만들면 에셋 생성·가이드 검증을 시작할 수
-            있어요.
+            {t("newProject.desc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           {/* 프로젝트 이름 */}
-          <Field label="프로젝트 이름" required>
+          <Field label={t("newProject.name")} required>
             <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="예: 썸머 캡슐 컬렉션"
+              placeholder={t("newProject.namePlaceholder")}
             />
           </Field>
 
           {/* IP · 파트너 */}
-          <Field label="IP · 파트너" required>
+          <Field label={t("newProject.ip")} required>
             <Input
               type="text"
               value={undecided ? "" : ip}
               onChange={(e) => setIp(e.target.value)}
               disabled={undecided}
-              placeholder="예: 산리오 · 시나모롤"
+              placeholder={t("newProject.ipPlaceholder")}
             />
             {/* 미정 체크박스 */}
             <button
@@ -147,16 +150,16 @@ export function NewProjectDialog({
               >
                 <Check className="size-3" strokeWidth={3} />
               </span>
-              아직 파트너가 정해지지 않았어요 (미정)
+              {t("newProject.undecided")}
             </button>
           </Field>
 
           {/* 프로젝트 설명 */}
-          <Field label="프로젝트 설명" optional>
+          <Field label={t("newProject.description")} optional>
             <textarea
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              placeholder="이 프로젝트가 어떤 작업인지 간단히 적어주세요."
+              placeholder={t("newProject.descriptionPlaceholder")}
               rows={3}
               className={cn(inputBase, "resize-none py-2.5")}
             />
@@ -166,21 +169,30 @@ export function NewProjectDialog({
           <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2.5">
             <Info className="size-4 shrink-0 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              브랜드 가이드는 프로젝트를 만든 뒤{" "}
-              <span className="font-medium text-foreground">
-                ‘브랜드 가이드’
-              </span>{" "}
-              탭에서 업로드할 수 있어요.
+              {/* 언어마다 어순이 달라서, 사전 문구를 {tab} 자리에서 잘라
+                  가운데에만 강조를 준다 */}
+              {(() => {
+                const [before, after] = t("newProject.guideNote").split("{tab}");
+                return (
+                  <>
+                    {before}
+                    <span className="font-medium text-foreground">
+                      {t("newProject.guideTab")}
+                    </span>
+                    {after}
+                  </>
+                );
+              })()}
             </p>
           </div>
         </div>
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">취소</Button>
+            <Button variant="outline">{t("common.cancel")}</Button>
           </DialogClose>
           <Button disabled={!canCreate} onClick={handleCreate}>
-            프로젝트 생성
+            {t("newProject.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

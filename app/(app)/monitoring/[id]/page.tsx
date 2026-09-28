@@ -47,6 +47,7 @@ import { getProjects } from "@/lib/projects-store";
 import { getProjectLibrary, resolveProjectCover } from "@/lib/project-cover";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 // 탐지 진행 단계 (UX 연출용 · 실제 검색엔진 붙기 전)
 // 단계마다 소요 시간을 다르게 (합계 ≈ 4.5초)
@@ -150,6 +151,7 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
 }
 
 export default function MonitoringDetailPage() {
+  const { t } = useLocale();
   const params = useParams<{ id: string }>();
   const routeId = params.id;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -625,7 +627,7 @@ export default function MonitoringDetailPage() {
                         {p.name}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {p.ip}
+                        {p.ip || t("common.undecided")}
                       </span>
                     </div>
                     <StatusBadge status={p.status} />
