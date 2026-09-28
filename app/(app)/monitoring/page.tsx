@@ -38,16 +38,19 @@ import { EmptyState } from "@/components/domain/empty-state";
 import { SearchBar } from "@/components/domain/search-bar";
 import { Pagination } from "@/components/domain/pagination";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 type SortKey = "recent" | "created";
-const SORT_LABEL: Record<SortKey, string> = {
-  recent: "최신순",
-  created: "생성순",
+// 정렬 이름의 사전 열쇠말
+const SORT_LABEL_KEY: Record<SortKey, string> = {
+  recent: "monitoring.sortRecent",
+  created: "monitoring.sortCreated",
 };
 
 const PAGE_SIZE = 20;
 
 export default function MonitoringListPage() {
+  const { t } = useLocale();
   const router = useRouter();
   const [records, setRecords] = useState<SavedMonitoringRecord[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -112,14 +115,15 @@ export default function MonitoringListPage() {
       {/* 헤더 (에셋 생성 목록 참고) */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-foreground">탐지 기록</h2>
+          <h2 className="text-xl font-bold text-foreground">{t("monitoring.list")}</h2>
           <Badge variant="secondary" className="h-auto text-sm">
             {records.length}
           </Badge>
         </div>
         <Button asChild className="gap-1.5">
           <Link href="/monitoring/new">
-            <Plus className="size-4" />새 탐지
+            <Plus className="size-4" />
+            {t("monitoring.new")}
           </Link>
         </Button>
       </div>
@@ -128,11 +132,11 @@ export default function MonitoringListPage() {
         // 탐지 기록 없음 (기본)
         <EmptyState
           icon={Radar}
-          title="아직 탐지 기록이 없어요"
-          description="이미지로 무단 사용을 탐지해보세요"
+          title={t("monitoring.emptyTitle")}
+          description={t("monitoring.emptyDesc")}
           action={
             <Button asChild variant="outline" size="sm" className="mt-1">
-              <Link href="/monitoring/new">새 탐지 시작</Link>
+              <Link href="/monitoring/new">{t("monitoring.startNew")}</Link>
             </Button>
           }
         />
@@ -143,22 +147,22 @@ export default function MonitoringListPage() {
             <SearchBar
               value={query}
               onChange={setQuery}
-              placeholder="탐지 기록 검색"
+              placeholder={t("monitoring.searchPlaceholder")}
               className="flex-1"
             />
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
-                {SORT_LABEL[sort]}
+                {t(SORT_LABEL_KEY[sort])}
                 <ChevronDown className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[140px]">
-                {(Object.keys(SORT_LABEL) as SortKey[]).map((key) => (
+                {(Object.keys(SORT_LABEL_KEY) as SortKey[]).map((key) => (
                   <DropdownMenuItem
                     key={key}
                     onSelect={() => setSort(key)}
                     className="justify-between"
                   >
-                    {SORT_LABEL[key]}
+                    {t(SORT_LABEL_KEY[key])}
                     {sort === key && <Check className="size-4 text-brand" />}
                   </DropdownMenuItem>
                 ))}
@@ -171,10 +175,18 @@ export default function MonitoringListPage() {
             <Table className="min-w-[760px] table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[50%] pl-5">기준 이미지</TableHead>
-                  <TableHead className="w-[16%]">최근 탐지 일시</TableHead>
-                  <TableHead className="w-[16%]">최초 탐지일</TableHead>
-                  <TableHead className="w-[10%]">탐지 결과</TableHead>
+                  <TableHead className="w-[50%] pl-5">
+                    {t("monitoring.colImage")}
+                  </TableHead>
+                  <TableHead className="w-[16%]">
+                    {t("monitoring.colScannedAt")}
+                  </TableHead>
+                  <TableHead className="w-[16%]">
+                    {t("monitoring.colFirstScan")}
+                  </TableHead>
+                  <TableHead className="w-[10%]">
+                    {t("monitoring.colResult")}
+                  </TableHead>
                   <TableHead className="w-[8%] pr-4" />
                 </TableRow>
               </TableHeader>
@@ -185,7 +197,7 @@ export default function MonitoringListPage() {
                       colSpan={5}
                       className="py-10 text-center text-sm text-muted-foreground"
                     >
-                      검색 결과가 없어요.
+                      {t("assets.noResult")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -252,7 +264,7 @@ export default function MonitoringListPage() {
                             : "bg-green-100 text-green-700",
                         )}
                       >
-                        {r.resultCount}건
+                        {t("monitoring.resultCount", { n: r.resultCount })}
                       </span>
                     </TableCell>
                     <TableCell className="pr-4 text-right">
@@ -272,14 +284,14 @@ export default function MonitoringListPage() {
                             onSelect={() => startRename(r)}
                           >
                             <PencilLine className="size-4" />
-                            이름 변경
+                            {t("projects.rename")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             variant="destructive"
                             onSelect={() => handleDelete(r.id)}
                           >
                             <Trash2 className="size-4" />
-                            삭제
+                            {t("common.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

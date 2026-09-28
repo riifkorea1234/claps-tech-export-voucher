@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef } from "react";
+import { useLocale } from "@/lib/i18n";
 
 // 기본 상태: 살짝 기울어진 사다리꼴(원근) 모양
 const REST_TRANSFORM =
@@ -13,6 +14,8 @@ const REST_TRANSFORM =
  * - 마우스 호버: 커서 위치에 따라 기울기가 부드럽게 밀려 따라옴
  */
 export function TiltMonitorPreview() {
+  const { t } = useLocale();
+
   const ref = useRef<HTMLDivElement>(null);
 
   function handleMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -47,7 +50,7 @@ export function TiltMonitorPreview() {
       >
         <Image
           src="/preview-monitoring.png"
-          alt="CLAPS 모니터링 화면"
+          alt={t("monitoring.previewAlt")}
           width={2984}
           height={1956}
           quality={100}

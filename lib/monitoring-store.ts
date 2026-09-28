@@ -3,9 +3,13 @@
 // 탐지된 항목 (검색 결과 1건)
 export interface ScanResult {
   id: number;
-  platform: "구글" | "네이버";
+  // 저장에는 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 platform.* 에서 가져온다
+  platform: "google" | "naver";
   similarity: number;
-  timeLabel: string;
+  // 탐지 시각 표기. 저장된 옛 데이터는 timeLabel(문자열), 새 목업은 열쇠말을 쓴다.
+  timeLabel?: string;
+  timeLabelKey?: string;
+  timeLabelN?: number;
   url: string;
 }
 

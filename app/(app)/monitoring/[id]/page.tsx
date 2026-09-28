@@ -52,23 +52,23 @@ import { useLocale } from "@/lib/i18n";
 // 탐지 진행 단계 (UX 연출용 · 실제 검색엔진 붙기 전)
 // 단계마다 소요 시간을 다르게 (합계 ≈ 4.5초)
 const SCAN_STEPS = [
-  { label: "기준 이미지 특징 추출 중", ms: 700 },
-  { label: "구글 이미지 웹 검색 중", ms: 1200 },
-  { label: "네이버 이미지 웹 검색 중", ms: 900 },
-  { label: "유사 이미지 대조·유사도 계산 중", ms: 1300 },
-  { label: "결과 취합 중", ms: 1000 },
+  { labelKey: "scan.step1", ms: 700 },
+  { labelKey: "scan.step2", ms: 1200 },
+  { labelKey: "scan.step3", ms: 900 },
+  { labelKey: "scan.step4", ms: 1300 },
+  { labelKey: "scan.step5", ms: 1000 },
 ];
 
 // 임시 탐지 결과 (실제 검색엔진 붙기 전)
 const MOCK_RESULTS: ScanResult[] = [
-  { id: 1, platform: "구글", similarity: 96, timeLabel: "방금", url: "marketplace-x.com/item/8842" },
-  { id: 2, platform: "구글", similarity: 93, timeLabel: "방금", url: "blog.naver.com/goodsshop/223" },
-  { id: 3, platform: "네이버", similarity: 91, timeLabel: "1분 전", url: "smartstore.naver.com/p/9921" },
-  { id: 4, platform: "구글", similarity: 88, timeLabel: "2분 전", url: "marketplace-x.com/item/7710" },
-  { id: 5, platform: "네이버", similarity: 85, timeLabel: "3분 전", url: "cafe.naver.com/handmade/48" },
-  { id: 6, platform: "구글", similarity: 82, timeLabel: "5분 전", url: "aliexpress.com/item/1002" },
-  { id: 7, platform: "네이버", similarity: 79, timeLabel: "6분 전", url: "blog.naver.com/kitty/771" },
-  { id: 8, platform: "구글", similarity: 76, timeLabel: "8분 전", url: "etsy.com/listing/33421" },
+  { id: 1, platform: "google", similarity: 96, timeLabelKey: "time.justNow", url: "marketplace-x.com/item/8842" },
+  { id: 2, platform: "google", similarity: 93, timeLabelKey: "time.justNow", url: "blog.naver.com/goodsshop/223" },
+  { id: 3, platform: "naver", similarity: 91, timeLabelKey: "time.minutesAgo", timeLabelN: 1, url: "smartstore.naver.com/p/9921" },
+  { id: 4, platform: "google", similarity: 88, timeLabelKey: "time.minutesAgo", timeLabelN: 2, url: "marketplace-x.com/item/7710" },
+  { id: 5, platform: "naver", similarity: 85, timeLabelKey: "time.minutesAgo", timeLabelN: 3, url: "cafe.naver.com/handmade/48" },
+  { id: 6, platform: "google", similarity: 82, timeLabelKey: "time.minutesAgo", timeLabelN: 5, url: "aliexpress.com/item/1002" },
+  { id: 7, platform: "naver", similarity: 79, timeLabelKey: "time.minutesAgo", timeLabelN: 6, url: "blog.naver.com/kitty/771" },
+  { id: 8, platform: "google", similarity: 76, timeLabelKey: "time.minutesAgo", timeLabelN: 8, url: "etsy.com/listing/33421" },
 ];
 
 function formatNow() {
@@ -111,6 +111,8 @@ function EmptyBox({ children }: { children: React.ReactNode }) {
 }
 
 function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
+  const { t } = useLocale();
+
   return (
     <div
       onClick={onOpen}
@@ -121,19 +123,21 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
         <span
           className={cn(
             "absolute top-3 left-3 rounded-full px-2 py-1 text-sm text-white",
-            r.platform === "구글" ? "bg-platform-google" : "bg-platform-naver",
+            r.platform === "google" ? "bg-platform-google" : "bg-platform-naver",
           )}
         >
-          {r.platform}
+          {t(`platform.${r.platform}`)}
         </span>
       </div>
       {/* 정보 영역 */}
       <div className="flex flex-col gap-2 bg-white p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
-            유사도 {r.similarity}%
+            {t("scan.similarityPct", { n: r.similarity })}
           </span>
-          <span className="text-xs text-muted-foreground">{r.timeLabel}</span>
+          <span className="text-xs text-muted-foreground">
+            {r.timeLabelKey ? t(r.timeLabelKey, { n: r.timeLabelN ?? 0 }) : r.timeLabel}
+          </span>
         </div>
         <a
           href={`https://${r.url}`}
@@ -221,7 +225,11 @@ export default function MonitoringDetailPage() {
   function chooseLibraryImage(tile: { id: string; gradient: string }) {
     setImage(null);
     setGradient(tile.gradient);
-    setFileName(`${pickProject?.name ?? "라이브러리"} 이미지`);
+    setFileName(
+      t("scan.libraryImage", {
+        project: pickProject?.name ?? t("scan.libraryFallback"),
+      }),
+    );
     setStatus("idle");
     setResults([]);
     setLastScan(null);
@@ -335,7 +343,7 @@ export default function MonitoringDetailPage() {
         className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
-        목록
+        {t("scan.back")}
       </Link>
 
       {/* 탐지 기준 (다크 배너) */}
@@ -360,7 +368,7 @@ export default function MonitoringDetailPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={image}
-                    alt="탐지 기준"
+                    alt={t("scan.baseImageAlt")}
                     className="h-full w-auto max-w-[280px] object-contain"
                   />
                 ) : (
@@ -370,7 +378,7 @@ export default function MonitoringDetailPage() {
                   <button
                     type="button"
                     onClick={removeImage}
-                    aria-label="제거"
+                    aria-label={t("scan.remove")}
                     className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
                   >
                     <X className="size-3" />
@@ -378,7 +386,9 @@ export default function MonitoringDetailPage() {
                 )}
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-xs text-white/60">탐지 기준 이미지</span>
+                <span className="text-xs text-white/60">
+                  {t("scan.baseImage")}
+                </span>
                 <span className="text-sm font-semibold text-white">
                   {fileName}
                 </span>
@@ -388,7 +398,7 @@ export default function MonitoringDetailPage() {
                     onClick={() => fileInputRef.current?.click()}
                     className="mt-1 w-fit text-xs text-white/70 underline-offset-2 hover:underline"
                   >
-                    변경
+                    {t("scan.change")}
                   </button>
                 )}
               </div>
@@ -404,14 +414,14 @@ export default function MonitoringDetailPage() {
                   onClick={() => fileInputRef.current?.click()}
                   className="rounded-lg border border-border bg-secondary px-3.5 py-2 text-sm font-medium text-secondary-foreground transition-all hover:bg-white active:scale-[0.97] active:bg-zinc-200"
                 >
-                  이미지 첨부
+                  {t("scan.attach")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setLibOpen(true)}
                   className="rounded-lg border border-border bg-secondary px-3.5 py-2 text-sm font-medium text-secondary-foreground transition-all hover:bg-white active:scale-[0.97] active:bg-zinc-200"
                 >
-                  라이브러리에서 선택
+                  {t("scan.pickFromLibrary")}
                 </button>
               </div>
             </>
@@ -434,10 +444,10 @@ export default function MonitoringDetailPage() {
           {status === "scanning" ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              탐지 중…
+              {t("scan.running")}
             </>
           ) : (
-            "탐지 시작"
+            t("scan.start")
           )}
         </button>
       </div>
@@ -447,14 +457,14 @@ export default function MonitoringDetailPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-foreground">탐지 결과</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("scan.results")}</h2>
               <Badge variant="secondary" className="h-auto text-sm">
-                {resultCount}건
+                {t("monitoring.resultCount", { n: resultCount })}
               </Badge>
             </div>
             {lastScan && (
               <span className="text-sm text-muted-foreground">
-                마지막 탐지 {lastScan}
+                {t("scan.lastScan", { when: lastScan })}
               </span>
             )}
           </div>
@@ -465,11 +475,10 @@ export default function MonitoringDetailPage() {
             <ImagePlus className="size-8 text-muted-foreground" />
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                탐지할 기준 이미지를 먼저 첨부하세요
+                {t("scan.needImageTitle")}
               </p>
               <p className="text-sm text-muted-foreground">
-                상단에서 기준 이미지를 첨부하면 무단 사용 탐지를 시작할 수
-                있어요.
+                {t("scan.needImageDesc")}
               </p>
             </div>
           </EmptyBox>
@@ -478,11 +487,10 @@ export default function MonitoringDetailPage() {
             <Search className="size-8 text-muted-foreground" />
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                탐지 시작을 눌러 검색하세요
+                {t("scan.readyTitle")}
               </p>
               <p className="text-sm text-muted-foreground">
-                상단의 &apos;탐지 시작&apos;을 누르면 구글·네이버 이미지에서 유사
-                이미지를 찾습니다.
+                {t("scan.readyDesc")}
               </p>
             </div>
           </EmptyBox>
@@ -537,8 +545,8 @@ export default function MonitoringDetailPage() {
                   className="text-sm font-medium text-foreground animate-in fade-in slide-in-from-bottom-1 duration-300"
                 >
                   {scanDone
-                    ? "탐지 완료"
-                    : (SCAN_STEPS[scanStep]?.label ?? "결과 취합 중")}
+                    ? t("scan.done")
+                    : t(SCAN_STEPS[scanStep]?.labelKey ?? "scan.step5")}
                 </p>
                 <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                   {Math.min(scanStep + 1, SCAN_STEPS.length)} /{" "}
@@ -563,12 +571,12 @@ export default function MonitoringDetailPage() {
             </div>
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                탐지된 항목이 없습니다
+                {t("scan.noneTitle")}
               </p>
               <p className="text-sm text-muted-foreground">
-                현재 기준 이미지와 유사한 이미지가 발견되지 않았어요.
+                {t("scan.noneDesc1")}
                 <br />
-                브랜드가 안전하게 보호되고 있습니다.
+                {t("scan.noneDesc2")}
               </p>
             </div>
           </EmptyBox>
@@ -586,12 +594,12 @@ export default function MonitoringDetailPage() {
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
             <DialogTitle>
-              {pickProject ? pickProject.name : "라이브러리에서 선택"}
+              {pickProject ? pickProject.name : t("scan.pickFromLibrary")}
             </DialogTitle>
             <DialogDescription>
               {pickProject
-                ? "탐지 기준으로 사용할 이미지를 골라주세요."
-                : "이미지를 가져올 프로젝트를 먼저 선택하세요."}
+                ? t("scan.pickDescWithProject")
+                : t("scan.pickDescNoProject")}
             </DialogDescription>
           </DialogHeader>
 
@@ -603,10 +611,10 @@ export default function MonitoringDetailPage() {
                   <FolderPlus className="size-5 text-muted-foreground" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  아직 만든 프로젝트가 없어요.
+                  {t("gen.noProjectYet")}
                 </p>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/projects">프로젝트 만들러 가기</Link>
+                  <Link href="/projects">{t("gen.goMakeProject")}</Link>
                 </Button>
               </div>
             ) : (
@@ -645,7 +653,7 @@ export default function MonitoringDetailPage() {
                 className="flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 <ChevronLeft className="size-4" />
-                프로젝트 목록
+                {t("scan.projectList")}
               </button>
               {libTiles.length === 0 ? (
                 <div className="flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border px-6 py-8 text-center">
@@ -653,7 +661,7 @@ export default function MonitoringDetailPage() {
                     <ImageOff className="size-5 text-muted-foreground" />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    이 프로젝트에 아직 이미지가 없어요.
+                    {t("scan.projectNoImages")}
                   </p>
                 </div>
               ) : (
@@ -692,9 +700,9 @@ export default function MonitoringDetailPage() {
             <>
               <SheetHeader className="gap-3 border-b border-border p-6">
                 <SheetDescription className="sr-only">
-                  탐지된 이미지 상세 정보
+                  {t("scan.detailSr")}
                 </SheetDescription>
-                <SheetTitle className="text-lg">탐지 상세</SheetTitle>
+                <SheetTitle className="text-lg">{t("scan.detailTitle")}</SheetTitle>
               </SheetHeader>
 
               <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
@@ -724,9 +732,9 @@ export default function MonitoringDetailPage() {
                   return (
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">유사도</span>
+                        <span className="text-muted-foreground">{t("scan.similarity")}</span>
                         <span className={cn("font-semibold", textClass)}>
-                          {level}단계 / 10
+                          {t("scan.level", { n: level })}
                         </span>
                       </div>
                       <div className="flex gap-1">
@@ -747,19 +755,21 @@ export default function MonitoringDetailPage() {
                 {/* 상세 정보 */}
                 <dl className="flex flex-col gap-3 rounded-xl bg-muted p-4">
                   <div className="flex items-center justify-between gap-4 text-sm">
-                    <dt className="text-muted-foreground">플랫폼</dt>
+                    <dt className="text-muted-foreground">{t("scan.platform")}</dt>
                     <dd className="font-medium text-foreground">
                       {detail.platform}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-4 text-sm">
-                    <dt className="text-muted-foreground">탐지 시각</dt>
+                    <dt className="text-muted-foreground">{t("scan.foundAt")}</dt>
                     <dd className="font-medium text-foreground">
-                      {detail.timeLabel}
+                      {detail.timeLabelKey
+                        ? t(detail.timeLabelKey, { n: detail.timeLabelN ?? 0 })
+                        : detail.timeLabel}
                     </dd>
                   </div>
                   <div className="flex flex-col gap-1 text-sm">
-                    <dt className="text-muted-foreground">발견 위치</dt>
+                    <dt className="text-muted-foreground">{t("scan.location")}</dt>
                     <dd>
                       <a
                         href={`https://${detail.url}`}
@@ -786,11 +796,11 @@ export default function MonitoringDetailPage() {
                     rel="noopener noreferrer"
                   >
                     <SquareArrowOutUpRight className="size-4" />
-                    원본 페이지 열기
+                    {t("scan.openOriginal")}
                   </a>
                 </Button>
                 <SheetClose asChild>
-                  <Button variant="outline">닫기</Button>
+                  <Button variant="outline">{t("common.close")}</Button>
                 </SheetClose>
               </SheetFooter>
             </>
