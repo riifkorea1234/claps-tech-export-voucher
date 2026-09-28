@@ -14,10 +14,12 @@ import {
 import { getProject } from "@/lib/projects-store";
 import { getAllSessions } from "@/lib/assets-store";
 import { getStageAssets } from "@/lib/session-assets-store";
+import { useLocale } from "@/lib/i18n";
 
 // 이 프로젝트에 등록된 생성 목록만 모아 보는 페이지
 export default function ProjectSessionsPage() {
   const params = useParams();
+  const { t } = useLocale();
   const id = String(params.id);
   const [name, setName] = useState(project.name);
   const [sessions, setSessions] = useState<ProjectSession[]>([]);
@@ -51,13 +53,13 @@ export default function ProjectSessionsPage() {
           {name}
         </Link>
         <span className="h-4 w-px shrink-0 bg-border" />
-        <span className="shrink-0 font-semibold text-foreground">생성 목록</span>
+        <span className="shrink-0 font-semibold text-foreground">{t("detail.sessions")}</span>
       </div>
 
       {/* 생성 목록 전체 */}
       <section className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-foreground">생성 목록</h2>
+          <h2 className="text-xl font-bold text-foreground">{t("detail.sessions")}</h2>
           <Badge variant="secondary" className="h-auto text-sm">
             {sessions.length}
           </Badge>
@@ -70,15 +72,14 @@ export default function ProjectSessionsPage() {
             </div>
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                아직 생성 내역이 없어요
+                {t("detail.sessionsEmptyTitle")}
               </p>
-              <p className="text-sm text-muted-foreground">
-                에셋 생성에서 이미지를 만들면
-                <br />이 프로젝트의 생성 목록이 여기에 쌓여요.
+              <p className="text-sm whitespace-pre-line text-muted-foreground">
+                {t("detail.sessionsEmptyDesc")}
               </p>
             </div>
             <Button asChild variant="outline" size="sm" className="mt-1">
-              <Link href="/assets">에셋 생성하러 가기</Link>
+              <Link href="/assets">{t("detail.goToAssets")}</Link>
             </Button>
           </div>
         ) : (
@@ -88,7 +89,7 @@ export default function ProjectSessionsPage() {
                 key={s.id}
                 session={s}
                 backHref={`/projects/${id}/sessions`}
-                backLabel="전체보기"
+                backLabel={t("detail.viewAll")}
               />
             ))}
           </div>

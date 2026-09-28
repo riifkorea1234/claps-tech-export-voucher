@@ -12,6 +12,7 @@ import {
 import { resolveSessionCover } from "@/lib/project-cover";
 import type { ProjectCover } from "@/lib/mock/projects";
 import { sessionSubtitle, type ProjectSession } from "@/lib/mock/project-detail";
+import { useLocale } from "@/lib/i18n";
 
 // 프로젝트 생성 목록 행 — 클릭 시 해당 세션 워크스페이스로 이동
 // 에셋 생성 목록(AssetRow)과 같은 뼈대(SessionRowShell)를 사용해 디자인을 공유한다.
@@ -26,9 +27,10 @@ export function SessionRow({
   backLabel?: string;
 }) {
   const router = useRouter();
+  const { t } = useLocale();
   // 썸네일 · 진행 단계 (마운트 후 로드)
   const [cover, setCover] = useState<ProjectCover | undefined>(undefined);
-  const [stage, setStage] = useState<Stage>("생성");
+  const [stage, setStage] = useState<Stage>("generate");
   useEffect(() => {
     setCover(resolveSessionCover(session.id));
     setStage(resolveStage(session.id));
@@ -58,7 +60,7 @@ export function SessionRow({
       }
       subtitle={
         <p className="truncate text-sm text-muted-foreground">
-          {sessionSubtitle(session)}
+          {sessionSubtitle(session, t)}
         </p>
       }
       menu={

@@ -236,7 +236,7 @@ export default function ProjectDetailPage() {
           className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronLeft className="size-4" />
-          목록
+          {t("detail.back")}
         </Link>
         <span className="h-4 w-px bg-border" />
         <span className="truncate font-semibold text-foreground">
@@ -258,12 +258,12 @@ export default function ProjectDetailPage() {
           <DropdownMenuContent align="end" className="w-[200px]">
             <DropdownMenuItem onSelect={openEdit}>
               <PencilLine className="size-4" />
-              프로젝트 정보 편집하기
+              {t("detail.editProject")}
             </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Tag className="size-4" />
-                상태 변경하기
+                {t("detail.changeStatus")}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="w-[160px]">
                 {PROJECT_STATUSES.map((s) => (
@@ -283,7 +283,7 @@ export default function ProjectDetailPage() {
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
               <Trash2 className="size-4" />
-              프로젝트 삭제하기
+              {t("detail.deleteProject")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -306,7 +306,7 @@ export default function ProjectDetailPage() {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={cover.value}
-                alt="프로젝트 커버"
+                alt={t("detail.coverAlt")}
                 className="size-full object-cover"
               />
             ) : (
@@ -326,17 +326,18 @@ export default function ProjectDetailPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-sm font-medium text-zinc-900 outline-none transition-colors hover:bg-white">
                   <ImagePlus className="size-4" />
-                  썸네일 변경
+                  {t("detail.changeCover")}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-[190px]">
                   <DropdownMenuItem
                     onSelect={() => coverInputRef.current?.click()}
                   >
-                    <Upload className="size-4" />내 컴퓨터에서 업로드
+                    <Upload className="size-4" />
+                    {t("detail.uploadFromComputer")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setLibOpen(true)}>
                     <Images className="size-4" />
-                    라이브러리에서 선택
+                    {t("detail.pickFromLibrary")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -374,7 +375,7 @@ export default function ProjectDetailPage() {
                 </h2>
                 {/* IP · 파트너 칩 */}
                 <div className="flex items-center gap-4 rounded-lg bg-white/10 px-3 py-2 text-sm text-white">
-                  <span className="font-medium">IP · 파트너</span>
+                  <span className="font-medium">{t("detail.ipPartner")}</span>
                   <span>{header.ip || t("common.undecided")}</span>
                 </div>
               </div>
@@ -387,13 +388,13 @@ export default function ProjectDetailPage() {
               )}
               <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex gap-2">
-                  <span className="text-white/50">최초 생성일</span>
+                  <span className="text-white/50">{t("detail.createdAt")}</span>
                   <span className="text-white/80">
                     {header.createdAt ?? "-"}
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <span className="text-white/50">최근 업데이트</span>
+                  <span className="text-white/50">{t("detail.updatedAt")}</span>
                   <span className="text-white/80">
                     {formatDate(header.updatedAt)}
                   </span>
@@ -423,7 +424,7 @@ export default function ProjectDetailPage() {
                   {guideName}
                 </span>
                 <span className="text-xs text-white/50">
-                  브랜드 가이드 · 검증 규칙 변환 대기
+                  {t("detail.guidePending")}
                 </span>
               </div>
             </div>
@@ -433,12 +434,12 @@ export default function ProjectDetailPage() {
                 onClick={() => guideInputRef.current?.click()}
                 className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/10"
               >
-                변경
+                {t("detail.guideChange")}
               </button>
               <button
                 type="button"
                 onClick={removeGuide}
-                aria-label="브랜드 가이드 제거"
+                aria-label={t("detail.guideRemove")}
                 className="flex size-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <X className="size-4" />
@@ -454,10 +455,10 @@ export default function ProjectDetailPage() {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-white">
-                  브랜드 가이드 추가
+                  {t("detail.guideAdd")}
                 </span>
                 <span className="text-xs text-white/50">
-                  PDF를 올리면 검증(E3) 규칙으로 자동 변환돼요.
+                  {t("detail.guideAddDesc")}
                 </span>
               </div>
             </div>
@@ -466,7 +467,7 @@ export default function ProjectDetailPage() {
               onClick={() => guideInputRef.current?.click()}
               className="shrink-0 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition-colors hover:bg-white/90"
             >
-              파일 선택
+              {t("detail.guidePick")}
             </button>
           </div>
         )}
@@ -475,12 +476,12 @@ export default function ProjectDetailPage() {
       {/* 생성 목록 */}
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-xl font-bold text-foreground">생성 목록</h3>
+          <h3 className="text-xl font-bold text-foreground">{t("detail.sessions")}</h3>
           <Link
             href={`/projects/${id}/sessions`}
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            전체보기
+            {t("detail.viewAll")}
           </Link>
         </div>
         {sessions.length === 0 ? (
@@ -490,15 +491,14 @@ export default function ProjectDetailPage() {
             </div>
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                아직 생성 내역이 없어요
+                {t("detail.sessionsEmptyTitle")}
               </p>
-              <p className="text-sm text-muted-foreground">
-                에셋 생성에서 이미지를 만들면
-                <br />이 프로젝트의 생성 목록이 여기에 쌓여요.
+              <p className="text-sm whitespace-pre-line text-muted-foreground">
+                {t("detail.sessionsEmptyDesc")}
               </p>
             </div>
             <Button asChild variant="outline" size="sm" className="mt-1">
-              <Link href="/assets">에셋 생성하러 가기</Link>
+              <Link href="/assets">{t("detail.goToAssets")}</Link>
             </Button>
           </div>
         ) : (
@@ -519,9 +519,9 @@ export default function ProjectDetailPage() {
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-bold text-foreground">이미지 라이브러리</h3>
+            <h3 className="text-xl font-bold text-foreground">{t("detail.library")}</h3>
             <span className="text-sm text-muted-foreground">
-              {tiles.length}장
+              {t("detail.imageCount", { n: tiles.length })}
             </span>
           </div>
           {tiles.length > 0 && (
@@ -544,14 +544,14 @@ export default function ProjectDetailPage() {
               >
                 <Check className="size-3.5" strokeWidth={3} />
               </span>
-              전체선택
+              {t("detail.selectAll")}
             </button>
             <Button
               disabled={selected.size === 0}
               className={cn("gap-1.5", selected.size > 0 && "w-[148px]")}
             >
               <Download className="size-4" />
-              선택 다운로드
+              {t("detail.downloadSelected")}
               {selected.size > 0 && ` (${selected.size})`}
             </Button>
           </div>
@@ -565,11 +565,10 @@ export default function ProjectDetailPage() {
             </div>
             <div className="flex flex-col gap-2">
               <p className="text-base font-semibold text-foreground">
-                아직 생성된 이미지가 없어요
+                {t("detail.libraryEmptyTitle")}
               </p>
-              <p className="text-sm text-muted-foreground">
-                가이드 검증을 통과해 채택한 이미지가
-                <br />이 프로젝트 라이브러리에 모여요.
+              <p className="text-sm whitespace-pre-line text-muted-foreground">
+                {t("detail.libraryEmptyDesc")}
               </p>
             </div>
           </div>
@@ -621,10 +620,8 @@ export default function ProjectDetailPage() {
       <Dialog open={libOpen} onOpenChange={setLibOpen}>
         <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
-            <DialogTitle>라이브러리에서 선택</DialogTitle>
-            <DialogDescription>
-              썸네일로 사용할 이미지를 골라주세요.
-            </DialogDescription>
+            <DialogTitle>{t("detail.pickFromLibrary")}</DialogTitle>
+            <DialogDescription>{t("detail.pickCoverDesc")}</DialogDescription>
           </DialogHeader>
           {tiles.length === 0 ? (
             <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border px-6 py-8 text-center">
@@ -632,7 +629,7 @@ export default function ProjectDetailPage() {
                 <ImageOff className="size-5 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
-                라이브러리에 아직 이미지가 없어요.
+                {t("detail.libraryEmptyShort")}
               </p>
             </div>
           ) : (
@@ -660,15 +657,13 @@ export default function ProjectDetailPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>프로젝트 정보 편집</DialogTitle>
-            <DialogDescription>
-              이름 · IP · 설명을 수정할 수 있어요.
-            </DialogDescription>
+            <DialogTitle>{t("detail.editTitle")}</DialogTitle>
+            <DialogDescription>{t("detail.editDesc")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-foreground">
-                프로젝트 이름
+                {t("newProject.name")}
               </label>
               <input
                 type="text"
@@ -679,7 +674,7 @@ export default function ProjectDetailPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-foreground">
-                IP · 파트너
+                {t("detail.ipPartner")}
               </label>
               <input
                 type="text"
@@ -690,25 +685,25 @@ export default function ProjectDetailPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="flex items-center gap-1 text-sm font-medium text-foreground">
-                설명
+                {t("detail.description")}
                 <span className="text-xs font-normal text-muted-foreground">
-                  (선택)
+                  {t("common.optional")}
                 </span>
               </label>
               <textarea
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
                 rows={3}
-                placeholder="이 프로젝트가 어떤 작업인지 간단히 적어주세요."
+                placeholder={t("newProject.descriptionPlaceholder")}
                 className="w-full resize-none rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
               />
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">취소</Button>
+              <Button variant="outline">{t("common.cancel")}</Button>
             </DialogClose>
-            <Button onClick={saveEdit}>저장</Button>
+            <Button onClick={saveEdit}>{t("common.save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -718,12 +713,17 @@ export default function ProjectDetailPage() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onConfirm={confirmDelete}
-        description={
-          <>
-            <span className="font-medium text-foreground">{header.name}</span>{" "}
-            프로젝트를 삭제하면 되돌릴 수 없어요.
-          </>
-        }
+        description={(() => {
+          // 언어마다 어순이 달라서 사전 문구를 {name} 자리에서 잘라 강조를 준다
+          const [before, after] = t("detail.deleteDesc").split("{name}");
+          return (
+            <>
+              {before}
+              <span className="font-medium text-foreground">{header.name}</span>
+              {after}
+            </>
+          );
+        })()}
       />
     </div>
   );

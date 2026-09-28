@@ -56,9 +56,12 @@ export const sampleProjectDetail: ProjectDetail = {
 };
 
 // "여름 프로모션 · 최종 6장" 형태로 조립 (tag 없으면 생략)
-export function sessionSubtitle(s: ProjectSession): string {
+// 문구는 언어별로 다르므로 화면에서 사전(t)을 넘겨받는다.
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+export function sessionSubtitle(s: ProjectSession, t: Translate): string {
   const parts: string[] = [];
   if (s.tag) parts.push(s.tag);
-  parts.push(`최종 ${s.adopted}장`);
+  parts.push(t("detail.adoptedCount", { n: s.adopted }));
   return parts.join(" · ");
 }

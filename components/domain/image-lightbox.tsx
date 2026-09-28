@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 // 이미지 전체화면 보기 (배경·Escape·닫기 버튼 클릭으로 닫힘)
 // asset이 null이면 닫힌 상태.
@@ -13,6 +14,7 @@ export function ImageLightbox({
   asset: { gradient: string; aspectClass: string } | null;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   // Escape로 닫기
   useEffect(() => {
     if (!asset) return;
@@ -35,7 +37,7 @@ export function ImageLightbox({
       <button
         type="button"
         onClick={onClose}
-        aria-label="닫기"
+        aria-label={t("common.close")}
         className="absolute top-5 right-5 flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
       >
         <X className="size-6" />

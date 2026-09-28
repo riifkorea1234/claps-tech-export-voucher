@@ -39,7 +39,7 @@ export function AssetRow({
   const [cover, setCover] = useState<ProjectCover | undefined>(undefined);
   // 연결된 프로젝트명 · 진행 단계 (마운트 후 로드)
   const [projectName, setProjectName] = useState<string | undefined>(undefined);
-  const [stage, setStage] = useState<Stage>("생성");
+  const [stage, setStage] = useState<Stage>("generate");
   useEffect(() => {
     setCover(resolveSessionCover(session.id));
     setStage(resolveStage(session.id));

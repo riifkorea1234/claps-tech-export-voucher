@@ -4,6 +4,7 @@ import { CoverThumb } from "./cover-thumb";
 import { hasStageAssets } from "@/lib/session-assets-store";
 import type { ProjectCover } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 // 생성 세션 행의 공통 뼈대 (에셋 생성 목록 · 프로젝트 상세에서 함께 사용)
 // 레이아웃: [썸네일] [제목/부제] ... [시각] [단계 배지] [⋮]
@@ -49,22 +50,26 @@ export function SessionRowShell({
 }
 
 // 진행 단계 = 저장된 데이터로 판별 (최종본 > 검증 > 생성)
-export type Stage = "생성" | "검증" | "최종";
+// 화면에 보일 이름은 lib/i18n 사전의 stage.* 에서 가져온다.
+export type Stage = "generate" | "verify" | "final";
 
 export function resolveStage(sessionId: string): Stage {
-  if (hasStageAssets("final", sessionId)) return "최종";
-  if (hasStageAssets("verify", sessionId)) return "검증";
-  return "생성";
+  if (hasStageAssets("final", sessionId)) return "final";
+  if (hasStageAssets("verify", sessionId)) return "verify";
+  return "generate";
 }
 
+// 색만으로 뜻을 전하지 않도록 글자를 항상 함께 둔다 (WCAG 2.1 AA)
 const STAGE_TONES: Record<Stage, string> = {
-  생성: "bg-secondary text-secondary-foreground",
-  검증: "bg-amber-500/10 text-amber-600",
-  최종: "bg-green-500/10 text-green-600",
+  generate: "bg-secondary text-secondary-foreground",
+  verify: "bg-amber-500/10 text-amber-600",
+  final: "bg-green-500/10 text-green-600",
 };
 
 // 진행 단계 배지
 export function StageBadge({ stage }: { stage: Stage }) {
+  const { t } = useLocale();
+
   return (
     <span
       className={cn(
@@ -72,7 +77,7 @@ export function StageBadge({ stage }: { stage: Stage }) {
         STAGE_TONES[stage],
       )}
     >
-      {stage}
+      {t(`stage.${stage}`)}
     </span>
   );
 }
