@@ -5,6 +5,7 @@ import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLocale } from "@/lib/i18n";
 
 // 간단한 이메일 형식 검사
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,6 +16,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // - 발송 완료 화면에서는 상단 안내 문구(부제)를 숨김
 // - 실제 메일 발송은 백엔드 연동 후 (지금은 화면 전환만)
 export function ForgotPasswordForm() {
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [sent, setSent] = useState(false);
@@ -35,11 +37,11 @@ export function ForgotPasswordForm() {
       {/* 제목 (발송 완료 시 부제는 숨김) */}
       <div className="flex flex-col gap-2 text-center">
         <h2 className="text-2xl font-bold tracking-[-0.6px] text-foreground">
-          비밀번호 찾기
+          {t("auth.resetTitle")}
         </h2>
         {!sent && (
           <p className="text-sm text-muted-foreground">
-            가입한 이메일로 재설정 링크를 보내드릴게요.
+            {t("auth.resetDesc")}
           </p>
         )}
       </div>
@@ -52,12 +54,20 @@ export function ForgotPasswordForm() {
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="text-sm text-foreground">
-              <span className="font-medium">{email.trim()}</span> 으로
               <br />
-              재설정 링크를 보냈어요.
+              {(() => {
+                const [before, after] = t("auth.resetSent").split("{email}");
+                return (
+                  <>
+                    {before}
+                    <span className="font-medium">{email.trim()}</span>
+                    {after}
+                  </>
+                );
+              })()}
             </p>
             <p className="text-sm text-muted-foreground">
-              메일이 오지 않았다면 스팸함을 확인해 주세요.
+              {t("auth.resetSpam")}
             </p>
           </div>
           <Button
@@ -65,14 +75,14 @@ export function ForgotPasswordForm() {
             onClick={() => setSent(false)}
             className="h-11 w-full rounded-lg text-sm font-medium"
           >
-            다시 보내기
+            {t("auth.resendLink")}
           </Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[22px]">
           {/* 이메일 */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">이메일</Label>
+            <Label htmlFor="email">{t("auth.email")}</Label>
             <Input
               id="email"
               type="email"
@@ -87,7 +97,7 @@ export function ForgotPasswordForm() {
             />
             {error && (
               <p className="text-sm text-destructive">
-                올바른 이메일 주소를 입력해주세요.
+                {t("auth.emailInvalid")}
               </p>
             )}
           </div>
@@ -98,7 +108,7 @@ export function ForgotPasswordForm() {
             disabled={!canSubmit}
             className="h-11 w-full rounded-lg text-sm font-medium"
           >
-            재설정 링크 보내기
+            {t("auth.sendLink")}
           </Button>
         </form>
       )}

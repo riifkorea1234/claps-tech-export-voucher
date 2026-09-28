@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { isRegistered, setCurrentEmail } from "@/lib/account-store";
+import { useLocale } from "@/lib/i18n";
 
 // 간단한 이메일 형식 검사
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,6 +17,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // - 기존 회원이면 /projects, 신규면 /profile-setup으로 이동
 export function LoginEmailForm() {
   const router = useRouter();
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
 
@@ -42,7 +44,7 @@ export function LoginEmailForm() {
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[22px]">
       {/* 이메일 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">이메일</Label>
+        <Label htmlFor="email">{t("auth.email")}</Label>
         <Input
           id="email"
           type="email"
@@ -51,13 +53,13 @@ export function LoginEmailForm() {
             setEmail(e.target.value);
             if (error) setError(false);
           }}
-          placeholder="you@company.com"
+          placeholder={t("auth.emailPlaceholder")}
           aria-invalid={error}
           className="h-11"
         />
         {error && (
           <p className="text-sm text-destructive">
-            올바른 이메일 주소를 입력해주세요.
+            {t("auth.emailInvalid")}
           </p>
         )}
       </div>
@@ -68,7 +70,7 @@ export function LoginEmailForm() {
         disabled={!canSubmit}
         className="h-11 w-full rounded-lg text-sm font-medium"
       >
-        계속
+        {t("auth.continue")}
       </Button>
     </form>
   );
