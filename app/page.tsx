@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -31,17 +33,18 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollRevealText } from "@/components/domain/scroll-reveal-text";
 import { TiltMonitorPreview } from "@/components/domain/tilt-monitor-preview";
+import { useLocale } from "@/lib/i18n";
 
 // 통합 허브 노드 (클랩스 기능명 · 타사 로고 대체)
 const HUB_LEFT = [
-  { label: "IP 파트너", icon: Users },
-  { label: "브랜드 가이드", icon: FileText },
-  { label: "에셋 생성", icon: ImageIcon },
+  { labelKey: "landing.hub.partner", icon: Users },
+  { labelKey: "landing.hub.guide", icon: FileText },
+  { labelKey: "landing.hub.asset", icon: ImageIcon },
 ];
 const HUB_RIGHT = [
-  { label: "가이드 검증", icon: ShieldCheck },
-  { label: "모니터링", icon: Radar },
-  { label: "리포트", icon: BarChart3 },
+  { labelKey: "landing.hub.verify", icon: ShieldCheck },
+  { labelKey: "landing.hub.monitoring", icon: Radar },
+  { labelKey: "landing.hub.report", icon: BarChart3 },
 ];
 
 // 허브 행별 곡선 (연결선 SVG viewBox 300x46 · 행 간격 78px 기준)
@@ -61,94 +64,86 @@ const HUB_CURVE_RIGHT = [
 // 지표 (성과 수치 대신 기능 사실 기반 · 과장 없음)
 // 아이콘 = Phosphor 듀오톤
 const STATS = [
-  { k: "4단계", v: "통합 워크플로우", icon: StackSimple },
-  { k: "5대", v: "가이드 규칙 검증", icon: ListChecks },
-  { k: "24/7", v: "무단 사용 탐지", icon: Broadcast },
-  { k: "10단계", v: "유사도 분석", icon: MagnifyingGlass },
+  { k: "landing.stat1k", v: "landing.stat1v", icon: StackSimple },
+  { k: "landing.stat2k", v: "landing.stat2v", icon: ListChecks },
+  { k: "landing.stat3k", v: "landing.stat3v", icon: Broadcast },
+  { k: "landing.stat4k", v: "landing.stat4v", icon: MagnifyingGlass },
 ];
 
 // 워크플로우 3단계
 const FLOW = [
   {
-    title: "파트너 찾기",
-    desc: "IP·업종·팬덤에 맞는 협업 파트너를 추천합니다.",
-    link: "파트너 추천 알아보기",
+    title: "landing.flow1.title",
+    desc: "landing.flow1.desc",
+    link: "landing.flow1.link",
     img: "/flow-partner.png",
   },
   {
-    title: "에셋 생성·검증",
-    desc: "브랜드에 맞는 이미지를 만들고\n가이드 위반을 자동 검출합니다.",
-    link: "에셋 생성 알아보기",
+    title: "landing.flow2.title",
+    desc: "landing.flow2.desc",
+    link: "landing.flow2.link",
     img: "/flow-asset.png",
   },
   {
-    title: "모니터링",
-    desc: "웹 전반에서 무단 사용을 탐지해\n브랜드를 보호합니다.",
-    link: "모니터링 알아보기",
+    title: "landing.flow3.title",
+    desc: "landing.flow3.desc",
+    link: "landing.flow3.link",
     img: "/flow-monitoring.png",
   },
 ];
 
 // 가이드 검증 스포트라이트 체크리스트
 const SPOTLIGHT_POINTS = [
-  { k: "규칙 기반 검증", v: "색·로고·타이포 위반 자동 검출" },
-  { k: "즉시 피드백", v: "통과 / 수정 필요를 바로 확인" },
-  { k: "최종본 관리", v: "통과한 이미지를 프로젝트에 모음" },
-  { k: "검증 이력", v: "언제 무엇을 검증했는지 기록" },
+  { k: "landing.spot1k", v: "landing.spot1v" },
+  { k: "landing.spot2k", v: "landing.spot2v" },
+  { k: "landing.spot3k", v: "landing.spot3v" },
+  { k: "landing.spot4k", v: "landing.spot4v" },
 ];
 
 // 핵심 기능 4개 (엔진)
 const ENGINE = [
-  {
-    icon: Users,
-    title: "IP 파트너 매칭",
-    desc: "세계관·팬덤·업종 데이터로\n최적의 협업 파트너를 추천합니다.",
-  },
+  { icon: Users, title: "landing.engine1.title", desc: "landing.engine1.desc" },
   {
     icon: Sparkles,
-    title: "AI 에셋 생성",
-    desc: "브랜드에 맞는 이미지를 손쉽게 생성하고 관리합니다.",
+    title: "landing.engine2.title",
+    desc: "landing.engine2.desc",
   },
   {
     icon: ShieldCheck,
-    title: "가이드 자동 검증",
-    desc: "생성물이 브랜드 가이드 규칙을 지키는지\n자동으로 검증합니다.",
+    title: "landing.engine3.title",
+    desc: "landing.engine3.desc",
   },
-  {
-    icon: Radar,
-    title: "무단 사용 모니터링",
-    desc: "웹 전반에서 무단 사용을 탐지해 브랜드를 보호합니다.",
-  },
+  { icon: Radar, title: "landing.engine4.title", desc: "landing.engine4.desc" },
 ];
 
 // 활용 사례
 const USECASES = [
-  { label: "굿즈 브랜딩", img: "/usecase-branding.jpg" },
-  { label: "캐릭터 IP", img: "/usecase-character.jpg" },
-  { label: "콜라보 프로모션", img: "/usecase-collab.jpg" },
+  { label: "landing.usecase1", img: "/usecase-branding.jpg" },
+  { label: "landing.usecase2", img: "/usecase-character.jpg" },
+  { label: "landing.usecase3", img: "/usecase-collab.jpg" },
 ];
 
 // 요금 플랜 (실제 가격 미정 → 문의 기반)
 const PLANS = [
   {
-    name: "스타터",
-    note: "브랜드 이미지를 안전하게 시작하는 팀을 위해.",
+    name: "landing.plan1.name",
+    note: "landing.plan1.note",
     features: [
-      "프로젝트 관리",
-      "AI 에셋 생성",
-      "브랜드 가이드 검증",
-      "무단 사용 모니터링",
+      "landing.plan1.f1",
+      "landing.plan1.f2",
+      "landing.plan1.f3",
+      "landing.plan1.f4",
     ],
     highlight: false,
   },
   {
-    name: "팀",
-    note: "협업과 규모 확장이 필요한 팀을 위해.",
+    name: "landing.plan2.name",
+    note: "landing.plan2.note",
     features: [
-      "스타터의 모든 기능",
-      "IP 파트너 매칭",
-      "팀 협업 · 권한 관리",
-      "우선 지원",
+      "landing.plan2.f1",
+      "landing.plan2.f2",
+      "landing.plan2.f3",
+      "landing.plan2.f4",
     ],
     highlight: true,
   },
@@ -156,36 +151,42 @@ const PLANS = [
 
 // FAQ
 const FAQS = [
-  {
-    q: "CLAPS는 어떤 서비스인가요?",
-    a: "라이선스 규칙에 맞춰 브랜드 이미지를 생성·검증하고, 무단 사용까지 관리하는 IP-Safe AI 미들웨어입니다.",
-  },
-  {
-    q: "생성한 이미지는 어디에 저장되나요?",
-    a: "가이드 검증을 통과한 이미지는 프로젝트의 이미지 라이브러리에 모여 관리됩니다.",
-  },
-  {
-    q: "브랜드 가이드는 어떻게 등록하나요?",
-    a: "프로젝트에 브랜드 가이드를 추가하면 검증 규칙으로 반영됩니다.",
-  },
-  {
-    q: "무단 사용 모니터링은 어떻게 작동하나요?",
-    a: "기준 이미지를 등록하면 웹에서 유사 이미지를 탐지해 결과를 보여줍니다.",
-  },
-  {
-    q: "요금은 어떻게 되나요?",
-    a: "요금 정책은 준비 중입니다. 도입 문의를 남겨주시면 안내해 드립니다.",
-  },
+  { q: "landing.faq1.q", a: "landing.faq1.a" },
+  { q: "landing.faq2.q", a: "landing.faq2.a" },
+  { q: "landing.faq3.q", a: "landing.faq3.a" },
+  { q: "landing.faq4.q", a: "landing.faq4.a" },
+  { q: "landing.faq5.q", a: "landing.faq5.a" },
 ];
 
 // 푸터 링크 (placeholder)
 const FOOTER_COLS = [
   {
-    title: "제품",
-    links: ["프로젝트", "파트너 추천", "에셋 생성", "가이드 검증", "모니터링"],
+    title: "landing.footer.product",
+    links: [
+      "nav.projects",
+      "nav.partners",
+      "nav.assets",
+      "nav.monitoring",
+      "landing.hub.verify",
+    ],
   },
-  { title: "리소스", links: ["소개", "가이드", "업데이트", "문의"] },
-  { title: "회사", links: ["이용약관", "개인정보처리방침", "보안"] },
+  {
+    title: "landing.footer.resources",
+    links: [
+      "landing.footer.about",
+      "landing.footer.guide",
+      "landing.footer.updates",
+      "landing.footer.contact",
+    ],
+  },
+  {
+    title: "landing.footer.company",
+    links: [
+      "landing.footer.terms",
+      "landing.footer.privacy",
+      "landing.footer.security",
+    ],
+  },
 ];
 
 // 랜딩 페이지 — 레퍼런스(Framer) 실측 스펙에 맞춤:
@@ -196,13 +197,14 @@ const FOOTER_COLS = [
 // 문구/로고는 클랩스용으로 새로 채움.
 
 const NAV_LINKS = [
-  { label: "기능", href: "#features" },
-  { label: "활용 사례", href: "#usecases" },
-  { label: "요금", href: "#pricing" },
-  { label: "문의", href: "#contact" },
+  { label: "landing.nav.features", href: "#features" },
+  { label: "landing.nav.usecases", href: "#usecases" },
+  { label: "landing.nav.pricing", href: "#pricing" },
+  { label: "landing.nav.contact", href: "#contact" },
 ];
 
 export default function LandingPage() {
+  const { t } = useLocale();
   return (
     <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-landing-bg text-landing-ink">
       {/* 상단 공지바 */}
@@ -234,7 +236,7 @@ export default function LandingPage() {
             NEW
           </span>
           <span className="font-medium">
-            CLAPS Studio 2.0 — IP-Safe AI 브랜드 이미지 미들웨어
+            {t("landing.announce")}
           </span>
         </span>
         <ArrowUpRight className="absolute right-6 size-4 opacity-70 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -261,14 +263,14 @@ export default function LandingPage() {
                 href={l.href}
                 className="text-[16px] font-medium tracking-[-0.01em] transition-opacity duration-200 hover:opacity-60"
               >
-                {l.label}
+                {t(l.label)}
               </a>
             ))}
           </nav>
 
           <div className="flex items-center gap-2">
             <LandingButton href="/login" tone="dark" className="px-4 py-2 text-sm">
-              시작하기
+              {t("landing.start")}
             </LandingButton>
           </div>
         </div>
@@ -286,37 +288,33 @@ export default function LandingPage() {
               <Sparkles className="size-3.5" />
             </span>
             <span className="text-[16px] text-landing-ink/60">
-              IP-Safe · 라이선스 세이프 AI
+              {t("landing.eyebrow")}
             </span>
           </div>
 
           {/* 헤드라인 — 700 / lh .9 / ls -.03em / 최대 60px */}
           <h1 className="mt-7 max-w-[15ch] animate-in fade-in slide-in-from-bottom-2.5 text-[40px] leading-[1.3] font-bold tracking-[-0.03em] delay-100 duration-500 ease-out sm:text-[52px] md:text-[60px]">
-            IP는 안전하게,
-            <br />
-            크리에이티브는 자유롭게
+            {t("landing.headline")}
           </h1>
 
           {/* 서브텍스트 */}
           <p className="mt-7 max-w-lg animate-in fade-in slide-in-from-bottom-2.5 text-[18px] leading-[1.6] text-landing-ink/60 delay-200 duration-500 ease-out">
-            파트너 추천부터 이미지 생성, 가이드 검증, IP 모니터링까지
-            <br />
-            CLAPS에서 관리하세요.
+            {t("landing.subhead")}
           </p>
 
           {/* CTA */}
           <div className="mt-9 flex animate-in fade-in slide-in-from-bottom-2.5 flex-wrap items-center justify-center gap-3 delay-300 duration-500 ease-out">
             <LandingButton href="/login" tone="dark">
               <ArrowUpRight className="size-[18px]" />
-              시작하기
+              {t("landing.start")}
             </LandingButton>
             <LandingButton href="/login" tone="outline">
               <ArrowUpRight className="size-[18px]" />
-              요금 보기
+              {t("landing.viewPricing")}
             </LandingButton>
           </div>
           <p className="mt-4 animate-in fade-in text-[13px] text-landing-ink/40 delay-500 duration-500 ease-out">
-            카드 등록 없이 시작하세요
+            {t("landing.noCard")}
           </p>
         </section>
 
@@ -327,7 +325,7 @@ export default function LandingPage() {
             <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.28)]">
               <Image
                 src="/landing-verify.png"
-                alt="CLAPS 가이드 검증 화면"
+                alt={t("landing.previewAlt")}
                 width={3350}
                 height={2178}
                 priority
@@ -341,37 +339,37 @@ export default function LandingPage() {
             <div className="hidden lg:block">
               <FloatBadge
                 icon={Palette}
-                label="브랜드 가이드"
+                label={t("landing.badge.guide")}
                 className="left-0 top-[10%] ml-[20px] -translate-x-1/2"
                 delay={0}
               />
               <FloatBadge
                 icon={Sparkle}
-                label="AI 에셋 생성"
+                label={t("landing.badge.assetGen")}
                 className="left-0 top-[46%] mt-[-20px] ml-[-20px] -translate-x-1/2"
                 delay={200}
               />
               <FloatBadge
                 icon={UsersThree}
-                label="IP 파트너 매칭"
+                label={t("landing.badge.matching")}
                 className="left-0 top-[86%] mt-[50px] ml-[110px] -translate-x-1/2"
                 delay={400}
               />
               <FloatBadge
                 icon={SealCheck}
-                label="가이드 자동 검증"
+                label={t("landing.badge.autoVerify")}
                 className="right-0 top-[14%] mt-[-10px] mr-[30px] translate-x-1/2"
                 delay={100}
               />
               <FloatBadge
                 icon={MagnifyingGlass}
-                label="유사도 분석"
+                label={t("landing.badge.similarity")}
                 className="right-0 top-[52%] translate-x-1/2"
                 delay={300}
               />
               <FloatBadge
                 icon={Broadcast}
-                label="무단 사용 탐지"
+                label={t("landing.badge.detect")}
                 className="right-0 top-[88%] mr-[35px] translate-x-1/2"
                 delay={500}
               />
@@ -385,16 +383,11 @@ export default function LandingPage() {
             <div>
               <Eyebrow>PROBLEM → SOLUTION</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
-                도구가 흩어지면
-                <br />
-                브랜드 관리가 무너집니다
+                {t("landing.problem.title")}
               </h2>
             </div>
             <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
-              파트너 찾기·이미지 생성·가이드 검증·무단 사용 감시를 따로 관리할
-              필요 없어요.
-              <br />
-              CLAPS가 흩어진 과정을 하나의 흐름으로 통합합니다.
+              {t("landing.problem.desc")}
             </p>
           </div>
 
@@ -425,8 +418,8 @@ export default function LandingPage() {
               {/* 좌측 노드 + 연결선 */}
               <div className="flex flex-col gap-8">
                 {HUB_LEFT.map((n, i) => (
-                  <div key={n.label} className="flex items-center">
-                    <HubNode icon={n.icon} label={n.label} />
+                  <div key={n.labelKey} className="flex items-center">
+                    <HubNode icon={n.icon} label={t(n.labelKey)} />
                     <HubConnector d={HUB_CURVE_LEFT[i]} delay={i * 0.4} />
                   </div>
                 ))}
@@ -437,9 +430,9 @@ export default function LandingPage() {
               {/* 우측 연결선 + 노드 */}
               <div className="flex flex-col gap-8">
                 {HUB_RIGHT.map((n, i) => (
-                  <div key={n.label} className="flex items-center justify-end">
+                  <div key={n.labelKey} className="flex items-center justify-end">
                     <HubConnector d={HUB_CURVE_RIGHT[i]} delay={i * 0.4 + 0.2} />
-                    <HubNode icon={n.icon} label={n.label} />
+                    <HubNode icon={n.icon} label={t(n.labelKey)} />
                   </div>
                 ))}
               </div>
@@ -450,7 +443,7 @@ export default function LandingPage() {
               <HubLogo />
               <div className="grid w-full grid-cols-2 gap-3">
                 {[...HUB_LEFT, ...HUB_RIGHT].map((n) => (
-                  <HubNode key={n.label} icon={n.icon} label={n.label} />
+                  <HubNode key={n.labelKey} icon={n.icon} label={t(n.labelKey)} />
                 ))}
               </div>
             </div>
@@ -474,9 +467,9 @@ export default function LandingPage() {
                     <Icon weight="duotone" className="size-12 text-brand/70" />
                     <div className="flex flex-col gap-1.5">
                       <span className="text-3xl font-bold tracking-[-0.03em] md:text-4xl">
-                        {s.k}
+                        {t(s.k)}
                       </span>
-                      <span className="text-sm text-landing-ink/55">{s.v}</span>
+                      <span className="text-sm text-landing-ink/55">{t(s.v)}</span>
                     </div>
                   </div>
                 );
@@ -491,15 +484,11 @@ export default function LandingPage() {
             <div>
               <Eyebrow>THE WORKFLOW</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
-                브랜드 이미지 작업을
-                <br />
-                하나의 흐름으로
+                {t("landing.flow.title")}
               </h2>
             </div>
             <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
-              추천에서 시작해 생성·검증을 거쳐 모니터링까지,
-              <br />
-              하나의 간단한 흐름으로 이어집니다.
+              {t("landing.flow.desc")}
             </p>
           </div>
 
@@ -517,27 +506,29 @@ export default function LandingPage() {
                   {f.img ? (
                     <Image
                       src={f.img}
-                      alt={f.title}
+                      alt={t(f.title)}
                       fill
                       quality={100}
                       sizes="(min-width: 768px) 33vw, 100vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <span className="text-xs text-landing-ink/30">미리보기</span>
+                    <span className="text-xs text-landing-ink/30">
+                      {t("landing.preview")}
+                    </span>
                   )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-lg font-semibold">{f.title}</span>
+                  <span className="text-lg font-semibold">{t(f.title)}</span>
                   <span className="text-sm leading-[1.5] whitespace-pre-line text-landing-ink/55">
-                    {f.desc}
+                    {t(f.desc)}
                   </span>
                 </div>
                 <Link
                   href="/login"
                   className="mt-auto flex items-center gap-1 text-sm font-medium text-landing-ink transition-opacity hover:opacity-60"
                 >
-                  {f.link}
+                  {t(f.link)}
                   <ArrowRight className="size-4" />
                 </Link>
               </div>
@@ -554,28 +545,24 @@ export default function LandingPage() {
                   NEW
                 </span>
                 <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
-                  브랜드 가이드,
-                  <br />
-                  자동으로 검증하세요
+                  {t("landing.spot.title")}
                 </h2>
                 <LandingButton href="/login" tone="light" className="mt-8">
                   <ArrowUpRight className="size-[18px]" />
-                  가이드 검증 알아보기
+                  {t("landing.spot.link")}
                 </LandingButton>
               </div>
               <div className="flex flex-col gap-5 self-center">
                 <p className="text-[17px] leading-[1.5] text-white/60">
-                  생성한 이미지가 색·로고·타이포 규칙을 지키는지 자동으로 확인하고,
-                  <br />
-                  통과한 이미지만 라이브러리에 모아 관리하세요.
+                  {t("landing.spot.desc")}
                 </p>
                 <ul className="flex flex-col gap-3">
                   {SPOTLIGHT_POINTS.map((p) => (
                     <li key={p.k} className="flex items-start gap-3 text-[15px]">
                       <Check className="mt-0.5 size-4 shrink-0 text-brand" />
                       <span>
-                        <span className="font-semibold">{p.k}</span>
-                        <span className="block text-white/50">{p.v}</span>
+                        <span className="font-semibold">{t(p.k)}</span>
+                        <span className="block text-white/50">{t(p.v)}</span>
                       </span>
                     </li>
                   ))}
@@ -589,12 +576,10 @@ export default function LandingPage() {
         <Section id="features">
           <Eyebrow>THE ENGINE</Eyebrow>
           <h2 className="mt-4 max-w-2xl text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[48px]">
-            브랜드 이미지를 다루는 데
-            <br />
-            필요한 모든 것
+            {t("landing.engine.title")}
           </h2>
           <p className="mt-5 text-[17px] text-landing-ink/55">
-            도구를 이어붙일 필요 없이, 라이선시 실무에 맞춰 설계했습니다.
+            {t("landing.engine.desc")}
           </p>
 
           <div className="mt-12 grid grid-cols-1 border-t border-border sm:grid-cols-2">
@@ -612,9 +597,9 @@ export default function LandingPage() {
                   <div className="flex size-16 items-center justify-center rounded-2xl bg-brand/10">
                     <Icon className="size-7 text-brand" />
                   </div>
-                  <span className="text-lg font-semibold">{f.title}</span>
+                  <span className="text-lg font-semibold">{t(f.title)}</span>
                   <span className="max-w-xs text-sm leading-[1.5] whitespace-pre-line text-landing-ink/55">
-                    {f.desc}
+                    {t(f.desc)}
                   </span>
                 </div>
               );
@@ -628,18 +613,14 @@ export default function LandingPage() {
             <div>
               <Eyebrow>BRAND PROTECTION</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
-                세상에 나간 뒤에도
-                <br />
-                브랜드는 계속 지켜집니다
+                {t("landing.monitor.title")}
               </h2>
               <p className="mt-5 max-w-md text-[17px] leading-[1.5] text-landing-ink/55">
-                기준 이미지를 등록하면 웹 전반에서 무단 사용을 탐지해,
-                <br />
-                브랜드가 안전하게 쓰이는지 지켜봅니다.
+                {t("landing.monitor.desc")}
               </p>
               <LandingButton href="/login" tone="dark" className="mt-8">
                 <ArrowUpRight className="size-[18px]" />
-                모니터링 알아보기
+                {t("landing.monitor.link")}
               </LandingButton>
             </div>
             <TiltMonitorPreview />
@@ -657,7 +638,7 @@ export default function LandingPage() {
         >
           <div className="mx-auto w-full max-w-[1000px] px-8 py-[212px] text-center md:py-[244px]">
             <ScrollRevealText
-              text={"라이선스를 지키는 것이,\n브랜드를 지키는 가장 빠른 길입니다."}
+              text={t("landing.quote")}
               className="text-[28px] leading-[1.5] font-bold tracking-[-0.01em] text-landing-ink [font-family:'BookkMyungjo',serif] md:text-[44px]"
             />
             <span className="mt-8 inline-block text-sm font-medium tracking-wide text-landing-ink/40">
@@ -672,13 +653,11 @@ export default function LandingPage() {
             <div>
               <Eyebrow>USE CASES</Eyebrow>
               <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[42px]">
-                이렇게 쓰입니다
+                {t("landing.usecase.title")}
               </h2>
             </div>
             <p className="w-fit self-end ml-auto text-right text-[17px] leading-[1.5] text-landing-ink/55">
-              캐릭터 IP 굿즈부터 콜라보 프로모션까지,
-              <br />
-              브랜드 이미지가 필요한 모든 순간에.
+              {t("landing.usecase.desc")}
             </p>
           </div>
 
@@ -690,7 +669,7 @@ export default function LandingPage() {
               >
                 <Image
                   src={u.img}
-                  alt={u.label}
+                  alt={t(u.label)}
                   fill
                   quality={100}
                   sizes="(min-width: 640px) 33vw, 100vw"
@@ -699,7 +678,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="relative flex w-full items-center justify-between p-5">
                   <span className="text-base font-semibold text-white">
-                    {u.label}
+                    {t(u.label)}
                   </span>
                   <ArrowUpRight className="size-5 text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>
@@ -713,12 +692,10 @@ export default function LandingPage() {
           <div className="max-w-xl">
             <Eyebrow>PRICING</Eyebrow>
             <h2 className="mt-4 text-[32px] leading-[1.2] font-bold tracking-[-0.02em] md:text-[44px]">
-              작게 시작하고,
-              <br />
-              필요한 만큼 확장하세요
+              {t("landing.pricing.title")}
             </h2>
             <p className="mt-5 text-[17px] text-landing-ink/55">
-              요금 정책은 준비 중입니다. 도입을 검토 중이시면 문의를 남겨주세요.
+              {t("landing.pricing.desc")}
             </p>
           </div>
 
@@ -732,19 +709,23 @@ export default function LandingPage() {
                 )}
               >
                 <div className="flex flex-col gap-2">
-                  <span className="text-xl font-bold">{p.name}</span>
-                  <span className="text-sm text-landing-ink/55">{p.note}</span>
+                  <span className="text-xl font-bold">{t(p.name)}</span>
+                  <span className="text-sm text-landing-ink/55">{t(p.note)}</span>
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">문의</span>
-                  <span className="text-sm text-landing-ink/50">/ 맞춤 견적</span>
+                  <span className="text-3xl font-bold">
+                    {t("landing.pricing.inquiry")}
+                  </span>
+                  <span className="text-sm text-landing-ink/50">
+                    {t("landing.pricing.custom")}
+                  </span>
                 </div>
                 <div className="h-px w-full bg-border" />
                 <ul className="flex flex-col gap-3">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm">
                       <Check className="size-4 shrink-0 text-brand" />
-                      {f}
+                      {t(f)}
                     </li>
                   ))}
                 </ul>
@@ -754,7 +735,7 @@ export default function LandingPage() {
                   className="mt-auto w-full justify-center"
                 >
                   <ArrowUpRight className="size-[18px]" />
-                  문의하기
+                  {t("landing.pricing.contact")}
                 </LandingButton>
               </div>
             ))}
@@ -765,7 +746,7 @@ export default function LandingPage() {
         <Section>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[320px_1fr] md:gap-16">
             <div>
-              <h2 className="text-2xl font-bold tracking-[-0.01em]">자주 묻는 질문</h2>
+              <h2 className="text-2xl font-bold tracking-[-0.01em]">{t("landing.faq.title")}</h2>
             </div>
             <div className="border-t border-border">
               {FAQS.map((f) => (
@@ -774,11 +755,11 @@ export default function LandingPage() {
                   className="group border-b border-border py-5"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-medium [&::-webkit-details-marker]:hidden">
-                    {f.q}
+                    {t(f.q)}
                     <ChevronDown className="size-5 shrink-0 text-landing-ink/40 transition-transform duration-200 group-open:rotate-180" />
                   </summary>
                   <p className="mt-3 max-w-2xl text-[15px] leading-[1.6] text-landing-ink/55">
-                    {f.a}
+                    {t(f.a)}
                   </p>
                 </details>
               ))}
@@ -806,14 +787,14 @@ export default function LandingPage() {
           >
             <div>
               <h2 className="text-2xl font-bold tracking-[-0.01em] md:text-[28px]">
-                라이선스를 지키며, 브랜드 이미지를 완성하세요
+                {t("landing.cta.title")}
               </h2>
               <p className="mt-2 max-w-lg text-sm text-white/55">
-                생성부터 검증·모니터링까지, 도구를 이어붙이지 않고 한 곳에서.
+                {t("landing.cta.desc")}
               </p>
             </div>
             <LandingButton href="/login" tone="light" className="shrink-0">
-              무료로 시작하기
+              {t("landing.cta.button")}
             </LandingButton>
           </div>
 
@@ -828,13 +809,13 @@ export default function LandingPage() {
                 className="opacity-90 [filter:brightness(0)_invert(1)]"
               />
               <p className="mt-4 max-w-xs text-sm text-white/45">
-                IP-Safe AI 브랜드 이미지 미들웨어.
+                {t("landing.footer.tagline")}
               </p>
             </div>
             {FOOTER_COLS.map((col) => (
               <div key={col.title} className="flex flex-col gap-3">
                 <span className="text-xs font-semibold tracking-wide text-white/40">
-                  {col.title}
+                  {t(col.title)}
                 </span>
                 {col.links.map((l) => (
                   <a
@@ -842,7 +823,7 @@ export default function LandingPage() {
                     href="#"
                     className="text-sm text-white/70 transition-colors hover:text-white"
                   >
-                    {l}
+                    {t(l)}
                   </a>
                 ))}
               </div>
@@ -855,16 +836,16 @@ export default function LandingPage() {
               © 2026 CLAPS. All rights reserved.
             </span>
             <div className="flex items-center gap-4 text-white/50">
-              <a href="#" aria-label="웹사이트" className="hover:text-white">
+              <a href="#" aria-label={t("landing.footer.website")} className="hover:text-white">
                 <Globe className="size-4" />
               </a>
-              <a href="#" aria-label="소식" className="hover:text-white">
+              <a href="#" aria-label={t("landing.footer.news")} className="hover:text-white">
                 <Rss className="size-4" />
               </a>
-              <a href="#" aria-label="메시지" className="hover:text-white">
+              <a href="#" aria-label={t("landing.footer.message")} className="hover:text-white">
                 <MessageCircle className="size-4" />
               </a>
-              <a href="#" aria-label="문의" className="hover:text-white">
+              <a href="#" aria-label={t("landing.footer.contact")} className="hover:text-white">
                 <Send className="size-4" />
               </a>
             </div>
