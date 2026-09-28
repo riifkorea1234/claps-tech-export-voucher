@@ -93,10 +93,10 @@ export default function PartnersCriteriaPage() {
 
           <Field label={t("criteria.worldview")}>
             <div className="flex flex-wrap items-center gap-2">
-              <Chip>명랑</Chip>
-              <Chip>우정</Chip>
-              <Chip>일상</Chip>
-              <Chip>귀여움</Chip>
+              <Chip>{t("criteriaMock.worldview1")}</Chip>
+              <Chip>{t("criteriaMock.worldview2")}</Chip>
+              <Chip>{t("criteriaMock.worldview3")}</Chip>
+              <Chip>{t("criteriaMock.worldview4")}</Chip>
               <AddChip />
             </div>
           </Field>
@@ -114,9 +114,9 @@ export default function PartnersCriteriaPage() {
 
           <Field label={t("criteria.collabHistory")}>
             <div className="flex flex-wrap items-center gap-2">
-              <Chip>산리오 2023</Chip>
-              <Chip>디즈니 2022</Chip>
-              <Chip>카카오 2021</Chip>
+              <Chip>{t("criteriaMock.collab1")}</Chip>
+              <Chip>{t("criteriaMock.collab2")}</Chip>
+              <Chip>{t("criteriaMock.collab3")}</Chip>
               <AddChip />
             </div>
           </Field>

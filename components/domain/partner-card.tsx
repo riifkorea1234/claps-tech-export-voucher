@@ -26,7 +26,7 @@ export function PartnerCard({
             #{partner.rank}
           </span>
           <span className="w-full truncate text-sm font-medium text-card-foreground">
-            {partner.name}
+            {t(partner.nameKey)}
           </span>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-0.5">

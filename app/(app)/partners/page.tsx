@@ -127,7 +127,7 @@ export default function PartnersPage() {
         <div className="flex flex-wrap gap-2">
           {matchCriteria.map((c) => {
             const label = t(c.labelKey);
-            const keywords = c.keywords ?? [];
+            const keywordKeys = c.keywordKeys ?? [];
             return (
               <div
                 key={c.labelKey}
@@ -137,25 +137,25 @@ export default function PartnersPage() {
                   className={cn(
                     "text-xs text-muted-foreground",
                     // 칩은 자체 좌우 여백이 있어 라벨을 2px 맞춰줌
-                    keywords.length > 1 && "pl-0.5",
+                    keywordKeys.length > 1 && "pl-0.5",
                   )}
                 >
                   {label || t("partners.criteriaFallback")}
                 </span>
-                {keywords.length > 1 ? (
+                {keywordKeys.length > 1 ? (
                   <div className="flex flex-wrap gap-1">
-                    {keywords.map((k) => (
+                    {keywordKeys.map((k) => (
                       <span
                         key={k}
                         className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
                       >
-                        {k}
+                        {t(k)}
                       </span>
                     ))}
                   </div>
                 ) : (
                   <span className="text-sm font-medium text-card-foreground">
-                    {c.value}
+                    {c.valueKey ? t(c.valueKey) : null}
                   </span>
                 )}
               </div>
@@ -203,7 +203,7 @@ export default function PartnersPage() {
         <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-[10px] bg-muted lg:h-auto lg:w-[234px] lg:self-stretch">
           <Image
             src={heroPartner.imageUrl}
-            alt={heroPartner.name}
+            alt={t(heroPartner.nameKey)}
             fill
             className="object-cover"
             priority
@@ -219,16 +219,16 @@ export default function PartnersPage() {
                   {t("partners.rank1")}
                 </span>
                 <span className="text-lg font-semibold text-card-foreground">
-                  {heroPartner.name}
+                  {t(heroPartner.nameKey)}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {heroPartner.stats.map((s) => (
+                {heroPartner.statKeys.map((k) => (
                   <span
-                    key={s}
+                    key={k}
                     className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
                   >
-                    {s}
+                    {t(k)}
                   </span>
                 ))}
               </div>
@@ -253,7 +253,7 @@ export default function PartnersPage() {
                 </span>
               </div>
               <p className="text-sm text-card-foreground">
-                {heroPartner.aiSummary}
+                {t(heroPartner.summaryKey)}
               </p>
             </div>
             <div className="flex-1">
@@ -275,7 +275,10 @@ export default function PartnersPage() {
               size="sm"
               className="h-9 bg-brand text-brand-foreground hover:bg-brand/90"
               onClick={() =>
-                setCollab({ name: heroPartner.name, email: heroPartner.email })
+                setCollab({
+                  name: t(heroPartner.nameKey),
+                  email: heroPartner.email,
+                })
               }
             >
               {t("partners.collab")}
@@ -290,7 +293,7 @@ export default function PartnersPage() {
           <PartnerCard
             key={`${p.id}-${runKey}`}
             partner={p}
-            onCollab={() => setCollab({ name: p.name, email: p.email })}
+            onCollab={() => setCollab({ name: t(p.nameKey), email: p.email })}
             onDetail={() => setDetail(p)}
           />
         ))}
@@ -313,13 +316,13 @@ export default function PartnersPage() {
             <>
               <SheetHeader className="gap-4 border-b border-border p-6">
                 <SheetDescription className="sr-only">
-                  {t("partners.detailSr", { name: detail.name })}
+                  {t("partners.detailSr", { name: t(detail.nameKey) })}
                 </SheetDescription>
                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-muted">
                   {"imageUrl" in detail && detail.imageUrl && (
                     <Image
                       src={detail.imageUrl}
-                      alt={detail.name}
+                      alt={t(detail.nameKey)}
                       fill
                       className="object-cover"
                     />
@@ -330,7 +333,7 @@ export default function PartnersPage() {
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                       {t("partners.rankN", { n: detail.rank })}
                     </span>
-                    <SheetTitle className="text-lg">{detail.name}</SheetTitle>
+                    <SheetTitle className="text-lg">{t(detail.nameKey)}</SheetTitle>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-0.5">
                     <span className="text-xs text-muted-foreground">
@@ -345,7 +348,7 @@ export default function PartnersPage() {
 
               <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
                 {/* AI 추천 근거 (있을 때) */}
-                {"aiSummary" in detail && detail.aiSummary && (
+                {detail.summaryKey && (
                   <section className="flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
                       <Sparkle className="size-3.5 text-muted-foreground" />
@@ -354,7 +357,7 @@ export default function PartnersPage() {
                       </span>
                     </div>
                     <p className="rounded-lg bg-muted px-4 py-3 text-sm text-card-foreground">
-                      {detail.aiSummary}
+                      {t(detail.summaryKey)}
                     </p>
                   </section>
                 )}
@@ -392,18 +395,18 @@ export default function PartnersPage() {
                 </section>
 
                 {/* 팬덤·시장 (hero stats 있을 때) */}
-                {"stats" in detail && detail.stats && (
+                {detail.statKeys && detail.statKeys.length > 0 && (
                   <section className="flex flex-col gap-2">
                     <h3 className="text-sm font-semibold text-foreground">
                       {t("partners.fandomMarket")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {detail.stats.map((s) => (
+                      {detail.statKeys.map((k) => (
                         <span
-                          key={s}
+                          key={k}
                           className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
                         >
-                          {s}
+                          {t(k)}
                         </span>
                       ))}
                     </div>
@@ -435,7 +438,7 @@ export default function PartnersPage() {
                   onClick={() => {
                     const d = detail;
                     setDetail(null);
-                    setCollab({ name: d.name, email: d.email });
+                    setCollab({ name: t(d.nameKey), email: d.email });
                   }}
                 >
                   {t("partners.collab")}
