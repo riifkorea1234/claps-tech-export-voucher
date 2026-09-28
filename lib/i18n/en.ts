@@ -358,4 +358,44 @@ export const en: Record<string, string> = {
   "final.goVerify": "Go to verification",
   "final.selectAll": "Select all",
   "final.remove": "Remove from final selection",
+
+  // 검증 판정 (저장값은 코드)
+  "verdict.pass": "Pass",
+  "verdict.reject": "Reject",
+  "verdict.all": "All",
+
+  // 검증 규칙 이름
+  "rule.color": "Protected colors (color)",
+  "rule.clearSpace": "Logo clear space (clear-space)",
+  "rule.typography": "Typography and fonts (typography)",
+  "rule.noDeformation": "No logo deformation (no-deformation)",
+  "rule.context": "Background and context (context)",
+  "ruleNote.bothAgree": "Cross-check: DSL and VLM agree",
+  "ruleNote.dslStronger": "Cross-check: DSL dominant",
+  "ruleNote.vlmOnly": "Cross-check: detected by VLM only",
+  "ruleNote.pass": "Cross-check: passed",
+
+  // 가이드 검증
+  "verify.criteria": "Verified against",
+  "verify.guideVersion": "Brand guidelines v2",
+  "verify.viewFinal": "View final selection ({n})",
+  "verify.emptyTitle": "No assets to review",
+  "verify.emptyDesc": "Adopt results in Asset creation, then select Verify against guidelines. The adopted images appear here.",
+  "verify.goGenerate": "Go to Asset creation",
+  "verify.listTitle": "Review list",
+  "verify.assetN": "Asset {n}",
+  "verify.assetCount": "{n} assets",
+  "verify.addToFinal": "Add to final selection",
+  "verify.cannotAdd": "Rejected items cannot be added",
+  "verify.target": "Under review",
+  "verify.downloadPng": "Download PNG",
+  "verify.cancelFinal": "Remove from final selection",
+  "verify.violationColor": "Protected color violation",
+  "verify.violationClearSpace": "Clear space violation",
+  "verify.violationCount": "{n} violations",
+  "verify.confidence": "Confidence",
+  "verify.rulesTitle": "Results by rule (Rule DSL)",
+
+  // 목업 검증 기준
+  "verifyMock.target": "Hello Kitty merchandise",
 };

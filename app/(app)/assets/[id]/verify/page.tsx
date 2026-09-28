@@ -18,6 +18,7 @@ import {
   type RuleVerdict,
 } from "@/lib/mock/verify";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 const RULE_STYLE: Record<RuleVerdict, string> = {
   Pass: "bg-green-100 text-green-700",
@@ -26,16 +27,18 @@ const RULE_STYLE: Record<RuleVerdict, string> = {
 };
 
 function VerdictPill({ verdict }: { verdict: Verdict }) {
+  const { t } = useLocale();
+
   return (
     <span
       className={cn(
         "shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium",
-        verdict === "통과"
+        verdict === "pass"
           ? "bg-green-100 text-green-700"
           : "bg-red-100 text-red-700",
       )}
     >
-      {verdict}
+      {t(`verdict.${verdict}`)}
     </span>
   );
 }
@@ -53,6 +56,7 @@ function pad(n: number) {
 }
 
 export default function VerifyPage() {
+  const { t } = useLocale();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,7 +70,7 @@ export default function VerifyPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [finalIds, setFinalIds] = useState<Set<string>>(new Set());
-  const [filter, setFilter] = useState<"전체" | Verdict>("전체");
+  const [filter, setFilter] = useState<"all" | Verdict>("all");
 
   // 이전 화면에서 채택한 에셋을 세션에서 불러옴
   useEffect(() => {
@@ -91,11 +95,11 @@ export default function VerifyPage() {
     );
   }, [finalIds, items, loaded, id]);
 
-  const passCount = items.filter((a) => verdictOf(a.score) === "통과").length;
+  const passCount = items.filter((a) => verdictOf(a.score) === "pass").length;
   const rejectCount = items.length - passCount;
   const selected = items.find((a) => a.id === selectedId) ?? null;
   const selectedVerdict = selected ? verdictOf(selected.score) : null;
-  const isReject = selectedVerdict === "반려";
+  const isReject = selectedVerdict === "reject";
   const rules = isReject ? rejectRules : passRules;
 
   const finalCount = finalIds.size;
@@ -141,13 +145,13 @@ export default function VerifyPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <span className="rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-            검증 기준
+            {t("verify.criteria")}
           </span>
           <span className="text-sm font-medium text-foreground">
-            헬로키티 굿즈
+            {t("verifyMock.target")}
           </span>
           <span className="rounded-full bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand">
-            브랜드 가이드 v2
+            {t("verify.guideVersion")}
           </span>
         </div>
         <Button
@@ -155,7 +159,7 @@ export default function VerifyPage() {
           className="min-w-[130px] bg-brand text-brand-foreground hover:bg-brand/90"
           onClick={goFinal}
         >
-          최종본 보기 ({finalCount}개)
+          {t("verify.viewFinal", { n: finalCount })}
         </Button>
       </div>
 
@@ -163,41 +167,40 @@ export default function VerifyPage() {
       {loaded && items.length === 0 ? (
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-card px-6 py-10 text-center">
           <p className="text-base font-semibold text-foreground">
-            검수할 에셋이 없어요
+            {t("verify.emptyTitle")}
           </p>
           <p className="max-w-sm text-sm text-muted-foreground">
-            에셋 생성에서 결과물을 채택한 뒤 &apos;가이드 검증하기&apos;를
-            누르면 채택한 이미지들이 여기에 표시됩니다.
+            {t("verify.emptyDesc")}
           </p>
           <Button asChild variant="outline" size="sm" className="mt-1">
-            <Link href={`/assets/${id}${backSuffix}`}>에셋 생성으로</Link>
+            <Link href={`/assets/${id}${backSuffix}`}>{t("verify.goGenerate")}</Link>
           </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* 좌: 검수 목록 레일 (채택 이미지) */}
           <div className="w-full shrink-0 rounded-[14px] border border-border bg-card p-[var(--pad-card)] lg:w-[280px]">
-            <h2 className="text-lg font-semibold text-foreground">검수 목록</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("verify.listTitle")}</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {(
                 [
-                  ["전체", items.length],
-                  ["통과", passCount],
-                  ["반려", rejectCount],
+                  ["all", items.length],
+                  ["pass", passCount],
+                  ["reject", rejectCount],
                 ] as const
-              ).map(([label, count]) => (
+              ).map(([key, count]) => (
                 <button
-                  key={label}
+                  key={key}
                   type="button"
-                  onClick={() => setFilter(label)}
+                  onClick={() => setFilter(key)}
                   className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
-                    filter === label
+                    filter === key
                       ? "bg-foreground text-background"
                       : "bg-secondary text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {label} {count}
+                  {key === "all" ? t("verdict.all") : t(`verdict.${key}`)} {count}
                 </button>
               ))}
             </div>
@@ -206,13 +209,13 @@ export default function VerifyPage() {
                 .map((item, index) => ({ item, index }))
                 .filter(
                   ({ item }) =>
-                    filter === "전체" || verdictOf(item.score) === filter,
+                    filter === "all" || verdictOf(item.score) === filter,
                 )
                 .map(({ item, index: i }) => {
                 const verdict = verdictOf(item.score);
                 const active = item.id === selectedId;
                 const inFinal = finalIds.has(item.id);
-                const canFinal = verdict === "통과"; // 통과만 최종본 가능
+                const canFinal = verdict === "pass"; // 통과만 최종본 가능
                 return (
                   <div
                     key={item.id}
@@ -238,7 +241,9 @@ export default function VerifyPage() {
                         if (canFinal) toggleFinalById(item.id);
                       }}
                       aria-pressed={inFinal}
-                      title={canFinal ? "최종본에 추가" : "반려 항목은 추가할 수 없어요"}
+                      title={
+                        canFinal ? t("verify.addToFinal") : t("verify.cannotAdd")
+                      }
                       className={cn(
                         "flex size-6 shrink-0 items-center justify-center rounded-[4px] border-[1.5px] transition-colors",
                         !canFinal
@@ -256,7 +261,7 @@ export default function VerifyPage() {
                     <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                       <div className="flex flex-col">
                         <span className="text-xs text-muted-foreground">
-                          에셋 {pad(i + 1)}
+                          {t("verify.assetN", { n: pad(i + 1) })}
                         </span>
                         <span className="text-sm font-semibold text-foreground">
                           {item.score}
@@ -276,17 +281,17 @@ export default function VerifyPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-semibold text-foreground">
-                  검수 대상
+                  {t("verify.target")}
                 </h2>
-                <Chip>에셋 {items.length}</Chip>
+                <Chip>{t("verify.assetCount", { n: items.length })}</Chip>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm">
-                  PNG 다운로드
+                  {t("verify.downloadPng")}
                 </Button>
                 {isFinal ? (
                   <Button size="sm" variant="outline" onClick={toggleFinal}>
-                    최종본 취소
+                    {t("verify.cancelFinal")}
                   </Button>
                 ) : (
                   <Button
@@ -295,7 +300,7 @@ export default function VerifyPage() {
                     disabled={!selected || isReject}
                     onClick={toggleFinal}
                   >
-                    최종본에 추가
+                    {t("verify.addToFinal")}
                   </Button>
                 )}
               </div>
@@ -315,12 +320,12 @@ export default function VerifyPage() {
                     <>
                       <div className="absolute top-[22%] left-[16%] h-[42%] w-[26%] rounded border-2 border-red-500">
                         <span className="absolute -top-6 left-0 rounded bg-red-500 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-white">
-                          보호색 위반
+                          {t("verify.violationColor")}
                         </span>
                       </div>
                       <div className="absolute top-[46%] left-[56%] h-[40%] w-[28%] rounded border-2 border-red-500">
                         <span className="absolute -top-6 left-0 rounded bg-red-500 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-white">
-                          안전영역 침범
+                          {t("verify.violationClearSpace")}
                         </span>
                       </div>
                     </>
@@ -335,11 +340,13 @@ export default function VerifyPage() {
                       <span className="text-lg font-bold text-red-600">
                         Reject
                       </span>
-                      <span className="text-xs text-red-600/80">위반 2건</span>
+                      <span className="text-xs text-red-600/80">
+                        {t("verify.violationCount", { n: 2 })}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">
-                        신뢰도
+                        {t("verify.confidence")}
                       </span>
                       <span className="text-lg font-bold text-foreground">
                         {selected.score}
@@ -356,7 +363,7 @@ export default function VerifyPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">
-                        신뢰도
+                        {t("verify.confidence")}
                       </span>
                       <span className="text-lg font-bold text-foreground">
                         {selected.score}
@@ -368,12 +375,12 @@ export default function VerifyPage() {
                 {/* 규칙별 결과 */}
                 <div className="flex flex-col gap-3 px-2">
                   <h3 className="text-sm font-medium text-foreground">
-                    규칙별 결과 (Rule DSL)
+                    {t("verify.rulesTitle")}
                   </h3>
                   <div className="flex flex-col">
                     {rules.map((rule, i) => (
                       <div
-                        key={rule.name}
+                        key={rule.nameKey}
                         className={cn(
                           "flex items-center justify-between gap-3 py-3.5",
                           i < rules.length - 1 && "border-b border-border",
@@ -381,10 +388,10 @@ export default function VerifyPage() {
                       >
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm text-foreground">
-                            {rule.name}
+                            {t(rule.nameKey)}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {rule.note}
+                            {t(rule.noteKey)}
                           </span>
                         </div>
                         <span

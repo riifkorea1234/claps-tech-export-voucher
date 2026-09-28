@@ -357,4 +357,44 @@ export const ja: Record<string, string> = {
   "final.goVerify": "ガイド検証へ",
   "final.selectAll": "すべて選択",
   "final.remove": "最終版から削除",
+
+  // 검증 판정 (저장값은 코드)
+  "verdict.pass": "通過",
+  "verdict.reject": "差戻し",
+  "verdict.all": "すべて",
+
+  // 검증 규칙 이름
+  "rule.color": "保護色 (color)",
+  "rule.clearSpace": "ロゴ安全領域 (clear-space)",
+  "rule.typography": "タイポ・フォント (typography)",
+  "rule.noDeformation": "ロゴ変形の禁止 (no-deformation)",
+  "rule.context": "背景・文脈 (context)",
+  "ruleNote.bothAgree": "クロス検証: DSLとVLMが一致",
+  "ruleNote.dslStronger": "クロス検証: DSLが優勢",
+  "ruleNote.vlmOnly": "クロス検証: VLMのみ検知",
+  "ruleNote.pass": "クロス検証: 通過",
+
+  // 가이드 검증
+  "verify.criteria": "検証基準",
+  "verify.guideVersion": "ブランドガイド v2",
+  "verify.viewFinal": "最終版を見る ({n}件)",
+  "verify.emptyTitle": "検証するアセットがありません",
+  "verify.emptyDesc": "「アセット生成」で結果を採用したうえで「ガイド検証へ」を押すと、採用した画像がここに表示されます。",
+  "verify.goGenerate": "アセット生成へ",
+  "verify.listTitle": "検証リスト",
+  "verify.assetN": "アセット {n}",
+  "verify.assetCount": "アセット {n}件",
+  "verify.addToFinal": "最終版に追加",
+  "verify.cannotAdd": "差戻しの項目は追加できません",
+  "verify.target": "検証対象",
+  "verify.downloadPng": "PNGをダウンロード",
+  "verify.cancelFinal": "最終版から取消",
+  "verify.violationColor": "保護色の違反",
+  "verify.violationClearSpace": "安全領域の侵害",
+  "verify.violationCount": "違反{n}件",
+  "verify.confidence": "信頼度",
+  "verify.rulesTitle": "ルール別の結果 (Rule DSL)",
+
+  // 목업 검증 기준
+  "verifyMock.target": "ハローキティ グッズ",
 };

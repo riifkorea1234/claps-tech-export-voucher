@@ -357,4 +357,44 @@ export const ko: Record<string, string> = {
   "final.goVerify": "가이드 검증으로",
   "final.selectAll": "전체 선택",
   "final.remove": "최종본에서 제거",
+
+  // 검증 판정 (저장값은 코드)
+  "verdict.pass": "통과",
+  "verdict.reject": "반려",
+  "verdict.all": "전체",
+
+  // 검증 규칙 이름
+  "rule.color": "보호색 (color)",
+  "rule.clearSpace": "로고 안전영역 (clear-space)",
+  "rule.typography": "타이포·폰트 (typography)",
+  "rule.noDeformation": "로고 변형 금지 (no-deformation)",
+  "rule.context": "배경·문맥 (context)",
+  "ruleNote.bothAgree": "교차검증: DSL·VLM 일치",
+  "ruleNote.dslStronger": "교차검증: DSL 우세",
+  "ruleNote.vlmOnly": "교차검증: VLM만 감지",
+  "ruleNote.pass": "교차검증: 통과",
+
+  // 가이드 검증
+  "verify.criteria": "검증 기준",
+  "verify.guideVersion": "브랜드 가이드 v2",
+  "verify.viewFinal": "최종본 보기 ({n}개)",
+  "verify.emptyTitle": "검수할 에셋이 없어요",
+  "verify.emptyDesc": "에셋 생성에서 결과물을 채택한 뒤 \u2018가이드 검증하기\u2019를 누르면 채택한 이미지들이 여기에 표시됩니다.",
+  "verify.goGenerate": "에셋 생성으로",
+  "verify.listTitle": "검수 목록",
+  "verify.assetN": "에셋 {n}",
+  "verify.assetCount": "에셋 {n}",
+  "verify.addToFinal": "최종본에 추가",
+  "verify.cannotAdd": "반려 항목은 추가할 수 없어요",
+  "verify.target": "검수 대상",
+  "verify.downloadPng": "PNG 다운로드",
+  "verify.cancelFinal": "최종본 취소",
+  "verify.violationColor": "보호색 위반",
+  "verify.violationClearSpace": "안전영역 침범",
+  "verify.violationCount": "위반 {n}건",
+  "verify.confidence": "신뢰도",
+  "verify.rulesTitle": "규칙별 결과 (Rule DSL)",
+
+  // 목업 검증 기준
+  "verifyMock.target": "헬로키티 굿즈",
 };
