@@ -25,15 +25,16 @@ import { buildBackQuery } from "@/lib/workspace-nav";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
 
+// 저장에는 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 style.* 에서 가져온다.
 const STYLE_CHIPS = [
-  "선택 안함",
-  "플랫 벡터",
-  "라인 아트",
-  "파스텔",
-  "키치",
-  "치비(SD)",
-  "3D 피규어",
-  "수채 일러스트",
+  "none",
+  "flatVector",
+  "lineArt",
+  "pastel",
+  "kitsch",
+  "chibi",
+  "figure3d",
+  "watercolor",
 ];
 
 const RATIOS = ["1:1", "16:9", "4:5"];
@@ -85,7 +86,7 @@ export function AssetWorkspaceBody({
   // 새 세션은 빈 상태로 시작 (저장된 결과물이 있으면 아래 effect가 불러옴)
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
   const [ready, setReady] = useState(false);
-  const [style, setStyle] = useState("선택 안함");
+  const [style, setStyle] = useState("none");
   const [ratio, setRatio] = useState("1:1");
   // 전체화면(라이트박스)으로 볼 이미지
   const [lightbox, setLightbox] = useState<GeneratedAsset | null>(null);
@@ -185,12 +186,12 @@ export function AssetWorkspaceBody({
     <div className="flex flex-col gap-8 lg:flex-row">
       {/* 좌: 생성 설정 */}
       <div className="flex w-full shrink-0 flex-col gap-[22px] lg:w-[360px]">
-        <h2 className="text-lg font-semibold text-foreground">생성 설정</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("gen.settings")}</h2>
 
         {/* 프로젝트 선택 */}
         <div className="flex flex-col gap-2">
           <FieldLabel>
-            프로젝트 선택 <span className="text-destructive">*</span>
+            {t("gen.project")} <span className="text-destructive">*</span>
           </FieldLabel>
           <button
             type="button"
@@ -215,20 +216,20 @@ export function AssetWorkspaceBody({
               <>
                 <span className="size-6 shrink-0 rounded-md bg-muted" />
                 <span className="flex-1 text-left text-sm text-muted-foreground">
-                  프로젝트를 선택하세요
+                  {t("gen.projectPlaceholder")}
                 </span>
               </>
             )}
             <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
           </button>
           <span className="text-xs text-muted-foreground">
-            선택한 프로젝트의 브랜드 가이드·IP·메타데이터가 함께 적용됩니다
+            {t("gen.projectHint")}
           </span>
         </div>
 
         {/* 스타일 (선택 가능) */}
         <div className="flex flex-col gap-2.5">
-          <FieldLabel>스타일</FieldLabel>
+          <FieldLabel>{t("gen.style")}</FieldLabel>
           <div className="flex flex-wrap gap-2">
             {STYLE_CHIPS.map((chip) => (
               <button
@@ -242,7 +243,7 @@ export function AssetWorkspaceBody({
                     : "border border-border bg-card text-foreground hover:bg-muted/50",
                 )}
               >
-                {chip}
+                {t(`style.${chip}`)}
               </button>
             ))}
           </div>
@@ -250,16 +251,16 @@ export function AssetWorkspaceBody({
 
         {/* 프롬프트 */}
         <div className="flex flex-col gap-2.5">
-          <FieldLabel>프롬프트</FieldLabel>
+          <FieldLabel>{t("gen.prompt")}</FieldLabel>
           <textarea
-            placeholder="분위기·구도·색감·디테일을 자유롭게 적어주세요 (선택)"
+            placeholder={t("gen.promptPlaceholder")}
             className="h-16 w-full resize-none rounded-lg border border-input bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
           />
         </div>
 
         {/* 비율 / 해상도 (선택 가능) */}
         <div className="flex flex-col gap-2.5">
-          <FieldLabel>비율 / 해상도</FieldLabel>
+          <FieldLabel>{t("gen.ratio")}</FieldLabel>
           <div className="flex w-full rounded-lg bg-muted p-[3px]">
             {RATIOS.map((r) => (
               <button
@@ -286,11 +287,11 @@ export function AssetWorkspaceBody({
             onClick={generate}
             disabled={!selectedProject}
           >
-            에셋 생성
+            {t("gen.submit")}
           </Button>
           {!selectedProject && (
             <span className="text-center text-xs text-muted-foreground">
-              프로젝트를 선택하면 생성할 수 있어요
+              {t("gen.needProject")}
             </span>
           )}
         </div>
@@ -299,7 +300,7 @@ export function AssetWorkspaceBody({
       {/* 우: 생성 결과 */}
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-foreground">생성 결과</h2>
+          <h2 className="text-lg font-semibold text-foreground">{t("gen.results")}</h2>
           <div className="flex items-center gap-2">
             {/* 임시 — 결과 전체 삭제 */}
             <Button
@@ -308,7 +309,7 @@ export function AssetWorkspaceBody({
               onClick={() => setAssets([])}
               disabled={assets.length === 0}
             >
-              초기화
+              {t("gen.reset")}
             </Button>
             <Button
               size="sm"
@@ -318,8 +319,8 @@ export function AssetWorkspaceBody({
               onClick={goVerify}
             >
               {adoptedCount > 0
-                ? `가이드 검증하기 (${adoptedCount}개)`
-                : "가이드 검증하기"}
+                ? t("gen.verifyCount", { n: adoptedCount })
+                : t("gen.verify")}
             </Button>
           </div>
         </div>
@@ -331,11 +332,10 @@ export function AssetWorkspaceBody({
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <p className="text-base font-semibold text-foreground">
-                아직 생성된 에셋이 없어요
+                {t("gen.emptyTitle")}
               </p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                왼쪽에서 프로젝트·스타일·비율을 설정한 뒤 &apos;에셋 생성&apos;을
-                누르면 결과가 여기에 표시됩니다.
+                {t("gen.emptyDesc")}
               </p>
             </div>
           </div>
@@ -361,9 +361,9 @@ export function AssetWorkspaceBody({
       <Dialog open={projectPickerOpen} onOpenChange={setProjectPickerOpen}>
         <DialogContent className="sm:max-w-[460px]">
           <DialogHeader>
-            <DialogTitle>프로젝트 선택</DialogTitle>
+            <DialogTitle>{t("gen.pickProjectTitle")}</DialogTitle>
             <DialogDescription>
-              이 생성 세션을 연결할 프로젝트를 골라주세요.
+              {t("gen.pickProjectDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -373,10 +373,10 @@ export function AssetWorkspaceBody({
                 <FolderPlus className="size-5 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
-                아직 만든 프로젝트가 없어요.
+                {t("gen.noProjectYet")}
               </p>
               <Button asChild variant="outline" size="sm">
-                <Link href="/projects">프로젝트 만들러 가기</Link>
+                <Link href="/projects">{t("gen.goMakeProject")}</Link>
               </Button>
             </div>
           ) : (

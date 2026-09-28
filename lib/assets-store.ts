@@ -56,18 +56,18 @@ export function setSessionProject(
     const session: AssetSession = {
       id,
       title: fallbackTitle,
-      timeLabel: "방금",
+      timeLabel: "",
       createdAt: Date.now(),
       projectId,
     };
-    const todayIdx = next.findIndex((g) => g.label === "오늘");
+    const todayIdx = next.findIndex((g) => g.labelKey === "today");
     if (todayIdx >= 0) {
       next[todayIdx] = {
         ...next[todayIdx],
         sessions: [session, ...next[todayIdx].sessions],
       };
     } else {
-      next.unshift({ label: "오늘", sessions: [session] });
+      next.unshift({ labelKey: "today", sessions: [session] });
     }
   }
 

@@ -11,7 +11,8 @@ export default async function AssetWorkspacePage({
 }) {
   const { id } = await params;
   const { from, fromLabel, title: titleParam } = await searchParams;
-  const title = titleParam ?? findSession(id)?.title ?? "제목 없음";
+  // 빈 제목은 화면 부품이 사전에서 채운다 (서버 부품이라 사전을 직접 못 씀)
+  const title = titleParam ?? findSession(id)?.title ?? "";
 
   return (
     <div className="flex flex-col gap-5 px-[var(--pad-page-x)] py-[var(--pad-page-y)]">

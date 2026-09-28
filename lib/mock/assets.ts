@@ -2,15 +2,18 @@
 
 export interface AssetSession {
   id: string;
-  title: string; // 자동 생성 제목
+  title: string; // 자동 생성 제목 (빈 값이면 화면에서 assets.untitled 로 표시)
   timeLabel: string; // 예전 데이터 호환용 표기 (createdAt 없을 때만 사용)
   createdAt?: number; // 생성 시각 (ms) — 이 값이 있으면 상대시간으로 계산
   projectId?: string; // 소속 프로젝트 (생성 설정에서 프로젝트 선택 시 연결)
   thumbnailUrl?: string;
 }
 
+// 날짜 그룹. 저장에는 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 group.* 에서 가져온다.
+export type GroupKey = "today" | "last7" | "older";
+
 export interface SessionGroup {
-  label: string; // 오늘 / 지난 7일 / 이전
+  labelKey: GroupKey;
   sessions: AssetSession[];
 }
 

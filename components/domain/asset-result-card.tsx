@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 export type GeneratedAsset = {
   id: string;
@@ -18,7 +19,11 @@ export type GeneratedAsset = {
 };
 
 // 툴팁에 보여줄 세부 준수 항목
-const COMPLIANCE = ["IP 정체성", "품질", "IP 정합"];
+const COMPLIANCE = [
+  "gen.complianceIdentity",
+  "gen.complianceQuality",
+  "gen.complianceMatch",
+];
 
 // 생성된 에셋 결과 카드 — 채택 체크박스 + (호버) Compliance 오버레이·⋮
 export function AssetResultCard({
@@ -30,6 +35,8 @@ export function AssetResultCard({
   onToggle: () => void;
   onOpen?: () => void;
 }) {
+  const { t } = useLocale();
+
   return (
     <div
       onClick={onOpen}
@@ -77,18 +84,18 @@ export function AssetResultCard({
                 className="pointer-events-none flex min-w-0 items-center gap-1.5 rounded-full bg-foreground px-2.5 py-1 text-sm whitespace-nowrap text-white outline-none group-hover:pointer-events-auto"
               >
                 <span className="size-2 shrink-0 rounded-full bg-success" />
-                가이드 통과
+                {t("gen.guidePass")}
               </button>
             </TooltipTrigger>
             <TooltipContent side="top">
               <div className="flex flex-col gap-1">
-                {COMPLIANCE.map((label) => (
+                {COMPLIANCE.map((key) => (
                   <span
-                    key={label}
+                    key={key}
                     className="flex items-center gap-1.5 whitespace-nowrap"
                   >
                     <span className="size-1.5 shrink-0 rounded-full bg-success" />
-                    {label}
+                    {t(key)}
                   </span>
                 ))}
               </div>

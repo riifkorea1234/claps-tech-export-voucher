@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buildBackQuery } from "@/lib/workspace-nav";
+import { useLocale } from "@/lib/i18n";
 
 const STEPS = [
-  { n: 1, label: "에셋 생성" },
-  { n: 2, label: "가이드 검증" },
-  { n: 3, label: "최종본" },
+  { n: 1, labelKey: "workspace.step1" },
+  { n: 2, labelKey: "workspace.step2" },
+  { n: 3, labelKey: "workspace.step3" },
 ];
 
 // 단계 번호 → 라우트
@@ -31,8 +32,9 @@ export function WorkspaceTopBar({
   from?: string; // 어디서 왔는지 (없으면 에셋 생성 목록)
   fromLabel?: string; // 뒤로가기 라벨 (없으면 "목록")
 }) {
+  const { t } = useLocale();
   const backHref = from ?? "/assets";
-  const backLabel = fromLabel ?? "목록";
+  const backLabel = fromLabel ?? t("workspace.back");
   const suffix = buildBackQuery(from, fromLabel); // 스텝 이동에도 계속 붙임
 
   return (
@@ -46,7 +48,9 @@ export function WorkspaceTopBar({
           {backLabel}
         </Link>
         <span className="h-4 w-px bg-border" />
-        <span className="text-base font-semibold text-foreground">{title}</span>
+        <span className="text-base font-semibold text-foreground">
+          {title || t("assets.untitled")}
+        </span>
       </div>
       <div className="flex items-center gap-2">
         {STEPS.map((s, i) => {
@@ -64,7 +68,7 @@ export function WorkspaceTopBar({
                     {s.n}
                   </span>
                   <span className="text-sm whitespace-nowrap text-muted-foreground transition-colors group-hover:text-foreground">
-                    {s.label}
+                    {t(s.labelKey)}
                   </span>
                 </Link>
               ) : (
@@ -87,7 +91,7 @@ export function WorkspaceTopBar({
                         : "text-muted-foreground",
                     )}
                   >
-                    {s.label}
+                    {t(s.labelKey)}
                   </span>
                 </div>
               )}

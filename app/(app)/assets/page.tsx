@@ -19,8 +19,10 @@ import { getGroups, saveGroups } from "@/lib/assets-store";
 import { clearSessionAssets } from "@/lib/session-assets-store";
 import { getProjects } from "@/lib/projects-store";
 import type { AssetSession, SessionGroup } from "@/lib/mock/assets";
+import { useLocale } from "@/lib/i18n";
 
 export default function AssetsPage() {
+  const { t } = useLocale();
   const router = useRouter();
   const [groups, setGroups] = useState<SessionGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -46,7 +48,7 @@ export default function AssetsPage() {
   }
 
   const projectName = (id?: string) =>
-    projects.find((p) => p.id === id)?.name ?? "미연결";
+    projects.find((p) => p.id === id)?.name ?? t("assets.unlinked");
 
   // 검색 + 프로젝트 필터 + 정렬 적용
   const q = query.trim().toLowerCase();
@@ -88,11 +90,11 @@ export default function AssetsPage() {
     const id = `session-${Date.now()}`;
     const session: AssetSession = {
       id,
-      title: "제목 없음",
-      timeLabel: "방금",
+      title: "",
+      timeLabel: "",
       createdAt: Date.now(),
     };
-    const todayIdx = groups.findIndex((g) => g.label === "오늘");
+    const todayIdx = groups.findIndex((g) => g.labelKey === "today");
     const next =
       todayIdx >= 0
         ? groups.map((g, i) =>
@@ -100,7 +102,7 @@ export default function AssetsPage() {
               ? { ...g, sessions: [session, ...g.sessions] }
               : g,
           )
-        : [{ label: "오늘", sessions: [session] }, ...groups];
+        : [{ labelKey: "today" as const, sessions: [session] }, ...groups];
     update(next);
     router.push(`/assets/${id}?title=${encodeURIComponent(session.title)}`);
   }
@@ -124,7 +126,7 @@ export default function AssetsPage() {
       {/* 목록 헤더 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-foreground">생성 목록</h2>
+          <h2 className="text-xl font-bold text-foreground">{t("assets.list")}</h2>
           {total > 0 && (
             <Badge variant="secondary" className="h-auto text-sm">
               {total}
@@ -132,7 +134,8 @@ export default function AssetsPage() {
           )}
         </div>
         <Button className="gap-1.5" onClick={createSession}>
-          <Plus className="size-4" />새 에셋 생성
+          <Plus className="size-4" />
+          {t("assets.new")}
         </Button>
       </div>
 
@@ -140,17 +143,12 @@ export default function AssetsPage() {
         // 생성 내역 없음 (empty)
         <EmptyState
           icon={Sparkles}
-          title="아직 생성 내역이 없어요"
-          description={
-            <>
-              &lsquo;새 에셋 생성&rsquo;을 눌러 브랜드 이미지를 만들면
-              <br />
-              생성한 세션이 여기에 쌓여요.
-            </>
-          }
+          title={t("assets.emptyTitle")}
+          description={t("assets.emptyDesc")}
           action={
             <Button size="sm" className="mt-1 gap-1.5" onClick={createSession}>
-              <Plus className="size-4" />새 에셋 생성
+              <Plus className="size-4" />
+              {t("assets.new")}
             </Button>
           }
         />
@@ -161,7 +159,7 @@ export default function AssetsPage() {
             <SearchBar
               value={query}
               onChange={setQuery}
-              placeholder="생성 목록 검색"
+              placeholder={t("assets.searchPlaceholder")}
               className="flex-1"
             />
 
@@ -169,7 +167,7 @@ export default function AssetsPage() {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
                 {projectFilter === "all"
-                  ? "프로젝트 전체"
+                  ? t("assets.allProjects")
                   : projectName(projectFilter)}
                 <ChevronDown className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>
@@ -178,7 +176,7 @@ export default function AssetsPage() {
                   onSelect={() => setProjectFilter("all")}
                   className="justify-between"
                 >
-                  프로젝트 전체
+                  {t("assets.allProjects")}
                   {projectFilter === "all" && (
                     <Check className="size-4 text-brand" />
                   )}
@@ -201,7 +199,7 @@ export default function AssetsPage() {
             {/* 정렬 */}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
-                {sort === "recent" ? "최신순" : "오래된순"}
+                {sort === "recent" ? t("assets.sortRecent") : t("assets.sortOldest")}
                 <ChevronDown className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[140px]">
@@ -209,7 +207,7 @@ export default function AssetsPage() {
                   onSelect={() => setSort("recent")}
                   className="justify-between"
                 >
-                  최신순
+                  {t("assets.sortRecent")}
                   {sort === "recent" && (
                     <Check className="size-4 text-brand" />
                   )}
@@ -218,7 +216,7 @@ export default function AssetsPage() {
                   onSelect={() => setSort("oldest")}
                   className="justify-between"
                 >
-                  오래된순
+                  {t("assets.sortOldest")}
                   {sort === "oldest" && (
                     <Check className="size-4 text-brand" />
                   )}
@@ -230,14 +228,14 @@ export default function AssetsPage() {
           {/* 세션 목록 (날짜 그룹) */}
           {viewTotal === 0 ? (
             <div className="flex min-h-[160px] items-center justify-center rounded-[14px] border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground">
-              검색 결과가 없어요.
+              {t("assets.noResult")}
             </div>
           ) : (
             <div className="flex flex-col gap-6">
               {view.map((group) => (
-                <div key={group.label} className="flex flex-col gap-2.5">
+                <div key={group.labelKey} className="flex flex-col gap-2.5">
                   <span className="px-2 text-xs font-medium text-muted-foreground">
-                    {group.label}
+                    {t(`group.${group.labelKey}`)}
                   </span>
                   {group.sessions.map((session) => (
                     <AssetRow
@@ -261,14 +259,18 @@ export default function AssetsPage() {
           if (!open) setDeleteTarget(null);
         }}
         onConfirm={confirmDelete}
-        description={
-          <>
-            <span className="font-medium text-foreground">
-              {deleteTarget?.title}
-            </span>{" "}
-            생성 세션을 삭제하면 되돌릴 수 없어요.
-          </>
-        }
+        description={(() => {
+          const [before, after] = t("assets.deleteDesc").split("{title}");
+          return (
+            <>
+              {before}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.title || t("assets.untitled")}
+              </span>
+              {after}
+            </>
+          );
+        })()}
       />
     </div>
   );

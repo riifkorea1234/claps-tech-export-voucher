@@ -99,7 +99,7 @@ export function AssetRow({
       subtitle={
         !editing && (
           <span className="truncate text-sm text-muted-foreground">
-            {projectName ?? "프로젝트 미연결"}
+            {projectName ?? t("assets.noProject")}
           </span>
         )
       }
@@ -118,14 +118,14 @@ export function AssetRow({
           >
             <DropdownMenuItem onSelect={startRename}>
               <PencilLine className="size-4" />
-              이름 변경
+              {t("projects.rename")}
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
               onSelect={() => onDelete(session)}
             >
               <Trash2 className="size-4" />
-              삭제
+              {t("common.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

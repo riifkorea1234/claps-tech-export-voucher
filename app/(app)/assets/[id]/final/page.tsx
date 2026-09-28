@@ -14,8 +14,10 @@ import { ImageLightbox } from "@/components/domain/image-lightbox";
 import { findSession } from "@/lib/mock/assets";
 import { getAllSessions } from "@/lib/assets-store";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 export default function FinalPage() {
+  const { t } = useLocale();
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -89,26 +91,26 @@ export default function FinalPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-foreground">최종본</h2>
+            <h2 className="text-xl font-bold text-foreground">{t("final.title")}</h2>
             <Badge variant="secondary" className="h-auto text-sm">
-              {items.length}장
+              {t("final.count", { n: items.length })}
             </Badge>
           </div>
           <span className="text-sm text-muted-foreground">
-            프로젝트 라이브러리에 저장됩니다.
+            {t("final.savedTo")}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-1.5">
             <Download className="size-4" />
-            선택 다운로드
+            {t("final.download")}
           </Button>
           <Button
             size="sm"
             className="bg-brand text-brand-foreground hover:bg-brand/90"
             onClick={goLibrary}
           >
-            프로젝트 보기
+            {t("final.viewProject")}
           </Button>
         </div>
       </div>
@@ -116,15 +118,14 @@ export default function FinalPage() {
       {loaded && items.length === 0 ? (
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-card px-6 py-10 text-center">
           <p className="text-base font-semibold text-foreground">
-            최종본이 아직 없어요
+            {t("final.emptyTitle")}
           </p>
           <p className="max-w-sm text-sm text-muted-foreground">
-            가이드 검증에서 통과한 에셋을 &apos;최종본에 추가&apos;하면 여기에
-            모입니다.
+            {t("final.emptyDesc")}
           </p>
           <Button asChild variant="outline" size="sm" className="mt-1">
             <Link href={`/assets/${id}/verify${backSuffix}`}>
-              가이드 검증으로
+              {t("final.goVerify")}
             </Link>
           </Button>
         </div>
@@ -147,13 +148,13 @@ export default function FinalPage() {
               >
                 <Check className="size-4" strokeWidth={3} />
               </span>
-              전체 선택
+              {t("final.selectAll")}
             </button>
             <button
               type="button"
               className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground"
             >
-              최신순
+              {t("assets.sortRecent")}
               <ChevronDown className="size-4 text-muted-foreground" />
             </button>
           </div>
@@ -195,8 +196,8 @@ export default function FinalPage() {
                       e.stopPropagation();
                       removeItem(a.id);
                     }}
-                    aria-label="최종본에서 제거"
-                    title="최종본에서 제거"
+                    aria-label={t("final.remove")}
+                    title={t("final.remove")}
                     className="absolute top-3 right-3 flex size-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
                   >
                     <X className="size-3.5" strokeWidth={2.5} />
