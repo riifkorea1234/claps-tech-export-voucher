@@ -11,11 +11,6 @@ import { useLocale } from "@/lib/i18n";
 // 간단한 이메일 형식 검사
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// ⚠️ 임시 — 오류 문구를 화면에서 확인하기 위한 장치.
-// 형식이 맞는 주소로는 오류를 볼 수 없어서, 예시 주소 하나를 일부러 오류 처리한다.
-// 화면 점검이 끝나면 이 상수와 아래 handleSubmit 의 검사 한 줄을 지운다.
-const DEMO_INVALID_EMAIL = "you@company.com";
-
 // 로그인 이메일 폼 (동작 부분만 분리한 클라이언트 부품)
 // - 이메일이 비어 있으면 '계속' 버튼 비활성화
 // - 제출 시 형식이 틀리면 error 상태 표시
@@ -31,11 +26,7 @@ export function LoginEmailForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const value = email.trim();
-    // DEMO_INVALID_EMAIL 조건은 임시 (위 주석 참고)
-    if (
-      !EMAIL_RE.test(value) ||
-      value.toLowerCase() === DEMO_INVALID_EMAIL
-    ) {
+    if (!EMAIL_RE.test(value)) {
       setError(true);
       return;
     }
