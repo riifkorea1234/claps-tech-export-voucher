@@ -340,7 +340,7 @@ export const ja: Record<string, string> = {
   "gen.pickProjectTitle": "プロジェクトの選択",
   "gen.pickProjectDesc": "この生成セッションを連携するプロジェクトをお選びください。",
   "gen.noProjectYet": "作成したプロジェクトがまだありません。",
-  "gen.goMakeProject": "プロジェクトを作成する",
+  "gen.goMakeProject": "プロジェクトを作成",
   "gen.guidePass": "ガイド通過",
   "gen.complianceIdentity": "IPアイデンティティ",
   "gen.complianceQuality": "品質",
