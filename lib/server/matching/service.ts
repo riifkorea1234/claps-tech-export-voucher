@@ -56,7 +56,7 @@ export class MatchingService {
       if (p.matching?.revision !== d.revision) throw new AppError("VERSION_CONFLICT");
       const busy = await c.query("SELECT 1 FROM jobs WHERE owner_id=$1 AND kind='matching' AND status IN ('queued','running')", [owner]);
       if (busy.rowCount) throw new AppError("STATE_CONFLICT");
-      const rows = (await c.query("SELECT id,name,profile,version FROM partners WHERE visibility='public' ORDER BY id LIMIT 201")).rows;
+      const rows = (await c.query("SELECT id,name,profile,version FROM partners WHERE visibility='public' AND archived_at IS NULL ORDER BY id LIMIT 201")).rows;
       if (rows.length > 200) throw new AppError("VALIDATION_ERROR");
       const criteria = dto(p).criteria;
       const payload = { schemaVersion: 1, kind: "matching", outputLocale: d.outputLocale, preferences: { schemaVersion: 1, matching: p.matching }, snapshot: { revision: d.revision, engineVersion: "rules-v1", criteria, candidates: rows.map(r => ({ id: r.id, version: r.version, name: r.name, description: r.profile.description, tags: r.profile.tags, ipNames: r.profile.ipNames, marketDescription: r.profile.marketDescription ?? "" })) } };
@@ -75,7 +75,7 @@ export class MatchingService {
       if (success?.input.kind === "matching" && success.input.snapshot && success.output?.kind === "matching" && success.output.evaluation) {
         const items = [];
         for (const r of success.output.evaluation.results) {
-          const { rows: [partner] } = await c.query("SELECT * FROM partners WHERE id=$1 AND visibility='public'", [r.partnerId]);
+          const { rows: [partner] } = await c.query("SELECT * FROM partners WHERE id=$1 AND visibility='public' AND archived_at IS NULL", [r.partnerId]);
           if (partner) items.push({ ...r, partner: await publicPartner(c, partner, locale) });
         }
         result = { jobId: success.id, outputLocale: success.input.outputLocale, engineVersion: success.output.evaluation.engineVersion, revision: success.input.snapshot.revision, createdAt: success.created_at.toISOString(), items };

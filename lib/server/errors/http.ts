@@ -24,7 +24,7 @@ export function errorResponse(error: unknown, context: RequestContext) {
   const body: ApiErrorBody = { error: { code, message: context.messages?.[code] ?? errorMessages[context.locale][code], requestId: context.requestId } };
   if (error instanceof z.ZodError) {
     const fields: Record<string, string[]> = Object.create(null);
-    const publicFields = new Set(["email", "password", "name", "title", "description", "version", "rowVersion", "page", "pageSize", "locale", "schemaVersion", "kind", "file", "cover", "preferences", "matching", "outputLocale", "sessionId", "projectId", "assetIds", "guideId", "recordId"]);
+    const publicFields = new Set(["email", "password", "name", "title", "description", "version", "rowVersion", "page", "pageSize", "locale", "schemaVersion", "kind", "file", "cover", "preferences", "matching", "outputLocale", "sessionId", "projectId", "assetIds", "guideId", "recordId", "reason", "contactEmail", "ipName", "tags", "ipNames", "marketDescription", "imageAlt", "nativeName", "displayName", "fallbackCode", "sortOrder", "archived", "sort", "order", "from", "to"]);
     for (const issue of error.issues) {
       // Never reflect user-owned record keys or validation messages into responses.
       const field = issue.path.filter((part) => typeof part === "string" && publicFields.has(part)).join(".") || "_form";

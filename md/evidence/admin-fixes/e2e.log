@@ -1,0 +1,18 @@
+
+Running 11 tests using 1 worker
+
+(node:2423190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › tests/e2e/admin.spec.ts:127:5 › member cannot access any admin endpoint; same-origin and strict bodies required (1.7s)
+  ✓   2 [chromium] › tests/e2e/admin.spec.ts:161:5 › reauthentication, all five menus, mobile keyboard navigation and expiration (4.4s)
+  ✓   3 [chromium] › tests/e2e/admin.spec.ts:211:5 › partner create, language switching preserves form and content language; draft and publish update real catalog (3.1s)
+  ✓   4 [chromium] › tests/e2e/admin.spec.ts:272:5 › import preview/export, conflict handling, image decoding and private catalog boundary (3.2s)
+  ✓   5 [chromium] › tests/e2e/admin.spec.ts:407:5 › preserves edit on reauthentication and executes the saved change exactly once (1.8s)
+  ✓   6 [chromium] › tests/e2e/admin.spec.ts:451:5 › view/edit cancel, archive confirmation, return URL, restore and readonly history (2.4s)
+  ✓   7 [chromium] › tests/e2e/admin.spec.ts:511:5 › loading is distinct from empty; local date bounds and pagination are URL state (2.5s)
+  ✓   8 [chromium] › tests/e2e/admin.spec.ts:547:5 › image removal and unpublish UI require confirmation and retain data contracts (2.9s)
+  ✓   9 [chromium] › tests/e2e/admin.spec.ts:627:5 › language row editing and unsupported packs use a dialog without creating detail pages (1.6s)
+  ✓  10 [chromium] › tests/e2e/admin.spec.ts:684:5 › admin entry is role-gated and login preserves only safe return paths (3.3s)
+  ✓  11 [chromium] › tests/e2e/admin.spec.ts:720:5 › legacy guides redirect to project tabs, related jobs are scoped and archive is separate from editing (3.6s)
+
+  11 passed (32.0s)

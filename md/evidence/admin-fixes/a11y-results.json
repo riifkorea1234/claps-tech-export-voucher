@@ -1,0 +1,50 @@
+{
+  "axeVersion": "4.10.2",
+  "results": [
+    {
+      "name": "/admin",
+      "violations": []
+    },
+    {
+      "name": "/admin/users",
+      "violations": []
+    },
+    {
+      "name": "/admin/projects",
+      "violations": []
+    },
+    {
+      "name": "/admin/partners",
+      "violations": []
+    },
+    {
+      "name": "/admin/jobs",
+      "violations": []
+    },
+    {
+      "name": "/admin/monitoring",
+      "violations": []
+    },
+    {
+      "name": "/admin/audit-logs",
+      "violations": []
+    },
+    {
+      "name": "/admin/locales",
+      "violations": []
+    },
+    {
+      "name": "/admin/users/e1718871-41a1-4ea2-bc74-ab64e71c4f03",
+      "violations": []
+    },
+    {
+      "name": "/admin/partners/new",
+      "violations": []
+    },
+    {
+      "name": "visibility confirmation dialog",
+      "violations": []
+    }
+  ],
+  "seriousCritical": 0
+}

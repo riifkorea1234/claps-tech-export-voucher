@@ -19,7 +19,7 @@ import {
 import { NAV, getTitle } from "@/lib/nav";
 import { LanguageSwitcher } from "./language-switcher";
 
-export function AppHeader() {
+export function AppHeader({ isAdmin = false }: { isAdmin?: boolean }) {
   const t = useT();
   const [myPageOpen, setMyPageOpen] = useState(false);
   const [error, setError] = useState(false);
@@ -58,7 +58,7 @@ export function AppHeader() {
               : getTitle(pathname)}
           </h1>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-3">{isAdmin && <Link href="/admin" className="text-sm underline">{t("admin.title")}</Link>}<LanguageSwitcher /></div>
       </div>
       {error && <p role="alert">{t("auth.requestFailed")}</p>}
       <MyPageDialog open={myPageOpen} onOpenChange={setMyPageOpen} />

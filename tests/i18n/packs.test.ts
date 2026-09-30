@@ -188,3 +188,11 @@ it("delivers public errors to client renderers on initial load and language swit
     expect(pack["errors.SERVICE_UNAVAILABLE"]).toBeTruthy();
   }
 });
+it("covers dynamic administration columns, tabs, resource types and audit actions", async () => {
+  for (const locale of ["ko", "en"]) {
+    const pack = await readPack(locale);
+    for (const field of ["name","email","org_name","created_at","status","ip_name","archived_at","visibility","kind","attempt","error_code","latest_result_count","action","entity_type","reason","version","email_verified","profile_completed_at","contact_email","tags","ipNames","marketDescription","imageAlt"]) expect(pack[`admin.field.${field}`], field).toBeTruthy();
+    for (const tab of ["basic","history","scans","images","translations","operations"]) expect(pack[`admin.${tab}`]).toBeTruthy();
+    for (const action of ["admin.read","admin.reauthenticate","user.suspend","user.restore","user.revoke","project.update","partner.create","partner.update","partner.archive","partner.restore","partner.image.add","partner.image.remove","job.retry","job.cancel","monitoring.archive","monitoring.restore","monitoring.scan","locale.update","translation.read","translation.import","translation.publish","translation.unpublish"]) expect(pack[`admin.audit.${action}`]).toBeTruthy();
+  }
+});

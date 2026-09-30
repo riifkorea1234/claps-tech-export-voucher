@@ -1,0 +1,14 @@
+
+> web@0.1.0 lint /home/arcreation/orca/workspaces/claps-product/coder
+> eslint
+
+
+/home/arcreation/orca/workspaces/claps-product/coder/app/apple-icon.tsx
+  29:10  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+/home/arcreation/orca/workspaces/claps-product/coder/app/opengraph-image.tsx
+  45:8  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+✖ 2 problems (0 errors, 2 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+

@@ -32,11 +32,11 @@ export const partnersApi = withApi(async (request, context) => {
     if (u.status !== "active") throw new AppError("FORBIDDEN");
     const locale = request.headers.get("x-claps-locale") ?? "ko";
     if (id) {
-      const { rows: [row] } = await c.query("SELECT * FROM partners WHERE id=$1 AND visibility='public'", [id]);
+      const { rows: [row] } = await c.query("SELECT * FROM partners WHERE id=$1 AND visibility='public' AND archived_at IS NULL", [id]);
       if (!row) throw new AppError("NOT_FOUND");
       return publicPartner(c, row, locale);
     }
-    const where = "visibility='public' AND strpos(lower(name || ' ' || (profile->'ipNames')::text),lower($1))>0";
+    const where = "visibility='public' AND archived_at IS NULL AND strpos(lower(name || ' ' || (profile->'ipNames')::text),lower($1))>0";
     const total = (await c.query(`SELECT count(*)::int n FROM partners WHERE ${where}`, [q.q])).rows[0].n;
     const rows = (await c.query(`SELECT * FROM partners WHERE ${where} ORDER BY updated_at DESC,id LIMIT $2 OFFSET $3`, [q.q, q.pageSize, (q.page - 1) * q.pageSize])).rows;
     const items = [];

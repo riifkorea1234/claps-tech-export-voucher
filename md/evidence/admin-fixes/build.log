@@ -1,0 +1,91 @@
+
+> web@0.1.0 build /home/arcreation/orca/workspaces/claps-product/coder
+> next build
+
+▲ Next.js 16.3.3 (Turbopack)
+✓ Running next.config.ts took 33ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1085ms
+  Running TypeScript ...
+  Finished TypeScript in 6.9s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/36) ...
+  Generating static pages using 9 workers (9/36) 
+  Generating static pages using 9 workers (18/36) 
+  Generating static pages using 9 workers (27/36) 
+✓ Generating static pages using 9 workers (36/36) in 340ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /admin/[[...path]]
+├ ƒ /api/admin/[...path]
+├ ƒ /api/admin/access
+├ ƒ /api/asset-sessions
+├ ƒ /api/asset-sessions/[id]
+├ ƒ /api/asset-sessions/[id]/assets
+├ ƒ /api/asset-sessions/[id]/verifications
+├ ƒ /api/assets/[id]
+├ ƒ /api/assets/[id]/finalization
+├ ƒ /api/assets/[id]/verification
+├ ƒ /api/auth/[action]
+├ ƒ /api/exports
+├ ƒ /api/exports/[id]
+├ ƒ /api/files/[token]
+├ ƒ /api/health
+├ ƒ /api/jobs/[id]
+├ ƒ /api/jobs/[id]/cancel
+├ ƒ /api/locale
+├ ƒ /api/locales
+├ ƒ /api/matches
+├ ƒ /api/matches/latest
+├ ƒ /api/me
+├ ƒ /api/me/matching-criteria
+├ ƒ /api/me/matching-images
+├ ƒ /api/me/matching-images/[id]
+├ ƒ /api/me/preferences
+├ ƒ /api/monitoring-records
+├ ƒ /api/monitoring-records/[id]
+├ ƒ /api/monitoring-records/[id]/image
+├ ƒ /api/monitoring-records/[id]/scans
+├ ƒ /api/monitoring-records/uploads
+├ ƒ /api/partners
+├ ƒ /api/partners/[id]
+├ ƒ /api/partners/[id]/images/[index]
+├ ƒ /api/projects
+├ ƒ /api/projects/[id]
+├ ƒ /api/projects/[id]/library
+├ ƒ /api/projects/[id]/sessions
+├ ƒ /api/projects/stats
+├ ƒ /api/uploads
+├ ƒ /api/uploads/[token]
+├ ○ /apple-icon
+├ ƒ /assets
+├ ƒ /assets/[id]
+├ ƒ /assets/[id]/final
+├ ƒ /assets/[id]/verify
+├ ƒ /change-password
+├ ƒ /forgot-password
+├ ○ /icon.svg
+├ ƒ /jobs/[id]
+├ ƒ /login
+├ ƒ /monitoring
+├ ƒ /monitoring/[id]
+├ ƒ /opengraph-image
+├ ƒ /partners
+├ ƒ /partners/criteria
+├ ƒ /profile-setup
+├ ƒ /projects
+├ ƒ /projects/[id]
+├ ƒ /projects/[id]/sessions
+├ ƒ /reset-password
+├ ƒ /sign-in
+├ ƒ /sign-up
+└ ƒ /verify-email
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

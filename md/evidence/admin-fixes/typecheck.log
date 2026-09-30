@@ -1,0 +1,6 @@
+
+> web@0.1.0 typecheck /home/arcreation/orca/workspaces/claps-product/coder
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully

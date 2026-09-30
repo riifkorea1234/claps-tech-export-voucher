@@ -33,7 +33,7 @@ export const locales = pgTable("locales", {
 }, (t) => [check("locales_direction", sql`${t.direction} IN ('ltr','rtl')`), check("locales_no_self_fallback", sql`${t.fallbackCode} <> ${t.code}`), positive("locales_version", t.version)]);
 
 export const partners = pgTable("partners", {
-  id: id(), name: text("name").notNull(), contactEmail: text("contact_email"), visibility: text("visibility").notNull().default("private"),
+  id: id(), archivedAt: time("archived_at"), name: text("name").notNull(), contactEmail: text("contact_email"), visibility: text("visibility").notNull().default("private"),
   profile: jsonb("profile").$type<z.infer<typeof partnerProfileSchema>>().notNull(), sourceRevision: integer("source_revision").notNull().default(1), version: version(), ...timestamps(),
 }, (t) => [check("partners_visibility", sql`${t.visibility} IN ('private','public')`), positive("partners_version", t.version), positive("partners_revision", t.sourceRevision), metadata("partners_profile", t.profile)]);
 

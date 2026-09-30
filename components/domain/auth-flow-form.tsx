@@ -31,8 +31,11 @@ export function AuthFlowForm({ mode, initialEmail = "", token = "" }: { mode: Au
     if (mode === "change-password") body = { currentPassword, password };
     try {
       const result = await accountRequest<{ nextStep?: string }>(`/api/auth/${action}`, "POST", body);
-      if (mode === "lookup") navigateAfterAuth(`/${result.nextStep}?email=${encodeURIComponent(email)}`);
+      const next = new URLSearchParams(window.location.search).get("next");
+      const adminReturn = next && /^\/admin(?:\/[a-z-]+(?:\/[a-f0-9-]+)?)?(?:\?[^\\\r\n]*)?$/.test(next) ? next : null;
+      if (mode === "lookup") navigateAfterAuth(`/${result.nextStep}?email=${encodeURIComponent(email)}${adminReturn ? `&next=${encodeURIComponent(adminReturn)}` : ""}`);
       else if (mode === "sign-up") navigateAfterAuth(`/verify-email?email=${encodeURIComponent(email)}`);
+      else if (mode === "sign-in" && adminReturn && result.nextStep === "/projects") navigateAfterAuth(adminReturn);
       else if (result.nextStep) navigateAfterAuth(result.nextStep);
       else setSent(true);
     } catch (e) { setError(e instanceof Error ? e.message : t("auth.requestFailed")); }
