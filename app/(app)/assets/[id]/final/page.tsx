@@ -7,6 +7,7 @@ import { Download, ChevronDown, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
+import { EvidenceTimeline } from "@/components/domain/evidence-timeline";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import type { GeneratedAsset } from "@/components/domain/asset-result-card";
 import { getStageAssets, setStageAssets } from "@/lib/session-assets-store";
@@ -208,6 +209,9 @@ export default function FinalPage() {
           </div>
         </div>
       )}
+
+      {/* 버전 이력 — 생성부터 채택까지의 기록 (권리 확보의 근거) */}
+      <EvidenceTimeline sessionId={id} />
 
       {/* 전체화면 라이트박스 */}
       <ImageLightbox asset={lightbox} onClose={() => setLightbox(null)} />
