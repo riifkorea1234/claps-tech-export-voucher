@@ -940,7 +940,23 @@ export default function MonitoringDetailPage() {
                 {/* 결과를 거부하는 수단 (적용안 ④) */}
                 <Button
                   variant="outline"
-                  className="gap-1.5"
+                  size="icon"
+                  aria-pressed={detail.reportedFalse}
+                  aria-label={
+                    detail.reportedFalse
+                      ? t("scan.undoReport")
+                      : t("scan.reportFalse")
+                  }
+                  title={
+                    detail.reportedFalse
+                      ? t("scan.undoReport")
+                      : t("scan.reportFalse")
+                  }
+                  className={
+                    detail.reportedFalse
+                      ? "border-brand text-brand hover:text-brand"
+                      : undefined
+                  }
                   onClick={() => {
                     toggleReport(detail.id);
                     setDetail((d) =>
@@ -948,10 +964,10 @@ export default function MonitoringDetailPage() {
                     );
                   }}
                 >
-                  <Flag className="size-4" />
-                  {detail.reportedFalse
-                    ? t("scan.undoReport")
-                    : t("scan.reportFalse")}
+                  <Flag
+                    className="size-4"
+                    fill={detail.reportedFalse ? "currentColor" : "none"}
+                  />
                 </Button>
                 <SheetClose asChild>
                   <Button variant="outline">{t("common.close")}</Button>
