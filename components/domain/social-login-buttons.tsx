@@ -44,12 +44,13 @@ function KakaoIcon() {
   );
 }
 
-/* LINE — 공식 브랜드 마크(모노크롬)를 이미지로 쓴다.
-   로고는 손으로 그리지 않는다. public/line-logo.png 가 원본이다. */
+/* LINE — 공식 브랜드 마크를 이미지로 쓴다. 로고는 손으로 그리지 않는다.
+   초록 버튼 위에 올리는 흰색 판(public/line-logo-white.png).
+   글자 부분은 뚫려 있어 초록이 비친다 — LINE 공식 버튼과 같은 방식이다. */
 function LineIcon() {
   return (
     <Image
-      src="/line-logo.png"
+      src="/line-logo-white.png"
       alt=""
       width={19}
       height={18}
@@ -61,6 +62,10 @@ function LineIcon() {
 
 const BUTTON_CLASS =
   "flex h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-muted/50";
+
+/* LINE 은 공식 버튼 색이 정해져 있어 예외로 브랜드 색을 그대로 쓴다 (#06C755) */
+const LINE_BUTTON_CLASS =
+  "flex h-11 items-center justify-center gap-2 rounded-lg border border-transparent bg-[#06C755] text-sm font-medium text-white transition-colors hover:bg-[#05B34D]";
 
 export function SocialLoginButtons() {
   const { locale, t } = useLocale();
@@ -80,7 +85,7 @@ export function SocialLoginButtons() {
       )}
 
       {locale === "ja" && (
-        <Link href="/projects" className={BUTTON_CLASS}>
+        <Link href="/projects" className={LINE_BUTTON_CLASS}>
           <LineIcon />
           {t("auth.continueLine")}
         </Link>
