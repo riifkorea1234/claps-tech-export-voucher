@@ -667,6 +667,7 @@ export const en: Record<string, string> = {
   "evidence.condStyle": "Style",
   "evidence.condRatio": "Ratio",
   "evidence.condPrompt": "Prompt",
+  "evidence.condGuide": "Guideline",
   "evidence.condCandidates": "{n} candidates",
   "evidence.verifyResult": "{verdict} · {passed}/{total} rules passed",
   "evidence.assetShort": "Asset {id}",

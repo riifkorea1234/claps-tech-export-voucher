@@ -90,11 +90,15 @@ export default function ProjectDetailPage() {
 
   function onPickGuide(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) setGuideName(file.name);
+    if (!file) return;
+    setGuideName(file.name);
+    // 프로젝트에 저장해야 생성 시점에 "적용 기준"으로 기록에 남길 수 있다
+    updateProject(id, { guideName: file.name });
   }
 
   function removeGuide() {
     setGuideName(null);
+    updateProject(id, { guideName: undefined });
     if (guideInputRef.current) guideInputRef.current.value = "";
   }
 
@@ -139,6 +143,8 @@ export default function ProjectDetailPage() {
         createdAt: saved.createdAt,
         updatedAt: saved.updatedAt,
       });
+      // 붙여둔 브랜드 가이드 복원 (새로고침해도 남는다)
+      setGuideName(saved.guideName ?? null);
     }
   }, [id]);
 

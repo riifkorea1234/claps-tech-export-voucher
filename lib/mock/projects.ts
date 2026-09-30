@@ -36,6 +36,8 @@ export interface Project {
   createdAt?: string; // 최초 생성일 "2026.08.28" (옛 데이터엔 없을 수 있음)
   updatedAt?: number; // 최근 수정 시각 (ms) — 변경마다 자동 갱신
   updatedLabel?: string; // (구버전 호환) 상대표기 문자열
+  // 브랜드 가이드 파일명. 검증 규칙의 "적용 기준"이자 증빙의 기준 버전이 된다.
+  guideName?: string;
   cover?: ProjectCover; // 커버 썸네일 (없으면 라이브러리 최신으로 대체)
   thumbnailUrl?: string;
 }

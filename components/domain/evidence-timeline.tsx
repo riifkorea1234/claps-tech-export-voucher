@@ -69,6 +69,11 @@ function EntryDetail({ e }: { e: EvidenceEntry }) {
         <span>
           {t("evidence.condCandidates", { n: e.conditions.resultCount })}
         </span>
+        {e.conditions.guideName && (
+          <span className="min-w-0 truncate">
+            {t("evidence.condGuide")} {e.conditions.guideName}
+          </span>
+        )}
         {e.conditions.prompt && (
           <span className="min-w-0 truncate">
             {t("evidence.condPrompt")} {e.conditions.prompt}

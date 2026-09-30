@@ -666,6 +666,7 @@ export const ko: Record<string, string> = {
   "evidence.condStyle": "스타일",
   "evidence.condRatio": "비율",
   "evidence.condPrompt": "프롬프트",
+  "evidence.condGuide": "기준",
   "evidence.condCandidates": "후보 {n}장",
   "evidence.verifyResult": "{verdict} · 통과 {passed}/{total}",
   "evidence.assetShort": "결과물 {id}",

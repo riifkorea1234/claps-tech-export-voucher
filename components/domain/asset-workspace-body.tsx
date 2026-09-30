@@ -173,9 +173,8 @@ export function AssetWorkspaceBody({
     addEntry(sessionId, "generate.run", {
       conditions: {
         projectId: selectedProject?.id,
-        // 브랜드 가이드는 아직 저장되지 않아(화면 상태뿐) 비워 둔다.
-        // 프로젝트에 가이드가 저장되면 여기에 파일명이 들어간다.
-        guideName: undefined,
+        // 검증 규칙의 "적용 기준" — 증빙의 기준 버전이 된다
+        guideName: selectedProject?.guideName,
         styleKey: style,
         ratio,
         prompt: prompt.trim() || undefined,

@@ -238,6 +238,9 @@ export default function EvidenceExportPage() {
                           {t("evidence.condCandidates", {
                             n: e.conditions.resultCount,
                           })}
+                          {e.conditions.guideName
+                            ? ` · ${t("evidence.condGuide")} ${e.conditions.guideName}`
+                            : ""}
                         </span>
                       )}
                       {e.assetId && !e.verify && (

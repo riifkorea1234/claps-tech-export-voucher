@@ -666,6 +666,7 @@ export const ja: Record<string, string> = {
   "evidence.condStyle": "スタイル",
   "evidence.condRatio": "比率",
   "evidence.condPrompt": "プロンプト",
+  "evidence.condGuide": "基準",
   "evidence.condCandidates": "候補{n}枚",
   "evidence.verifyResult": "{verdict} · 通過 {passed}/{total}",
   "evidence.assetShort": "結果物 {id}",
