@@ -11,6 +11,29 @@ export interface ScanResult {
   timeLabelKey?: string;
   timeLabelN?: number;
   url: string;
+  // 유사도 산출에 기여한 속성별 값. 수치 하나만 보여주면 무엇이 부족한지
+  // 알 수 없다는 미국 리서치 지적에 따른 것. (적용안 ④ AI 근거 표시)
+  factors?: ScanFactor[];
+  // 사용자가 오탐으로 신고했는지. 결과를 거부할 수단을 결과 화면 안에 둔다.
+  reportedFalse?: boolean;
+}
+
+// 유사도 근거 4항목 — 무단 사용 판단의 실제 근거가 되는 것들
+export type ScanFactorKey = "character" | "color" | "composition" | "logo";
+
+export interface ScanFactor {
+  key: ScanFactorKey;
+  value: number;
+}
+
+/* 자동 판정이 애매한 구간은 단정하지 않고 "확인 필요"로 둔다.
+   리서치: 판정이 불명확한 경우 확인 필요 상태로 분류 */
+export type ScanVerdict = "high" | "review" | "low";
+
+export function scanVerdictOf(similarity: number): ScanVerdict {
+  if (similarity >= 90) return "high";
+  if (similarity >= 80) return "review";
+  return "low";
 }
 
 export interface SavedMonitoringRecord {

@@ -703,4 +703,23 @@ export const en: Record<string, string> = {
   "export.sectionCert": "1. Certificate per asset",
   "export.sectionTimeline": "2. Full history",
   "export.footnote": "This document compiles the generation history recorded by CLAPS Studio 2.0. Works generated solely by AI do not attract copyright; protection arises only where human involvement and verification are on record.",
+
+  // 유사도 근거 (속성별 기여도)
+  "scan.factorsTitle": "Why this matched",
+  "scanFactor.character": "Character form",
+  "scanFactor.color": "Color palette",
+  "scanFactor.composition": "Composition",
+  "scanFactor.logo": "Logo and text",
+
+  // 판정 — 애매한 구간은 확인 필요로 분류
+  "scanVerdict.high": "Likely unauthorized",
+  "scanVerdict.review": "Needs review",
+  "scanVerdict.low": "Unlikely",
+  "scanVerdict.reviewHint": "The automatic judgment is not conclusive. Open the link and check it yourself.",
+
+  // 거부·조정 수단
+  "scan.reportFalse": "Report false match",
+  "scan.reported": "Reported as false match",
+  "scan.undoReport": "Undo report",
+  "scan.rescan": "Rescan with another reference",
 };

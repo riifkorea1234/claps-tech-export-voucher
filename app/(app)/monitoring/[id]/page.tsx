@@ -15,6 +15,7 @@ import {
   FolderPlus,
   Loader2,
   X,
+  Flag,
 } from "lucide-react";
 import {
   Dialog,
@@ -41,7 +42,9 @@ import {
   addRecord,
   updateRecord,
   getRecord,
+  scanVerdictOf,
   type ScanResult,
+  type ScanVerdict,
 } from "@/lib/monitoring-store";
 import { getProjects } from "@/lib/projects-store";
 import { getProjectLibrary, resolveProjectCover } from "@/lib/project-cover";
@@ -49,6 +52,7 @@ import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
 import { toISODateTime, formatDateTime } from "@/lib/format-date";
+import { ScanFactorBars } from "@/components/domain/scan-factor-bars";
 
 // 탐지 진행 단계 (UX 연출용 · 실제 검색엔진 붙기 전)
 // 단계마다 소요 시간을 다르게 (합계 ≈ 4.5초)
@@ -61,15 +65,89 @@ const SCAN_STEPS = [
 ];
 
 // 임시 탐지 결과 (실제 검색엔진 붙기 전)
+// 임시 탐지 결과 (실제 검색엔진 붙기 전)
+// factors = 유사도 산출에 기여한 속성별 값 (적용안 ④)
 const MOCK_RESULTS: ScanResult[] = [
-  { id: 1, platform: "google", similarity: 96, timeLabelKey: "time.justNow", url: "marketplace-x.com/item/8842" },
-  { id: 2, platform: "google", similarity: 93, timeLabelKey: "time.justNow", url: "blog.naver.com/goodsshop/223" },
-  { id: 3, platform: "naver", similarity: 91, timeLabelKey: "time.minutesAgo", timeLabelN: 1, url: "smartstore.naver.com/p/9921" },
-  { id: 4, platform: "google", similarity: 88, timeLabelKey: "time.minutesAgo", timeLabelN: 2, url: "marketplace-x.com/item/7710" },
-  { id: 5, platform: "naver", similarity: 85, timeLabelKey: "time.minutesAgo", timeLabelN: 3, url: "cafe.naver.com/handmade/48" },
-  { id: 6, platform: "google", similarity: 82, timeLabelKey: "time.minutesAgo", timeLabelN: 5, url: "aliexpress.com/item/1002" },
-  { id: 7, platform: "naver", similarity: 79, timeLabelKey: "time.minutesAgo", timeLabelN: 6, url: "blog.naver.com/kitty/771" },
-  { id: 8, platform: "google", similarity: 76, timeLabelKey: "time.minutesAgo", timeLabelN: 8, url: "etsy.com/listing/33421" },
+  {
+    id: 1, platform: "google", similarity: 96,
+    timeLabelKey: "time.justNow", url: "marketplace-x.com/item/8842",
+    factors: [
+      { key: "character", value: 98 },
+      { key: "color", value: 97 },
+      { key: "composition", value: 95 },
+      { key: "logo", value: 94 },
+    ],
+  },
+  {
+    id: 2, platform: "google", similarity: 93,
+    timeLabelKey: "time.justNow", url: "blog.naver.com/goodsshop/223",
+    factors: [
+      { key: "character", value: 97 },
+      { key: "color", value: 94 },
+      { key: "composition", value: 90 },
+      { key: "logo", value: 88 },
+    ],
+  },
+  {
+    id: 3, platform: "naver", similarity: 91,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 1, url: "smartstore.naver.com/p/9921",
+    factors: [
+      { key: "character", value: 95 },
+      { key: "color", value: 92 },
+      { key: "composition", value: 89 },
+      { key: "logo", value: 86 },
+    ],
+  },
+  {
+    id: 4, platform: "google", similarity: 88,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 2, url: "marketplace-x.com/item/7710",
+    factors: [
+      { key: "character", value: 92 },
+      { key: "color", value: 90 },
+      { key: "composition", value: 85 },
+      { key: "logo", value: 72 },
+    ],
+  },
+  {
+    id: 5, platform: "naver", similarity: 85,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 3, url: "cafe.naver.com/handmade/48",
+    factors: [
+      { key: "character", value: 90 },
+      { key: "color", value: 86 },
+      { key: "composition", value: 82 },
+      { key: "logo", value: 68 },
+    ],
+  },
+  {
+    id: 6, platform: "google", similarity: 82,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 5, url: "aliexpress.com/item/1002",
+    factors: [
+      { key: "character", value: 88 },
+      { key: "color", value: 84 },
+      { key: "composition", value: 79 },
+      { key: "logo", value: 64 },
+    ],
+  },
+  {
+    id: 7, platform: "naver", similarity: 79,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 6, url: "blog.naver.com/kitty/771",
+    factors: [
+      { key: "character", value: 84 },
+      { key: "color", value: 80 },
+      { key: "composition", value: 76 },
+      { key: "logo", value: 58 },
+    ],
+  },
+  {
+    id: 8, platform: "google", similarity: 76,
+    timeLabelKey: "time.minutesAgo", timeLabelN: 8, url: "etsy.com/listing/33421",
+    factors: [
+      { key: "character", value: 80 },
+      { key: "color", value: 78 },
+      { key: "composition", value: 73 },
+      { key: "logo", value: 52 },
+    ],
+  },
 ];
 
 // 탐지 일시는 ISO 로 저장하고, 표기는 화면에서 언어별로 바꾼다
@@ -110,8 +188,23 @@ function EmptyBox({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
+const VERDICT_TONE: Record<ScanVerdict, string> = {
+  high: "bg-destructive/10 text-destructive",
+  review: "bg-warning/15 text-warning",
+  low: "bg-muted text-muted-foreground",
+};
+
+function ResultCard({
+  r,
+  onOpen,
+  onToggleReport,
+}: {
+  r: ScanResult;
+  onOpen?: () => void;
+  onToggleReport?: () => void;
+}) {
   const { t } = useLocale();
+  const verdict = scanVerdictOf(r.similarity);
 
   return (
     <div
@@ -131,14 +224,35 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
       </div>
       {/* 정보 영역 */}
       <div className="flex flex-col gap-2 bg-white p-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
-            {t("scan.similarityPct", { n: r.similarity })}
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
+              {t("scan.similarityPct", { n: r.similarity })}
+            </span>
+            {/* 자동 판정 — 애매하면 단정하지 않고 확인 필요로 둔다 */}
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-xs font-medium",
+                VERDICT_TONE[verdict],
+              )}
+            >
+              {t(`scanVerdict.${verdict}`)}
+            </span>
+          </div>
           <span className="text-xs text-muted-foreground">
             {r.timeLabelKey ? t(r.timeLabelKey, { n: r.timeLabelN ?? 0 }) : r.timeLabel}
           </span>
         </div>
+
+        {/* 유사도 근거 — 무엇이 얼마나 기여했는지 */}
+        {r.factors && r.factors.length > 0 && (
+          <div className="flex flex-col gap-1.5 rounded-md bg-muted/50 px-2.5 py-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t("scan.factorsTitle")}
+            </span>
+            <ScanFactorBars factors={r.factors} compact />
+          </div>
+        )}
         <a
           href={`https://${r.url}`}
           target="_blank"
@@ -149,6 +263,31 @@ function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
           <span className="truncate">{r.url}</span>
           <SquareArrowOutUpRight className="size-4 shrink-0" />
         </a>
+
+        {/* 확인 필요일 때는 무엇을 해야 하는지 함께 알린다 */}
+        {verdict === "review" && !r.reportedFalse && (
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {t("scanVerdict.reviewHint")}
+          </p>
+        )}
+
+        {/* 결과를 거부하는 수단을 결과 화면 안에 둔다 */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleReport?.();
+          }}
+          className={cn(
+            "mt-0.5 flex items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+            r.reportedFalse
+              ? "border-border bg-muted text-muted-foreground"
+              : "border-input bg-card text-foreground hover:bg-muted",
+          )}
+        >
+          <Flag className="size-3.5" />
+          {r.reportedFalse ? t("scan.reported") : t("scan.reportFalse")}
+        </button>
       </div>
     </div>
   );
@@ -170,6 +309,18 @@ export default function MonitoringDetailPage() {
   const [lastScan, setLastScan] = useState<string | null>(null);
   const [recordId, setRecordId] = useState<string | null>(null);
   const [results, setResults] = useState<ScanResult[]>([]);
+
+  /* 오탐 신고 — 결과를 거부하는 수단을 결과 화면 안에 둔다 (적용안 ④).
+     지우지 않고 표시만 남겨, 무엇을 걸렀는지도 기록으로 남게 한다. */
+  function toggleReport(resultId: number) {
+    setResults((prev) => {
+      const next = prev.map((r) =>
+        r.id === resultId ? { ...r, reportedFalse: !r.reportedFalse } : r,
+      );
+      if (recordId) updateRecord(recordId, { results: next });
+      return next;
+    });
+  }
   // 탐지 결과 상세 (사이드 패널)
   const [detail, setDetail] = useState<ScanResult | null>(null);
   // 탐지 로딩 연출 상태
@@ -583,7 +734,12 @@ export default function MonitoringDetailPage() {
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {results.map((r) => (
-              <ResultCard key={r.id} r={r} onOpen={() => setDetail(r)} />
+              <ResultCard
+                key={r.id}
+                r={r}
+                onOpen={() => setDetail(r)}
+                onToggleReport={() => toggleReport(r.id)}
+              />
             ))}
           </div>
         )}
@@ -752,6 +908,18 @@ export default function MonitoringDetailPage() {
                   );
                 })()}
 
+                {/* 유사도 근거 — 수치가 무엇으로 이루어졌는지 (적용안 ④) */}
+                {detail.factors && detail.factors.length > 0 && (
+                  <section className="flex flex-col gap-2">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {t("scan.factorsTitle")}
+                    </h3>
+                    <div className="rounded-xl bg-muted p-4">
+                      <ScanFactorBars factors={detail.factors} />
+                    </div>
+                  </section>
+                )}
+
                 {/* 상세 정보 */}
                 <dl className="flex flex-col gap-3 rounded-xl bg-muted p-4">
                   <div className="flex items-center justify-between gap-4 text-sm">
@@ -798,6 +966,22 @@ export default function MonitoringDetailPage() {
                     <SquareArrowOutUpRight className="size-4" />
                     {t("scan.openOriginal")}
                   </a>
+                </Button>
+                {/* 결과를 거부하는 수단 (적용안 ④) */}
+                <Button
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={() => {
+                    toggleReport(detail.id);
+                    setDetail((d) =>
+                      d ? { ...d, reportedFalse: !d.reportedFalse } : d,
+                    );
+                  }}
+                >
+                  <Flag className="size-4" />
+                  {detail.reportedFalse
+                    ? t("scan.undoReport")
+                    : t("scan.reportFalse")}
                 </Button>
                 <SheetClose asChild>
                   <Button variant="outline">{t("common.close")}</Button>

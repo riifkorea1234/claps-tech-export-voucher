@@ -702,4 +702,23 @@ export const ko: Record<string, string> = {
   "export.sectionCert": "1. 결과물별 증명",
   "export.sectionTimeline": "2. 전체 이력",
   "export.footnote": "이 자료는 CLAPS Studio 2.0 이 기록한 생성 이력을 집계한 것입니다. AI 단독 생성물에는 저작권이 발생하지 않으며, 인간의 개입 이력과 검증 근거가 기록된 경우에 한해 자산으로 성립합니다.",
+
+  // 유사도 근거 (속성별 기여도)
+  "scan.factorsTitle": "유사도 근거",
+  "scanFactor.character": "캐릭터 형상",
+  "scanFactor.color": "색 배합",
+  "scanFactor.composition": "구도",
+  "scanFactor.logo": "로고·문구",
+
+  // 판정 — 애매한 구간은 확인 필요로 분류
+  "scanVerdict.high": "무단 의심 높음",
+  "scanVerdict.review": "확인 필요",
+  "scanVerdict.low": "의심 낮음",
+  "scanVerdict.reviewHint": "자동 판정이 불명확합니다. 링크를 열어 직접 확인해주세요.",
+
+  // 거부·조정 수단
+  "scan.reportFalse": "오탐 신고",
+  "scan.reported": "오탐으로 신고함",
+  "scan.undoReport": "신고 취소",
+  "scan.rescan": "기준 바꿔 재탐지",
 };

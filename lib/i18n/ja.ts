@@ -702,4 +702,23 @@ export const ja: Record<string, string> = {
   "export.sectionCert": "1. 結果物ごとの証明",
   "export.sectionTimeline": "2. 全体の履歴",
   "export.footnote": "本資料は CLAPS Studio 2.0 が記録した生成履歴を集計したものです。AIが単独で生成した成果物に著作権は発生せず、人間の関与履歴と検証の根拠が記録されている場合に限り資産として成立します。",
+
+  // 유사도 근거 (속성별 기여도)
+  "scan.factorsTitle": "類似の根拠",
+  "scanFactor.character": "キャラクター形状",
+  "scanFactor.color": "配色",
+  "scanFactor.composition": "構図",
+  "scanFactor.logo": "ロゴ・文言",
+
+  // 판정 — 애매한 구간은 확인 필요로 분류
+  "scanVerdict.high": "無断使用の疑いが高い",
+  "scanVerdict.review": "要確認",
+  "scanVerdict.low": "疑いは低い",
+  "scanVerdict.reviewHint": "自動判定が明確ではありません。リンクを開いてご自身でご確認ください。",
+
+  // 거부·조정 수단
+  "scan.reportFalse": "誤検知を報告",
+  "scan.reported": "誤検知として報告済み",
+  "scan.undoReport": "報告を取消",
+  "scan.rescan": "基準を変えて再検知",
 };
