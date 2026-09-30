@@ -25,6 +25,7 @@ import { buildBackQuery } from "@/lib/workspace-nav";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
 import { addEntry } from "@/lib/evidence-store";
+import { EvidenceBadge } from "./evidence-badge";
 
 // 저장에는 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 style.* 에서 가져온다.
 const STYLE_CHIPS = [
@@ -318,6 +319,9 @@ export function AssetWorkspaceBody({
               {t("gen.needProject")}
             </span>
           )}
+
+          {/* 지금 기록되고 있다는 표시 — 기록은 눈에 안 보이므로 단서를 둔다 */}
+          <EvidenceBadge sessionId={sessionId} />
         </div>
       </div>
 

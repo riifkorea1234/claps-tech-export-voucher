@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, ChevronDown, Check, X } from "lucide-react";
+import { Download, ChevronDown, Check, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
 import { EvidenceTimeline } from "@/components/domain/evidence-timeline";
+import { AssetCertificatePanel } from "@/components/domain/asset-certificate";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import type { GeneratedAsset } from "@/components/domain/asset-result-card";
 import { getStageAssets, setStageAssets } from "@/lib/session-assets-store";
@@ -209,6 +210,30 @@ export default function FinalPage() {
           </div>
         </div>
       )}
+
+      {/* 증빙 자료 출력 — 제3자 제출용 (적용안 ③ 제출) */}
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h3 className="text-sm font-semibold text-foreground">
+            {t("export.title")}
+          </h3>
+          <p className="max-w-[var(--measure-body)] text-xs text-muted-foreground">
+            {t("export.desc")}
+          </p>
+        </div>
+        <Button asChild variant="outline" size="sm" className="shrink-0 gap-1.5">
+          <Link href={`/assets/${id}/evidence${backSuffix}`}>
+            <FileText className="size-4" />
+            {t("export.button")}
+          </Link>
+        </Button>
+      </section>
+
+      {/* 에셋 증명서 — 결과물별 근거 집계 (대상 IP · 기준 버전 · 통과 규칙 · 수정 횟수) */}
+      <AssetCertificatePanel
+        sessionId={id}
+        assetIds={items.map((a) => a.id)}
+      />
 
       {/* 버전 이력 — 생성부터 채택까지의 기록 (권리 확보의 근거) */}
       <EvidenceTimeline sessionId={id} />
