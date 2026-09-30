@@ -3,7 +3,14 @@
 import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { ArrowLeft, Check, Printer, TriangleAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CircleCheck,
+  CircleDashed,
+  Printer,
+  TriangleAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n";
 import { formatDateTime } from "@/lib/format-date";
@@ -55,55 +62,68 @@ function subscribeNever() {
   return () => {};
 }
 
-/* 점검 한 줄 — 자동 확인은 읽기 전용, 직접 확인은 체크상자 */
+/* 점검 한 줄
+   자동 확인은 기록에서 계산된 결과라 누를 수 없다 — 체크상자와 생김새를 다르게 해서
+   눌러도 안 켜지는 항목을 눌러보게 만들지 않는다. 대신 무엇을 하면 채워지는지 적는다. */
 function CheckRow({
   label,
   done,
+  hint,
   onToggle,
 }: {
   label: string;
   done: boolean;
+  hint?: string;
   onToggle?: (next: boolean) => void;
 }) {
   const { t } = useLocale();
   const state = done ? t("review.checkDone") : t("review.checkTodo");
-
-  const mark = onToggle ? (
-    <input
-      type="checkbox"
-      checked={done}
-      onChange={(e) => onToggle(e.target.checked)}
-      aria-label={`${label} — ${state}`}
-      className="size-4 shrink-0 accent-brand"
-    />
-  ) : (
+  const stateEl = (
     <span
-      aria-hidden
       className={cn(
-        "flex size-4 shrink-0 items-center justify-center rounded-[4px] border",
-        done
-          ? "border-brand bg-brand text-brand-foreground"
-          : "border-border bg-background",
+        "shrink-0 text-xs",
+        done ? "text-muted-foreground" : "text-destructive",
       )}
     >
-      {done && <Check className="size-3" strokeWidth={3} />}
+      {state}
     </span>
   );
 
+  // 직접 확인 — 글자를 눌러도 켜지도록 label 로 감싼다
+  if (onToggle) {
+    return (
+      <li className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-b-0">
+        <label className="flex min-w-0 cursor-pointer items-center gap-2.5">
+          <input
+            type="checkbox"
+            checked={done}
+            onChange={(e) => onToggle(e.target.checked)}
+            className="size-4 shrink-0 cursor-pointer accent-brand"
+          />
+          <span className="text-sm text-foreground">{label}</span>
+        </label>
+        {stateEl}
+      </li>
+    );
+  }
+
+  // 자동 확인 — 읽기 전용
   return (
-    <li className="flex items-center justify-between gap-3 border-b border-border py-2 last:border-b-0">
-      <span className="flex min-w-0 items-center gap-2.5">
-        {mark}
-        <span className="text-sm text-foreground">{label}</span>
-      </span>
-      <span
-        className={cn(
-          "shrink-0 text-xs",
-          done ? "text-muted-foreground" : "text-destructive",
+    <li className="flex items-start justify-between gap-3 border-b border-border py-2 last:border-b-0">
+      <span className="flex min-w-0 cursor-default items-start gap-2.5">
+        {done ? (
+          <CircleCheck className="mt-0.5 size-4 shrink-0 text-green-600" />
+        ) : (
+          <CircleDashed className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         )}
-      >
-        {state}
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-sm text-foreground">{label}</span>
+          {!done && hint && (
+            <span className="text-xs text-muted-foreground">{hint}</span>
+          )}
+        </span>
       </span>
+      {stateEl}
     </li>
   );
 }
@@ -340,12 +360,16 @@ export default function ReviewPackagePage() {
             <h3 className="text-xs font-medium text-muted-foreground">
               {t("review.autoGroup")}
             </h3>
+            <p className="text-xs text-muted-foreground">
+              {t("review.autoHint")}
+            </p>
             <ul className="flex flex-col">
               {autoChecks.map((c) => (
                 <CheckRow
                   key={c.key}
                   label={t(`review.auto.${c.key}`)}
                   done={c.done}
+                  hint={t(`review.hint.${c.key}`)}
                 />
               ))}
             </ul>
