@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "@/lib/i18n";
 
 /* 소셜 로그인 버튼 — 나라마다 쓰는 서비스가 달라 언어별로 구성이 다르다.
@@ -43,14 +44,18 @@ function KakaoIcon() {
   );
 }
 
+/* LINE — 공식 브랜드 마크(모노크롬)를 이미지로 쓴다.
+   로고는 손으로 그리지 않는다. public/line-logo.png 가 원본이다. */
 function LineIcon() {
   return (
-    <svg viewBox="0 0 18 18" className="size-[18px]" aria-hidden>
-      <path
-        fill="#06C755"
-        d="M9 1.2c4.19 0 7.6 2.76 7.6 6.16 0 1.36-.53 2.59-1.63 3.81-1.6 1.84-5.17 4.08-5.98 4.42-.79.33-.68-.18-.65-.35l.11-.64c.03-.2.05-.5-.03-.69-.09-.21-.42-.32-.67-.38C4.06 12.98 1.4 10.5 1.4 7.36 1.4 3.96 4.81 1.2 9 1.2z"
-      />
-    </svg>
+    <Image
+      src="/line-logo.png"
+      alt=""
+      width={19}
+      height={18}
+      className="h-[18px] w-[19px]"
+      aria-hidden
+    />
   );
 }
 
