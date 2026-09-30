@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, ChevronDown, Check, X, FileText } from "lucide-react";
+import {
+  Download,
+  ChevronDown,
+  Check,
+  X,
+  FileText,
+  ClipboardCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
@@ -19,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
 
 export default function FinalPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -228,6 +235,31 @@ export default function FinalPage() {
           </Link>
         </Button>
       </section>
+
+      {/* 감수 제출 패키지 — 판권사 감수가 계약상 의무인 일본에서만 노출 (적용안 ⑤) */}
+      {locale === "ja" && (
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
+          <div className="flex min-w-0 flex-col gap-1">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("review.title")}
+            </h3>
+            <p className="max-w-[var(--measure-body)] text-xs text-muted-foreground">
+              {t("review.desc")}
+            </p>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-1.5"
+          >
+            <Link href={`/assets/${id}/review-package${backSuffix}`}>
+              <ClipboardCheck className="size-4" />
+              {t("review.button")}
+            </Link>
+          </Button>
+        </section>
+      )}
 
       {/* 에셋 증명서 — 결과물별 근거 집계 (대상 IP · 기준 버전 · 통과 규칙 · 수정 횟수) */}
       <AssetCertificatePanel

@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CircleAlert, CircleCheck, Check } from "lucide-react";
+import {
+  CircleAlert,
+  CircleCheck,
+  Check,
+  ClipboardCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkspaceTopBar } from "@/components/domain/workspace-topbar";
 import { buildBackQuery } from "@/lib/workspace-nav";
@@ -57,7 +62,7 @@ function pad(n: number) {
 }
 
 export default function VerifyPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -175,13 +180,24 @@ export default function VerifyPage() {
             {t("verify.guideVersion")}
           </span>
         </div>
-        <Button
-          size="sm"
-          className="min-w-[130px] bg-brand text-brand-foreground hover:bg-brand/90"
-          onClick={goFinal}
-        >
-          {t("verify.viewFinal", { n: finalCount })}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 감수 제출 패키지 — 판권사 감수가 계약상 의무인 일본에서만 노출 (적용안 ⑤) */}
+          {locale === "ja" && (
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link href={`/assets/${id}/review-package${backSuffix}`}>
+                <ClipboardCheck className="size-4" />
+                {t("review.button")}
+              </Link>
+            </Button>
+          )}
+          <Button
+            size="sm"
+            className="min-w-[130px] bg-brand text-brand-foreground hover:bg-brand/90"
+            onClick={goFinal}
+          >
+            {t("verify.viewFinal", { n: finalCount })}
+          </Button>
+        </div>
       </div>
 
       {/* 채택 에셋이 없는 경우 */}

@@ -721,4 +721,54 @@ export const ko: Record<string, string> = {
   "scan.reported": "오탐으로 신고함",
   "scan.undoReport": "신고 취소",
   "scan.rescan": "기준 바꿔 재탐지",
+
+  /* ── 감수 제출 패키지 (적용안 ⑤) ───────────────────────── */
+  "review.title": "감수 제출 패키지",
+  "review.desc": "판권사 감수에 제출할 자료를 한 번에 묶어 출력합니다.",
+  "review.button": "감수 자료 만들기",
+  "review.docTitle": "권리자 감수 제출 자료",
+  "review.docSubtitle": "제출 전 자체 점검 · 판정 근거 · 생성 이력을 한 장에 정리한 문서입니다.",
+  "review.back": "돌아가기",
+  "review.print": "인쇄 · PDF 저장",
+
+  // 1. 제출 대상
+  "review.sectionTarget": "제출 대상",
+  "review.targetCount": "제출 점수",
+  "review.assetCount": "최종본 {n}장",
+  "review.noFinal": "최종본으로 확정된 결과물이 없습니다. 먼저 최종본을 확정해주세요.",
+
+  // 2. 제출 전 자체 점검
+  "review.sectionCheck": "제출 전 자체 점검",
+  "review.autoGroup": "자동 확인",
+  "review.manualGroup": "직접 확인",
+  "review.manualHint": "아래 항목은 자동 검사가 지원되기 전까지 담당자가 직접 확인합니다.",
+  "review.checkDone": "확인됨",
+  "review.checkTodo": "미확인",
+  "review.warnIncomplete": "제출 전 확인 필요 — 미완료 {n}건",
+  "review.readyAll": "모든 항목이 확인되었습니다.",
+  "review.auto.finalized": "최종본이 확정되어 있음",
+  "review.auto.verified": "가이드 검증을 통과함",
+  "review.auto.history": "생성 이력이 기록되어 있음",
+  "review.auto.guideVersion": "기준 가이드 버전이 기록되어 있음",
+  "review.manual.copyrightNotice": "저작권 표기가 포함되어 있음",
+  "review.manual.thirdPartyAssets": "권리관계가 불분명한 소재를 쓰지 않음",
+  "review.manual.recipientConfirmed": "제출 대상 판권사·담당자를 확인함",
+
+  // 3. 판정 근거 항목화
+  "review.sectionRules": "판정 근거",
+  "review.ruleName": "점검 규칙",
+  "review.ruleVerdict": "판정",
+  "review.ruleBasis": "근거",
+  "review.rulesEmpty": "검증 결과가 없습니다.",
+
+  // 4. 생성 이력 요약
+  "review.sectionHistory": "생성 이력 요약",
+  "review.historyRuns": "생성 실행",
+  "review.historyEdits": "사람의 채택·취소",
+  "review.historyVerifies": "가이드 검증 실행",
+  "review.historyFirst": "최초 기록",
+  "review.historyLast": "마지막 기록",
+  "review.countTimes": "{n}회",
+
+  "review.footnote": "이 자료는 CLAPS Studio에 기록된 생성 이력과 검증 결과를 바탕으로 작성되었습니다. 직접 확인 항목은 제출자가 확인한 내용입니다.",
 };

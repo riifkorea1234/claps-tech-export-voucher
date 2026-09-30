@@ -721,4 +721,54 @@ export const ja: Record<string, string> = {
   "scan.reported": "誤検知として報告済み",
   "scan.undoReport": "報告を取消",
   "scan.rescan": "基準を変えて再検知",
+
+  /* ── 감수 제출 패키지 (적용안 ⑤) ───────────────────────── */
+  "review.title": "監修提出パッケージ",
+  "review.desc": "権利者監修に提出する資料を一括で出力します。",
+  "review.button": "監修資料を作成",
+  "review.docTitle": "権利者監修 提出資料",
+  "review.docSubtitle": "提出前の自己点検・判定根拠・生成履歴を1枚にまとめた文書です。",
+  "review.back": "戻る",
+  "review.print": "印刷・PDF保存",
+
+  // 1. 제출 대상
+  "review.sectionTarget": "提出対象",
+  "review.targetCount": "提出点数",
+  "review.assetCount": "確定版 {n}点",
+  "review.noFinal": "確定版がありません。先に確定版を指定してください。",
+
+  // 2. 제출 전 자체 점검
+  "review.sectionCheck": "提出前の自己点検",
+  "review.autoGroup": "自動確認",
+  "review.manualGroup": "目視確認",
+  "review.manualHint": "自動検査の提供までは、担当者が目視で確認します。",
+  "review.checkDone": "確認済み",
+  "review.checkTodo": "未確認",
+  "review.warnIncomplete": "提出前の確認が必要です — 未完了 {n}件",
+  "review.readyAll": "すべての項目が確認済みです。",
+  "review.auto.finalized": "確定版が指定されている",
+  "review.auto.verified": "ガイド検証に通過している",
+  "review.auto.history": "生成履歴が記録されている",
+  "review.auto.guideVersion": "基準ガイドの版が記録されている",
+  "review.manual.copyrightNotice": "著作権表記が含まれている",
+  "review.manual.thirdPartyAssets": "権利関係が不明な素材を使用していない",
+  "review.manual.recipientConfirmed": "提出先の権利者・担当者を確認した",
+
+  // 3. 판정 근거 항목화
+  "review.sectionRules": "判定根拠",
+  "review.ruleName": "点検規則",
+  "review.ruleVerdict": "判定",
+  "review.ruleBasis": "根拠",
+  "review.rulesEmpty": "検証結果がありません。",
+
+  // 4. 생성 이력 요약
+  "review.sectionHistory": "生成履歴の要約",
+  "review.historyRuns": "生成の実行",
+  "review.historyEdits": "人による採用・取消",
+  "review.historyVerifies": "ガイド検証の実行",
+  "review.historyFirst": "最初の記録",
+  "review.historyLast": "最後の記録",
+  "review.countTimes": "{n}回",
+
+  "review.footnote": "本資料はCLAPS Studioに記録された生成履歴と検証結果に基づき作成されています。目視確認項目は提出者による確認内容です。",
 };

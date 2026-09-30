@@ -722,4 +722,54 @@ export const en: Record<string, string> = {
   "scan.reported": "Reported as false match",
   "scan.undoReport": "Undo report",
   "scan.rescan": "Rescan with another reference",
+
+  /* ── 감수 제출 패키지 (적용안 ⑤) ───────────────────────── */
+  "review.title": "Review submission package",
+  "review.desc": "Bundle everything the rights holder needs into one document.",
+  "review.button": "Build review package",
+  "review.docTitle": "Rights Holder Review Package",
+  "review.docSubtitle": "Pre-submission checks, decision basis, and generation history in one document.",
+  "review.back": "Back",
+  "review.print": "Print / Save as PDF",
+
+  // 1. 제출 대상
+  "review.sectionTarget": "Submission target",
+  "review.targetCount": "Items",
+  "review.assetCount": "{n} final asset(s)",
+  "review.noFinal": "No asset has been marked final yet. Finalize an asset first.",
+
+  // 2. 제출 전 자체 점검
+  "review.sectionCheck": "Pre-submission check",
+  "review.autoGroup": "Checked automatically",
+  "review.manualGroup": "Checked by you",
+  "review.manualHint": "Until automated inspection ships, these items are confirmed manually.",
+  "review.checkDone": "Confirmed",
+  "review.checkTodo": "Not confirmed",
+  "review.warnIncomplete": "Not ready to submit — {n} item(s) outstanding",
+  "review.readyAll": "All items confirmed.",
+  "review.auto.finalized": "A final asset exists",
+  "review.auto.verified": "Guide verification passed",
+  "review.auto.history": "Generation history is on record",
+  "review.auto.guideVersion": "Guide version is on record",
+  "review.manual.copyrightNotice": "Copyright notice is included",
+  "review.manual.thirdPartyAssets": "No material with unclear rights was used",
+  "review.manual.recipientConfirmed": "Recipient and contact confirmed",
+
+  // 3. 판정 근거 항목화
+  "review.sectionRules": "Decision basis",
+  "review.ruleName": "Rule",
+  "review.ruleVerdict": "Result",
+  "review.ruleBasis": "Basis",
+  "review.rulesEmpty": "No verification result yet.",
+
+  // 4. 생성 이력 요약
+  "review.sectionHistory": "Generation history",
+  "review.historyRuns": "Generation runs",
+  "review.historyEdits": "Human adopt / undo",
+  "review.historyVerifies": "Verification runs",
+  "review.historyFirst": "First record",
+  "review.historyLast": "Last record",
+  "review.countTimes": "{n}",
+
+  "review.footnote": "This package is compiled from the generation history and verification results recorded in CLAPS Studio. Manually checked items reflect the submitter's own confirmation.",
 };
