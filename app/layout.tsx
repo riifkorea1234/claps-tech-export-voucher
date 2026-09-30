@@ -50,6 +50,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ko"
       data-locale="ko"
       className={`${inter.variable} ${notoSansJP.variable} h-full antialiased`}
+      /* 아래 선반영 스크립트가 React보다 먼저 lang·data-locale 을 바꾼다.
+         서버가 보낸 값(ko)과 달라져 React가 불일치 경고를 내므로 이 태그만 예외로 둔다.
+         이 속성들은 LocaleProvider 가 이어서 관리한다. */
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT }} />
