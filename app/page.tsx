@@ -14,7 +14,6 @@ import {
   BarChart3,
   Check,
   ChevronDown,
-  Globe,
   Send,
   MessageCircle,
   Rss,
@@ -34,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { ScrollRevealText } from "@/components/domain/scroll-reveal-text";
 import { TiltMonitorPreview } from "@/components/domain/tilt-monitor-preview";
 import { useLocale } from "@/lib/i18n";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 
 // 통합 허브 노드 (클랩스 기능명 · 타사 로고 대체)
 const HUB_LEFT = [
@@ -836,9 +836,6 @@ export default function LandingPage() {
               © 2026 CLAPS. All rights reserved.
             </span>
             <div className="flex items-center gap-4 text-white/50">
-              <a href="#" aria-label={t("landing.footer.website")} className="hover:text-white">
-                <Globe className="size-4" />
-              </a>
               <a href="#" aria-label={t("landing.footer.news")} className="hover:text-white">
                 <Rss className="size-4" />
               </a>
@@ -848,6 +845,8 @@ export default function LandingPage() {
               <a href="#" aria-label={t("landing.footer.contact")} className="hover:text-white">
                 <Send className="size-4" />
               </a>
+              {/* 랜딩에는 헤더 언어 버튼이 없어 푸터 맨 오른쪽에 둔다 */}
+              <LocaleSwitcher tone="footer" />
             </div>
           </div>
         </div>
