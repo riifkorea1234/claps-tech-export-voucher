@@ -1,3 +1,5 @@
+"use client";
+
 import { Sparkle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FactorBars } from "@/components/domain/factor-bars";
