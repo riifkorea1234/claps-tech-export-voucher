@@ -19,6 +19,7 @@ import {
 } from "@/lib/mock/verify";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { addEntry } from "@/lib/evidence-store";
 
 const RULE_STYLE: Record<RuleVerdict, string> = {
   Pass: "bg-green-100 text-green-700",
@@ -82,6 +83,22 @@ export default function VerifyPage() {
     // 이전에 '최종본에 추가'했던 항목 복원
     setFinalIds(new Set(getStageAssets("final", id).map((a) => a.id)));
 
+    // 이 화면에 들어오는 것이 곧 검증 실행이다. 항목마다 판정 결과를 남긴다.
+    adopted.forEach((a) => {
+      const verdict = verdictOf(a.score);
+      const rules = verdict === "pass" ? passRules : rejectRules;
+      addEntry(id, "verify.run", {
+        assetId: a.id,
+        verify: {
+          assetId: a.id,
+          verdict,
+          score: a.score,
+          passedRules: rules.filter((r) => r.verdict === "Pass").length,
+          totalRules: rules.length,
+        },
+      });
+    });
+
     setLoaded(true);
   }, [id]);
 
@@ -107,6 +124,10 @@ export default function VerifyPage() {
 
   // id로 최종본 추가/취소 (통과 항목만) — 체크박스·버튼 공용
   function toggleFinalById(itemId: string) {
+    // 최종본 확정도 인간 개입이므로 기록한다
+    addEntry(id, finalIds.has(itemId) ? "final.removed" : "final.added", {
+      assetId: itemId,
+    });
     setFinalIds((prev) => {
       const next = new Set(prev);
       if (next.has(itemId)) next.delete(itemId);

@@ -20,6 +20,7 @@ import { clearSessionAssets } from "@/lib/session-assets-store";
 import { getProjects } from "@/lib/projects-store";
 import type { AssetSession, SessionGroup } from "@/lib/mock/assets";
 import { useLocale } from "@/lib/i18n";
+import { addEntry, clearEntries } from "@/lib/evidence-store";
 
 export default function AssetsPage() {
   const { t } = useLocale();
@@ -104,6 +105,7 @@ export default function AssetsPage() {
           )
         : [{ labelKey: "today" as const, sessions: [session] }, ...groups];
     update(next);
+    addEntry(id, "session.created");
     router.push(`/assets/${id}?title=${encodeURIComponent(session.title)}`);
   }
 
@@ -118,6 +120,7 @@ export default function AssetsPage() {
         .filter((g) => g.sessions.length > 0), // 빈 그룹은 숨김
     );
     clearSessionAssets(deleteTarget.id); // 이 세션의 이미지도 함께 삭제
+    clearEntries(deleteTarget.id); // 증빙 기록도 함께 정리
     setDeleteTarget(null);
   }
 

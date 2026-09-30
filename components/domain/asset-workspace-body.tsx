@@ -24,6 +24,7 @@ import type { Project } from "@/lib/mock/projects";
 import { buildBackQuery } from "@/lib/workspace-nav";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { addEntry } from "@/lib/evidence-store";
 
 // 저장에는 코드를 쓰고, 화면에 보일 이름은 lib/i18n 사전의 style.* 에서 가져온다.
 const STYLE_CHIPS = [
@@ -87,6 +88,8 @@ export function AssetWorkspaceBody({
   const [assets, setAssets] = useState<GeneratedAsset[]>([]);
   const [ready, setReady] = useState(false);
   const [style, setStyle] = useState("none");
+  // 생성 조건으로 기록해야 하므로 프롬프트를 상태로 잡는다
+  const [prompt, setPrompt] = useState("");
   const [ratio, setRatio] = useState("1:1");
   // 전체화면(라이트박스)으로 볼 이미지
   const [lightbox, setLightbox] = useState<GeneratedAsset | null>(null);
@@ -164,9 +167,28 @@ export function AssetWorkspaceBody({
       adopted: false,
     }));
     setAssets((prev) => [...batch, ...prev]);
+
+    // 무엇을 근거로 만들었는지 남긴다 (권리 발생의 근거)
+    addEntry(sessionId, "generate.run", {
+      conditions: {
+        projectId: selectedProject?.id,
+        // 브랜드 가이드는 아직 저장되지 않아(화면 상태뿐) 비워 둔다.
+        // 프로젝트에 가이드가 저장되면 여기에 파일명이 들어간다.
+        guideName: undefined,
+        styleKey: style,
+        ratio,
+        prompt: prompt.trim() || undefined,
+        resultCount: batch.length,
+      },
+    });
   }
 
   function toggleAdopt(id: string) {
+    // 사람이 후보 중에서 고르고 무르는 행위 자체가 인간 개입의 증거다
+    const willAdopt = !assets.find((a) => a.id === id)?.adopted;
+    addEntry(sessionId, willAdopt ? "asset.adopted" : "asset.unadopted", {
+      assetId: id,
+    });
     setAssets((prev) =>
       prev.map((a) => (a.id === id ? { ...a, adopted: !a.adopted } : a)),
     );
@@ -253,6 +275,8 @@ export function AssetWorkspaceBody({
         <div className="flex flex-col gap-2.5">
           <FieldLabel>{t("gen.prompt")}</FieldLabel>
           <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
             placeholder={t("gen.promptPlaceholder")}
             className="h-16 w-full resize-none rounded-lg border border-input bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
           />
