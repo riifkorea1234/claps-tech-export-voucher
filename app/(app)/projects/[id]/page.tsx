@@ -252,7 +252,7 @@ export default function ProjectDetailPage() {
         <div className="pointer-events-none absolute inset-0 bg-white/10" />
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="absolute top-4 right-4 z-10 flex size-8 items-center justify-center rounded-md text-white/70 outline-none transition-colors hover:bg-white/10 hover:text-white">
+          <DropdownMenuTrigger className="absolute top-4 right-4 z-10 flex size-8 items-center justify-center rounded-md text-white/70 outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:bg-white/10 hover:text-white">
             <EllipsisVertical className="size-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[200px]">
@@ -324,7 +324,7 @@ export default function ProjectDetailPage() {
             {/* 호버 오버레이 + 변경 메뉴 */}
             <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover/cover:opacity-100">
               <DropdownMenu>
-                <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-sm font-medium text-zinc-900 outline-none transition-colors hover:bg-white">
+                <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-sm font-medium text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:bg-white">
                   <ImagePlus className="size-4" />
                   {t("detail.changeCover")}
                 </DropdownMenuTrigger>
@@ -350,7 +350,7 @@ export default function ProjectDetailPage() {
             <div className="flex flex-col gap-3">
               {/* 상태 — 클릭해서 직접 변경 */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="w-fit cursor-pointer rounded-full outline-none transition-opacity hover:opacity-80">
+                <DropdownMenuTrigger className="w-fit cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-opacity hover:opacity-80">
                   <StatusBadge status={header.status} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-[160px]">

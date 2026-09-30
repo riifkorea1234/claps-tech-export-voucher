@@ -87,7 +87,7 @@ function KpiCard({
             <button
               type="button"
               aria-label={hintLabel}
-              className="flex items-center text-muted-foreground outline-none transition-colors hover:text-foreground"
+              className="flex items-center text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:text-foreground"
             >
               <Info className="size-3.5" />
             </button>
@@ -224,8 +224,11 @@ export default function ProjectsPage() {
 
       {/* 프로젝트 목록 카드 */}
       <section className="rounded-[14px] border border-border bg-card p-[var(--pad-card)]">
-        {/* 카드 헤더 — 좁으면 세로로 쌓임 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* 카드 헤더 — 좁으면 세로로 쌓임.
+            기준점이 sm(640px)이면 검색창(300px 고정)이 제목을 밀어내 제목이 잘린다.
+            200% 확대 시 내용이 사라지지 않도록 lg(1024px)에서 접히게 한다.
+            (WCAG 2.1 AA · 1.4.10 내용 손실 금지) */}
+        <div className="flex flex-col flex-wrap gap-3 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <h2 className="truncate text-lg font-semibold text-card-foreground">
               {t("projects.all")}
@@ -242,7 +245,7 @@ export default function ProjectsPage() {
             value={query}
             onChange={setQuery}
             placeholder={t("projects.searchPlaceholder")}
-            className="w-full sm:w-[300px]"
+            className="w-full lg:w-[300px]"
           />
 
           <Button
@@ -343,7 +346,7 @@ export default function ProjectsPage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         onClick={(e) => e.stopPropagation()}
-                        className="cursor-pointer rounded-full outline-none transition-opacity hover:opacity-80"
+                        className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-opacity hover:opacity-80"
                       >
                         <StatusBadge status={p.status} />
                       </DropdownMenuTrigger>
@@ -379,7 +382,7 @@ export default function ProjectsPage() {
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       onClick={(e) => e.stopPropagation()}
-                      className="flex size-6 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:text-foreground"
+                      className="flex size-6 items-center justify-center rounded-md text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:text-foreground"
                     >
                       <EllipsisVertical className="size-[18px]" />
                     </DropdownMenuTrigger>

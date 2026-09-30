@@ -165,7 +165,7 @@ export default function AssetsPage() {
 
             {/* 프로젝트 필터 */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
+              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
                 {projectFilter === "all"
                   ? t("assets.allProjects")
                   : projectName(projectFilter)}
@@ -198,7 +198,7 @@ export default function AssetsPage() {
 
             {/* 정렬 */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
+              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
                 {sort === "recent" ? t("assets.sortRecent") : t("assets.sortOldest")}
                 <ChevronDown className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>

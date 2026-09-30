@@ -107,7 +107,7 @@ export function AssetRow({
         <DropdownMenu>
           <DropdownMenuTrigger
             onClick={(e) => e.stopPropagation()}
-            className="flex size-6 items-center justify-center text-muted-foreground outline-none transition-colors hover:text-foreground"
+            className="flex size-6 items-center justify-center text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:text-foreground"
           >
             <EllipsisVertical className="size-[18px]" />
           </DropdownMenuTrigger>

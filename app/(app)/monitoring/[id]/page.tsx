@@ -503,7 +503,7 @@ export default function MonitoringDetailPage() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={image}
-                  alt=""
+                  alt={t("scan.baseImageAlt")}
                   className="h-full w-auto max-w-[380px] object-contain"
                 />
               ) : (

@@ -152,7 +152,7 @@ export default function MonitoringListPage() {
               className="flex-1"
             />
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none">
+              <DropdownMenuTrigger className="flex h-10 shrink-0 items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
                 {t(SORT_LABEL_KEY[sort])}
                 <ChevronDown className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>
@@ -272,7 +272,7 @@ export default function MonitoringListPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground"
+                          className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:bg-muted hover:text-foreground"
                         >
                           <EllipsisVertical className="size-4" />
                         </DropdownMenuTrigger>
