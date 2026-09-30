@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { ROLES } from "@/lib/account-store";
 import { useLocale } from "@/lib/i18n";
+import { FieldRequirement } from "./field-requirement";
 
 /* 프로필 입력 (이름 · 조직명 · 업종/직무)
    프로필 설정(신규 가입)과 마이페이지에서 함께 사용.
@@ -62,7 +63,10 @@ export function ProfileFields({
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`${idPrefix}-last`}>{t("profile.lastName")}</Label>
+              <Label htmlFor={`${idPrefix}-last`} className="gap-1.5">
+                {t("profile.lastName")}
+                <FieldRequirement required />
+              </Label>
               <Input
                 id={`${idPrefix}-last`}
                 value={nameParts.lastName}
@@ -72,8 +76,9 @@ export function ProfileFields({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`${idPrefix}-first`}>
+              <Label htmlFor={`${idPrefix}-first`} className="gap-1.5">
                 {t("profile.firstName")}
+                <FieldRequirement required />
               </Label>
               <Input
                 id={`${idPrefix}-first`}
@@ -88,8 +93,9 @@ export function ProfileFields({
           {/* 읽기 (후리가나) */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`${idPrefix}-last-kana`}>
+              <Label htmlFor={`${idPrefix}-last-kana`} className="gap-1.5">
                 {t("profile.lastNameKana")}
+                <FieldRequirement optional />
               </Label>
               <Input
                 id={`${idPrefix}-last-kana`}
@@ -100,8 +106,9 @@ export function ProfileFields({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`${idPrefix}-first-kana`}>
+              <Label htmlFor={`${idPrefix}-first-kana`} className="gap-1.5">
                 {t("profile.firstNameKana")}
+                <FieldRequirement optional />
               </Label>
               <Input
                 id={`${idPrefix}-first-kana`}
@@ -115,7 +122,10 @@ export function ProfileFields({
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <Label htmlFor={`${idPrefix}-name`}>{t("profile.name")}</Label>
+          <Label htmlFor={`${idPrefix}-name`} className="gap-1.5">
+            {t("profile.name")}
+            <FieldRequirement required />
+          </Label>
           <Input
             id={`${idPrefix}-name`}
             value={name}
@@ -128,7 +138,10 @@ export function ProfileFields({
 
       {/* 조직명 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-org`}>{t("profile.org")}</Label>
+        <Label htmlFor={`${idPrefix}-org`} className="gap-1.5">
+          {t("profile.org")}
+          <FieldRequirement required />
+        </Label>
         <Input
           id={`${idPrefix}-org`}
           value={org}
@@ -140,7 +153,10 @@ export function ProfileFields({
 
       {/* 업종 / 직무 */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-role`}>{t("profile.role")}</Label>
+        <Label htmlFor={`${idPrefix}-role`} className="gap-1.5">
+          {t("profile.role")}
+          <FieldRequirement optional />
+        </Label>
         <Select value={role} onValueChange={onRoleChange}>
           <SelectTrigger id={`${idPrefix}-role`} className="h-11">
             <SelectValue placeholder={t("profile.rolePlaceholder")} />

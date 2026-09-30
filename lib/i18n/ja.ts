@@ -7,6 +7,8 @@ export const ja: Record<string, string> = {
   "common.delete": "削除",
   "common.confirmDeleteTitle": "削除しますか。",
   "common.optional": "(任意)",
+  "common.required": "必須",
+  "common.optionalShort": "任意",
   "common.search": "検索",
   "common.undecided": "未定",
   "common.prevPage": "前のページ",

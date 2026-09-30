@@ -7,6 +7,8 @@ export const ko: Record<string, string> = {
   "common.delete": "삭제",
   "common.confirmDeleteTitle": "정말 삭제할까요?",
   "common.optional": "(선택)",
+  "common.required": "필수",
+  "common.optionalShort": "선택",
   "common.search": "검색",
   "common.undecided": "미정",
   "common.prevPage": "이전 페이지",

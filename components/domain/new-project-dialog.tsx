@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import type { Project } from "@/lib/mock/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { FieldRequirement } from "./field-requirement";
 import { toISODate } from "@/lib/format-date";
 
 // 입력 한 칸 (라벨 + 필수/선택 표시)
@@ -30,18 +31,11 @@ function Field({
   optional?: boolean;
   children: React.ReactNode;
 }) {
-  const { t } = useLocale();
-
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-1 text-sm font-medium text-foreground">
         {label}
-        {required && <span className="text-brand">*</span>}
-        {optional && (
-          <span className="text-xs font-normal text-muted-foreground">
-            {t("common.optional")}
-          </span>
-        )}
+        <FieldRequirement required={required} optional={optional} />
       </label>
       {children}
     </div>

@@ -7,6 +7,8 @@ export const en: Record<string, string> = {
   "common.delete": "Delete",
   "common.confirmDeleteTitle": "Delete this item?",
   "common.optional": "(Optional)",
+  "common.required": "Required",
+  "common.optionalShort": "Optional",
   "common.search": "Search",
   "common.undecided": "Undecided",
   "common.prevPage": "Previous page",
