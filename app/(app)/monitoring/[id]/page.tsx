@@ -194,15 +194,7 @@ const VERDICT_TONE: Record<ScanVerdict, string> = {
   low: "bg-muted text-muted-foreground",
 };
 
-function ResultCard({
-  r,
-  onOpen,
-  onToggleReport,
-}: {
-  r: ScanResult;
-  onOpen?: () => void;
-  onToggleReport?: () => void;
-}) {
+function ResultCard({ r, onOpen }: { r: ScanResult; onOpen?: () => void }) {
   const { t } = useLocale();
   const verdict = scanVerdictOf(r.similarity);
 
@@ -223,7 +215,8 @@ function ResultCard({
         </span>
       </div>
       {/* 정보 영역 */}
-      <div className="flex flex-col gap-2 bg-white p-4">
+      {/* flex-1 : 카드 높이가 서로 달라도 흰 영역이 끝까지 차게 한다 */}
+      <div className="flex flex-1 flex-col gap-2 bg-white p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
@@ -270,24 +263,6 @@ function ResultCard({
             {t("scanVerdict.reviewHint")}
           </p>
         )}
-
-        {/* 결과를 거부하는 수단을 결과 화면 안에 둔다 */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleReport?.();
-          }}
-          className={cn(
-            "mt-0.5 flex items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-            r.reportedFalse
-              ? "border-border bg-muted text-muted-foreground"
-              : "border-input bg-card text-foreground hover:bg-muted",
-          )}
-        >
-          <Flag className="size-3.5" />
-          {r.reportedFalse ? t("scan.reported") : t("scan.reportFalse")}
-        </button>
       </div>
     </div>
   );
@@ -734,12 +709,7 @@ export default function MonitoringDetailPage() {
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {results.map((r) => (
-              <ResultCard
-                key={r.id}
-                r={r}
-                onOpen={() => setDetail(r)}
-                onToggleReport={() => toggleReport(r.id)}
-              />
+              <ResultCard key={r.id} r={r} onOpen={() => setDetail(r)} />
             ))}
           </div>
         )}
