@@ -5,7 +5,7 @@ import { createAccount, cleanupAccounts, fixturePassword } from "../helpers/auth
 test.afterAll(async () => cleanupAccounts());
 test("monitoring original CRUD, isolation, unavailable scan, admin operations and ko/en mobile", async ({ page, baseURL, browser }) => {
   test.setTimeout(180000); page.setDefaultTimeout(15000);
-  if (!process.env.TEST_DATABASE_URL || new URL(process.env.TEST_DATABASE_URL).pathname !== "/claps_test") throw new Error("ISOLATED_DB_REQUIRED");
+  if (!process.env.TEST_DATABASE_URL || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(process.env.TEST_DATABASE_URL).pathname)) throw new Error("ISOLATED_DB_REQUIRED");
   const email = await createAccount(page.request, baseURL!), headers = { Origin: baseURL! };
   await page.request.post("/api/locale", { headers, data: { locale: "en" } });
   await page.goto("/monitoring/new");
@@ -32,9 +32,12 @@ test("monitoring original CRUD, isolation, unavailable scan, admin operations an
     await pool.query("UPDATE users SET app_role='admin' WHERE email=$1", [email]);
     await page.goto(`/admin/monitoring/${id}`);
     expect((await page.request.post("/api/admin/reauthenticate", { headers, data: { password: fixturePassword } })).status()).toBe(200); await page.reload();
-    await page.getByLabel("Reason", { exact: true }).fill("Isolated monitoring check");
-    await page.getByRole("button", { name: "Archive", exact: true }).click(); await expect(page.getByRole("button", { name: "Restore", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Restore", exact: true }).click(); await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
+    await page.getByLabel("Reason", { exact: true }).last().fill("Isolated monitoring check");
+    await page.getByRole("button", { name: "Archive", exact: true }).click(); await page.getByRole("dialog", { name: "Archive", exact: true }).getByRole("button", { name: "Confirm", exact: true }).click();
+    await page.getByRole("link", { name: "Restore", exact: true }).click();
+    await page.getByLabel("Reason", { exact: true }).last().fill("Isolated monitoring restore");
+    await page.getByRole("button", { name: "Restore", exact: true }).click(); await page.getByRole("dialog", { name: "Restore", exact: true }).getByRole("button", { name: "Confirm", exact: true }).click();
+    await expect(page).toHaveURL(/admin\/monitoring\?/);await page.goto(`/admin/monitoring/${id}`);await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
     expect((await pool.query("SELECT 1 FROM admin_audit_logs WHERE entity_id=$1 AND action='monitoring.restore'", [id])).rowCount).toBe(1);
   } finally { await pool.end(); }
   await page.request.post("/api/locale", { headers, data: { locale: "ko" } }); await page.goto(`/monitoring/${id}`);

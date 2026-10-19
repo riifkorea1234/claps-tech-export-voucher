@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { mkdtemp, rm, writeFile, readFile, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -59,6 +60,7 @@ beforeEach(async () => {
 });
 afterEach(async () => { await pool.query("UPDATE jobs SET status='canceled' WHERE owner_id=ANY($1) AND status IN ('queued','running')", [owners]); });
 afterAll(async () => {
+  await cleanupEvidence(pool, owners);
   await pool.query("DELETE FROM storage_tickets WHERE owner_id=ANY($1)", [owners]);
   await pool.query("UPDATE projects SET active_guide_id=NULL WHERE owner_id=ANY($1)", [owners]);
   await pool.query("DELETE FROM assets WHERE session_id IN(SELECT id FROM asset_sessions WHERE owner_id=ANY($1))", [owners]);

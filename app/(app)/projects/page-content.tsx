@@ -87,7 +87,7 @@ function KpiCard({
             <button
               type="button"
               aria-label={t("projects.statDescription", { label })}
-              className="flex items-center text-muted-foreground outline-none transition-colors hover:text-foreground"
+              className="flex items-center text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:text-foreground"
             >
               <Info className="size-3.5" />
             </button>
@@ -150,7 +150,7 @@ export default function ProjectsPage() {
   const safePage = remote.data?.page ?? page;
 
   return (
-    <div className="flex flex-col gap-5 px-6 py-5">
+    <div className="reflow-surface flex flex-col gap-5 px-6 py-5">
       <WorkspaceError error={remote.error ?? mutation.error ?? stats.error} retry={() => { remote.reload(); stats.reload(); }} />
       {!remote.data && !remote.error && <WorkspaceLoading />}
       <Button variant="outline" className="self-end" onClick={() => { setArchived(!archived); setPage(1); }}>{t(archived ? "common.active" : "common.archived")}</Button>
@@ -198,9 +198,9 @@ export default function ProjectsPage() {
       {/* 프로젝트 목록 카드 */}
       <section className="rounded-[14px] border border-border bg-card p-6">
         {/* 카드 헤더 — 좁으면 세로로 쌓임 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col flex-wrap gap-3 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <h2 className="truncate text-lg font-semibold text-card-foreground">
+            <h2 className="break-words text-lg font-semibold text-card-foreground">
               {t("projects.all_projects")}
             </h2>
             {items.length > 0 && (
@@ -215,7 +215,7 @@ export default function ProjectsPage() {
             value={query}
             onChange={(value) => { setQuery(value); setPage(1); }}
             placeholder={t("projects.search_projects")}
-            className="w-full sm:w-[300px]"
+            className="w-full lg:w-[300px]"
           />
 
           <Button
@@ -326,7 +326,7 @@ export default function ProjectsPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             onClick={(e) => e.stopPropagation()}
-                            className="cursor-pointer rounded-full outline-none transition-opacity hover:opacity-80"
+                            className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-opacity hover:opacity-80"
                           >
                             <StatusBadge status={p.status} />
                           </DropdownMenuTrigger>
@@ -364,7 +364,7 @@ export default function ProjectsPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           onClick={(e) => e.stopPropagation()}
-                          className="flex size-6 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:text-foreground"
+                          className="flex size-6 items-center justify-center rounded-md text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 transition-colors hover:text-foreground"
                         >
                           <EllipsisVertical className="size-[18px]" />
                         </DropdownMenuTrigger>

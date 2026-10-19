@@ -61,5 +61,7 @@
   "jobs.kind.verification": "검증",
   "jobs.kind.matching": "추천",
   "jobs.kind.monitoring": "모니터링",
-  "jobs.kind.export": "내보내기"
+  "jobs.kind.export": "내보내기",
+  "required": "필수",
+  "optionalShort": "선택"
 }

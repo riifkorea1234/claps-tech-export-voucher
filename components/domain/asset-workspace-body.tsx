@@ -1,6 +1,10 @@
 "use client";
+import Link from "next/link";
+import { useEvidence } from "./evidence-data";
+import { EvidenceBadge } from "./evidence-badge";
+import { EvidenceTimeline } from "./evidence-timeline";
 import { useState } from "react";
-import { useT } from "@/lib/i18n/provider";
+import { useT, useLanguage } from "@/lib/i18n/provider";
 import type { AssetDto, SessionDto } from "@/lib/contracts/workspace";
 import { updateSession } from "@/lib/assets-store";
 import { deleteAsset, updateAsset } from "@/lib/session-assets-store";
@@ -8,14 +12,21 @@ import { useRemote, useWorkspaceMutation, WorkspaceError, WorkspaceLoading } fro
 import { ProjectPicker } from "./server-project-picker";
 import { AssetGallery } from "./server-asset-gallery";
 import { Button } from "@/components/ui/button";
+import { EvidenceSamplePanel } from "./evidence-sample-panel";
 export function AssetWorkspaceBody({ sessionId, step = 1 }: { sessionId: string; title?: string; step?: number }) {
-  const t = useT();
+  const t = useT(), { locale } = useLanguage();
   const session = useRemote<SessionDto>(`/api/asset-sessions/${sessionId}`), assets = useRemote<AssetDto[]>(`/api/asset-sessions/${sessionId}/assets`);
-  const m = useWorkspaceMutation(() => { session.reload(); assets.reload(); });
+  const [evidenceRevision, setEvidenceRevision] = useState(0);
+  const evidence = useEvidence(sessionId, evidenceRevision);
+  const m = useWorkspaceMutation(() => { session.reload(); assets.reload(); setEvidenceRevision(n => n + 1); });
   const [prompt, setPrompt] = useState(""), [style, setStyle] = useState("none"), [ratio, setRatio] = useState("1:1");
   const items = assets.data?.filter(a => step === 1 || (step === 2 ? a.adopted : a.finalizedAt)).sort((a, b) => step === 3 ? (b.finalizedAt ?? "").localeCompare(a.finalizedAt ?? "") : 0) ?? [];
   return <div className="flex flex-col gap-6">
-    <WorkspaceError error={session.error ?? assets.error ?? m.error} retry={() => { session.reload(); assets.reload(); }} />
+    <EvidenceSamplePanel projectId={session.data?.projectId} sessionId={sessionId} step={step} reload={() => { session.reload(); assets.reload(); setEvidenceRevision(n => n + 1); }} />
+    {(step === 2 || step === 3) && locale.split("-")[0] === "ja" && <Link className="underline" href={`/assets/${sessionId}/review-package`}>{t("review.button")}</Link>}
+    <EvidenceBadge resource={evidence} />
+    <Link className="underline" href={`/assets/${sessionId}/evidence`}>{t("evidence.documentTitle")}</Link>
+    <WorkspaceError error={session.error ?? assets.error ?? m.error} retry={() => { session.reload(); assets.reload(); setEvidenceRevision(n => n + 1); }} />
     {(!session.data || !assets.data) && !session.error && !assets.error && <WorkspaceLoading />}
     <div className="flex flex-col gap-8 lg:flex-row">
       {step === 1 && <section className="flex w-full shrink-0 flex-col gap-5 lg:w-80"><h2 className="text-lg font-semibold">{t("assets.generation_settings")}</h2>
@@ -28,8 +39,9 @@ export function AssetWorkspaceBody({ sessionId, step = 1 }: { sessionId: string;
       </section>}
       <section className="min-w-0 flex-1"><h2 className="mb-4 text-lg font-semibold">{t("assets.generated_images")}</h2>
         {step === 2 && <p className="mb-4 text-sm text-muted-foreground">{t("assets.verification.providerPending")}</p>}
-        <AssetGallery showVerification={step !== 1} reload={() => { session.reload(); assets.reload(); }} items={items} pending={m.pending} onAdopt={step === 1 ? a => m.run(() => updateAsset(a.id, a.version, !a.adopted)) : undefined} onDelete={step === 1 ? a => m.run(() => deleteAsset(a.id, a.version)) : undefined} />
+        <AssetGallery showVerification={step !== 1} reload={() => { session.reload(); assets.reload(); setEvidenceRevision(n => n + 1); }} items={items} pending={m.pending} onAdopt={step === 1 ? a => m.run(() => updateAsset(a.id, a.version, !a.adopted)) : undefined} onDelete={step === 1 ? a => m.run(() => deleteAsset(a.id, a.version)) : undefined} />
       </section>
     </div>
+    <EvidenceTimeline resource={evidence} />
   </div>;
 }

@@ -1,5 +1,6 @@
 "use client";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { FieldRequirement } from "./field-requirement";
 import { useT } from "@/lib/i18n/provider";
 
 import { useState, useRef } from "react";
@@ -31,17 +32,11 @@ function Field({
   optional?: boolean;
   children: React.ReactNode;
 }) {
-  const t = useT();
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-center gap-1 text-sm font-medium text-foreground">
         {label}
-        {required && <span className="text-brand">*</span>}
-        {optional && (
-          <span className="text-xs font-normal text-muted-foreground">
-            {t("projects.optional")}
-          </span>
-        )}
+        {(required || optional) && <FieldRequirement required={required} />}
       </label>
       {children}
     </div>

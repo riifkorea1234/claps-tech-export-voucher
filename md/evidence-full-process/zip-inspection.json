@@ -1,0 +1,26 @@
+[
+  {
+    "archive": "assets-en.zip",
+    "crc": "passed",
+    "entries": [
+      {
+        "name": "18689ebc-3169-440b-ac40-e8a8de84ad58.png",
+        "size": 27231,
+        "sha256": "fa006cda425714bb077c67f8de255c9ee54eb08979bd91d495f79409fa11b051",
+        "png": true
+      }
+    ]
+  },
+  {
+    "archive": "assets-ja.zip",
+    "crc": "passed",
+    "entries": [
+      {
+        "name": "5417bf1f-cdc3-4775-b63d-fde63c18cdb8.png",
+        "size": 27620,
+        "sha256": "e0cd2c8d3aa5278338234340496d7f774d04b3ec823f30ae5ae82eee6f9858ae",
+        "png": true
+      }
+    ]
+  }
+]

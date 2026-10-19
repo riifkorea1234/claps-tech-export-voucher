@@ -12,6 +12,7 @@ import { useRemote, useWorkspaceMutation, WorkspaceError, WorkspaceLoading } fro
 import { CoverThumb } from "@/components/domain/cover-thumb";
 import { StatusBadge } from "@/components/domain/status-badge";
 import { GuideAnalysisPanel } from "@/components/domain/guide-analysis-panel";
+import { EvidenceSamplePanel } from "@/components/domain/evidence-sample-panel";
 import { AssetGallery } from "@/components/domain/server-asset-gallery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,17 +24,17 @@ export default function ProjectDetailPage() {
   const [editing, setEditing] = useState<ProjectDto>();
   const p = remote.data;
   if (!p) return <div className="p-8"><WorkspaceError error={remote.error} retry={remote.reload} />{!remote.error && <WorkspaceLoading />}</div>;
-  return <div className="flex flex-col gap-6 px-6 py-7">
+  return <div className="reflow-surface flex flex-col gap-6 px-6 py-7">
     <Link href="/projects" className="text-sm text-muted-foreground">← {t("projects.back_to_list")}</Link>
     <WorkspaceError error={remote.error ?? m.error} retry={remote.reload} />
     <div className="flex flex-col gap-5 rounded-xl border bg-card p-5">
       <div className="flex flex-col gap-5 sm:flex-row">
-      <CoverThumb cover={p.cover} className="h-28 w-40" />
+      <CoverThumb cover={p.cover} className="h-28 w-40 max-w-full" />
       <div className="min-w-0 flex-1"><h1 className="break-words text-2xl font-bold">{p.name}</h1><p className="text-muted-foreground">{p.ip || t("projects.undecided")}</p><p className="mt-2 whitespace-pre-wrap text-sm">{p.description}</p><p className="mt-3 text-xs text-muted-foreground">{displayDate(p.createdAt, locale)}</p></div>
       </div>
       <div className="flex flex-wrap items-center gap-3">
       <StatusBadge status={p.status} />
-      <select aria-label={t("projects.change_status_2")} value={p.status} disabled={m.pending} onChange={e => m.run(() => updateProject(id, { version: p.version, status: e.target.value as ProjectStatus }))} className="rounded-md border p-2 text-sm">{PROJECT_STATUSES.map(s => <option key={s} value={s}>{t(`projects.status.${s}`)}</option>)}</select>
+      <select aria-label={t("projects.change_status_2")} value={p.status} disabled={m.pending} onChange={e => m.run(() => updateProject(id, { version: p.version, status: e.target.value as ProjectStatus }))} className="max-w-full rounded-md border p-2 text-sm">{PROJECT_STATUSES.map(s => <option key={s} value={s}>{t(`projects.status.${s}`)}</option>)}</select>
       <Button variant="outline" onClick={() => setEditing(p)}>{t("projects.rename")}</Button>
       <Button variant="outline" disabled={m.pending} onClick={() => m.run(async () => { await deleteProject(id, p.version); router.push("/projects"); })}>{t("common.archive")}</Button>
       </div>
@@ -41,6 +42,7 @@ export default function ProjectDetailPage() {
     <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={m.pending} onClick={() => input.current?.click()}>{t("projects.upload_image")}</Button><Button variant="ghost" disabled={m.pending} onClick={() => m.run(() => updateProject(id, { version: p.version, cover: { kind: "default" } }))}>{t("projects.remove_cover")}</Button><span className="text-xs text-muted-foreground">{t("common.coverHelp")}</span>
       <input ref={input} aria-label={t("projects.upload_image")} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void m.run(() => uploadCover(id, p.version, file)); }} /></div>
     <GuideAnalysisPanel key={id} />
+    <EvidenceSamplePanel projectId={id} />
     <section className="flex flex-col gap-3"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">{t("projects.generation_sessions")} · {p.sessions}</h2><Button disabled={m.pending} onClick={() => m.run(async () => { const s = await createSession(t("assets.untitled"), id); router.push(`/assets/${s.id}`); })}>{t("projects.generate_assets")}</Button></div>
       <WorkspaceError error={sessions.error} retry={sessions.reload} />
       {sessions.data?.items.slice(0, 5).map(s => <Link key={s.id} className="rounded-xl border bg-card p-4 font-medium hover:bg-muted" href={`/assets/${s.id}`}>{s.title}<span className="ml-4 text-sm text-muted-foreground">{s.generated} / {s.finalized}</span></Link>)}

@@ -14,6 +14,8 @@ const metadata = (name: string, column: AnyPgColumn) => check(name,
 
 export const users = pgTable("users", {
   id: id(), email: text("email").notNull().unique(), name: text("name").notNull(),
+  familyName: text("family_name"), givenName: text("given_name"),
+  familyNameKana: text("family_name_kana"), givenNameKana: text("given_name_kana"),
   emailVerified: boolean("email_verified").notNull().default(false), image: text("image"),
   orgName: text("org_name"), jobRole: text("job_role"), appRole: text("app_role").notNull().default("member"),
   status: text("status").notNull().default("email_unverified"), profileCompletedAt: time("profile_completed_at"),
@@ -67,7 +69,7 @@ export const jobs = pgTable("jobs", {
   costState: text("cost_state").notNull().default("not_started"),
   nextRunAt: time("next_run_at").notNull().defaultNow(), leaseUntil: time("lease_until"), lockedBy: text("locked_by"),
   errorCode: text("error_code"), errorSummary: text("error_summary"), usage: jsonb("usage").$type<z.infer<typeof usageSchema>>(),
-  startedAt: time("started_at"), finishedAt: time("finished_at"), cancelRequestedAt: time("cancel_requested_at"), ...timestamps(),
+  startedAt: time("started_at"), finishedAt: time("finished_at"), cancelRequestedAt: time("cancel_requested_at"), cancelRequestedActorId: text("cancel_requested_actor_id").references(() => users.id), cancelRequestedActorType: text("cancel_requested_actor_type"), ...timestamps(),
 }, (t) => [
   foreignKey({ name: "jobs_project_owner_fk", columns: [t.projectId, t.ownerId], foreignColumns: [projects.id, projects.ownerId] }),
   unique("jobs_retry_child").on(t.retryOfId),
@@ -151,3 +153,47 @@ export const storageTickets = pgTable("storage_tickets", {
   check("storage_tickets_target", sql`${t.targetType} IN ('project','asset','job','partner','matching','monitoring')`),
   check("storage_tickets_variant", sql`${t.variant} IN ('original','thumbnail')`),
 ]);
+
+// Append-only business evidence. NO ACTION references preserve provenance.
+export const evidenceEvents = pgTable("evidence_events", {
+  id: id(), ownerId: text("owner_id").notNull().references(() => users.id),
+  sessionId: text("session_id").notNull().references(() => assetSessions.id),
+  assetId: text("asset_id").references(() => assets.id), jobId: text("job_id").references(() => jobs.id),
+  kind: text("kind").notNull(), actorId: text("actor_id").notNull().references(() => users.id),
+  sequence: integer("sequence").notNull(), createdAt: time("created_at").notNull().defaultNow(),
+  payload: jsonb("payload").$type<import("../lib/contracts/evidence").EvidencePayload>().notNull(),
+  dedupeKey: text("dedupe_key"), origin: text("origin").notNull().default("native"),
+}, t => [
+  unique("evidence_session_sequence").on(t.sessionId,t.sequence), unique("evidence_dedupe").on(t.dedupeKey),
+  index("evidence_owner_cursor").on(t.ownerId,t.sessionId,t.sequence), index("evidence_asset_cursor").on(t.assetId,t.sequence),
+  check("evidence_origin",sql`${t.origin} = 'native'`), positive("evidence_sequence",t.sequence),
+  check("evidence_kind",sql`${t.kind} IN ('session.created','generate.requested','generate.succeeded','generate.failed','generate.canceled','asset.adopted','asset.unadopted','verify.run','final.added','final.removed','asset.deleted') AND ${t.payload}->>'kind'=${t.kind}`),
+  metadata("evidence_payload",t.payload),
+]);
+
+// User assessments are separate from immutable provider output.
+export const monitoringFeedbackEvents = pgTable("monitoring_feedback_events", {
+  id: id(), ownerId: text("owner_id").notNull().references(() => users.id), actorId: text("actor_id").notNull().references(() => users.id),
+  recordId: text("record_id").notNull().references(() => monitoringRecords.id), jobId: text("job_id").notNull().references(() => jobs.id),
+  resultIndex: integer("result_index").notNull(), resultId: text("result_id").notNull(), action: text("action").notNull(), reason: text("reason"),
+  idempotencyKey: text("idempotency_key").notNull(), requestHash: text("request_hash").notNull(), sequence: integer("sequence").notNull(), createdAt: time("created_at").notNull().defaultNow(),
+}, t => [
+  unique("feedback_owner_action_key").on(t.ownerId,t.action,t.idempotencyKey),
+  unique("feedback_result_sequence").on(t.jobId,t.resultIndex,t.sequence),
+  index("feedback_latest").on(t.ownerId,t.jobId,t.resultIndex,t.sequence),
+  check("feedback_result",sql`${t.resultIndex} BETWEEN 0 AND 49 AND ${t.resultId}=${t.jobId} || ':' || ${t.resultIndex}::text`),
+  check("feedback_action",sql`(${t.action}='reported' AND ${t.reason} IS NOT NULL AND ${t.reason} IN ('different_subject','licensed_use','own_content','other')) OR (${t.action}='withdrawn' AND ${t.reason} IS NULL)`),
+  check("feedback_identity",sql`${t.actorId}=${t.ownerId} AND ${t.idempotencyKey} ~ '^[A-Za-z0-9_-]{1,128}$' AND ${t.requestHash} ~ '^[a-f0-9]{64}$'`),
+  positive("feedback_sequence",t.sequence),
+]);
+
+export const reviewChecks = pgTable("review_checks", {
+  sessionId: text("session_id").primaryKey().references(() => assetSessions.id), ownerId: text("owner_id").notNull().references(() => users.id),
+  targetHash: text("target_hash").notNull(), manual: jsonb("manual").$type<{copyrightNotice:boolean;thirdPartyAssets:boolean;recipientConfirmed:boolean}>().notNull(),
+  actorId: text("actor_id").notNull().references(() => users.id), checkedAt: time("checked_at").notNull(), version: version(),
+}, t => [positive("review_checks_version", t.version), check("review_checks_hash", sql`${t.targetHash} ~ '^[a-f0-9]{64}$'`), check("review_checks_actor", sql`${t.actorId}=${t.ownerId}`), check("review_checks_manual", sql`jsonb_typeof(${t.manual})='object' AND ${t.manual} ?& ARRAY['copyrightNotice','thirdPartyAssets','recipientConfirmed'] AND (${t.manual} - ARRAY['copyrightNotice','thirdPartyAssets','recipientConfirmed'])='{}'::jsonb AND jsonb_typeof(${t.manual}->'copyrightNotice')='boolean' AND jsonb_typeof(${t.manual}->'thirdPartyAssets')='boolean' AND jsonb_typeof(${t.manual}->'recipientConfirmed')='boolean'`)]);
+export const reviewPackageSnapshots = pgTable("review_package_snapshots", {
+  id: id(), ownerId: text("owner_id").notNull().references(() => users.id), sessionId: text("session_id").notNull().references(() => assetSessions.id), actorId: text("actor_id").notNull().references(() => users.id),
+  manifest: jsonb("manifest").$type<import("../lib/contracts/review").ReviewSnapshot["manifest"]>().notNull(), checksum: text("checksum").notNull(), targetHash: text("target_hash").notNull(), checkVersion: integer("check_version").notNull(), cutoff: integer("cutoff").notNull(), issuedAt: time("issued_at").notNull(),
+  idempotencyKey: text("idempotency_key").notNull(), requestHash: text("request_hash").notNull(), fileRefs: jsonb("file_refs").$type<z.infer<typeof fileSchema>[]>().notNull(),
+}, t => [unique("review_snapshot_owner_key").on(t.ownerId,t.idempotencyKey), index("review_snapshot_session").on(t.ownerId,t.sessionId,t.issuedAt), metadata("review_snapshot_manifest",t.manifest), check("review_snapshot_identity", sql`${t.actorId}=${t.ownerId} AND ${t.checksum} ~ '^[a-f0-9]{64}$' AND ${t.targetHash} ~ '^[a-f0-9]{64}$' AND ${t.requestHash} ~ '^[a-f0-9]{64}$' AND ${t.idempotencyKey} ~ '^[A-Za-z0-9_-]{1,128}$' AND ${t.checkVersion}>0 AND ${t.cutoff}>=0 AND jsonb_typeof(${t.fileRefs})='array' AND octet_length(${t.fileRefs}::text)<=65536`)]);

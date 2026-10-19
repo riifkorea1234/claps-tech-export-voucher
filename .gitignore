@@ -47,3 +47,7 @@ next-env.d.ts
 /backups/
 
 /mail-sandbox/
+
+# Evidence state remains local; ACCOUNTS.md is versioned by explicit user request.
+/md/evidence-full-process/private-state.json
+/scripts/__pycache__/

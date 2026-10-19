@@ -1,4 +1,6 @@
 import "server-only";
+import { feedbackDto } from "./feedback";
+import { emptyFeedback } from "../../contracts/monitoring-feedback";
 import { randomUUID } from "node:crypto";
 import type { PoolClient, QueryResultRow } from "pg";
 import { idSchema, paginate } from "../../contracts/common";
@@ -83,7 +85,12 @@ export class MonitoringService {
     const total = (await c.query("SELECT count(*)::int n FROM jobs WHERE owner_id=$1 AND kind='monitoring' AND input->>'recordId'=$2", [owner, id])).rows[0].n;
     const p = paginate(Math.min(page, Math.max(1, Math.ceil(total / 20))), 20, total);
     const rows = (await c.query<JobRow>("SELECT j.*, (SELECT id FROM jobs WHERE retry_of_id=j.id) retry_job_id FROM jobs j WHERE owner_id=$1 AND kind='monitoring' AND input->>'recordId'=$2 ORDER BY created_at DESC,id DESC LIMIT 20 OFFSET $3", [owner, id, (p.page - 1) * 20])).rows;
-    const items: ScanEntry[] = rows.map(r => ({ job: jobDto(r, this.jobs.policy), result: r.status === "succeeded" && r.output?.kind === "monitoring" && r.output.result ? monitoringResultSchema.parse(r.output.result) : null }));
+    const events = (await c.query("SELECT DISTINCT ON (job_id,result_index) * FROM monitoring_feedback_events WHERE owner_id=$1 AND job_id=ANY($2::text[]) ORDER BY job_id,result_index,sequence DESC", [owner, rows.map(r => r.id)])).rows;
+    const states = new Map(events.map(e => [e.result_id, feedbackDto(e)]));
+    const items: ScanEntry[] = rows.map(r => {
+      const result = r.status === "succeeded" && r.output?.kind === "monitoring" && r.output.result ? monitoringResultSchema.parse(r.output.result) : null;
+      return { job: jobDto(r, this.jobs.policy), result: result ? { ...result, items: result.items.map((item, index) => ({ ...item, id: `${r.id}:${index}`, index, feedback: states.get(`${r.id}:${index}`) ?? emptyFeedback(`${r.id}:${index}`) })) } : null };
+    });
     return { items, ...p };
   }
   history(raw: string | undefined, id: string, query: unknown = {}) { const q = monitoringQuery.parse(query); return this.workspace.run(raw, (c, owner) => this.historyLocked(c, owner, id, q.page)); }

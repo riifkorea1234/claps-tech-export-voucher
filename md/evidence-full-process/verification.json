@@ -1,0 +1,222 @@
+{
+  "status": "complete",
+  "target": "https://claps.arcreation.work",
+  "at": "2026-10-19T21:44:49.449201+00:00",
+  "evidenceAccounts": 10,
+  "seedSteps": 165,
+  "seedChecks": 14,
+  "unitAndLocaleTests": 93,
+  "nextTypegenAndTypecheck": "passed",
+  "browserFlows": [
+    {
+      "locale": "en",
+      "status": "passed",
+      "project": "e6582517-5ddc-4574-b2db-61e9b7486170",
+      "session": "d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a",
+      "guide": "938de15e-6b3c-4394-9716-b0b94beb0a96",
+      "generation": "2b863269-4115-4ead-8a21-4ade9baba9b3",
+      "verification": "03df610a-8c90-4302-a2d1-e2a7c418f5dd",
+      "finalAsset": "6841d97c-e57b-4ed3-95b1-7227145804e7",
+      "export": "d94928db-3527-4a91-8a47-f743fbb1195e",
+      "snapshot": "eed7b857-5d1f-4297-9220-028cfbc7c60d",
+      "monitoring": "ce48ac86-80a2-440d-9877-a82d0a1a12f7",
+      "scan": "b260129a-5c8a-47ec-bc84-c303e021e6df"
+    },
+    {
+      "locale": "ja",
+      "status": "passed",
+      "project": "329bbf6c-84a4-4ccc-85c2-0216bac7ca9d",
+      "session": "be269893-7664-4eff-8579-bcee4cc3d470",
+      "guide": "ab3821a9-1284-40f7-a59a-fbd76d957919",
+      "generation": "7a927094-dc55-428d-8e97-f78ed0fbdbaf",
+      "verification": "09fd3b6d-7bb8-4e2d-ab6a-2fb18d8d9f20",
+      "finalAsset": "1165e7e4-8c5c-4c41-a674-4d1d97e4778c",
+      "export": "0851d809-ccd5-479c-9f3a-2011df63518d",
+      "snapshot": "b3171ea3-6bf7-4717-9fd5-4e0d49b437cf",
+      "monitoring": "15fb65b1-c2aa-4195-ac26-5aac54b56366",
+      "scan": "89437f12-0015-4932-be0c-f2dd3fb85b49"
+    }
+  ],
+  "captureCount": 255,
+  "capturesByLocale": {
+    "en": 121,
+    "ja": 106,
+    "ko": 28
+  },
+  "capturesByDevice": {
+    "desktop": 206,
+    "mobile": 49
+  },
+  "pageErrors": [],
+  "initialHttpObservations": [
+    {
+      "kind": "http5xx",
+      "status": 502,
+      "url": "https://claps.arcreation.work/admin/jobs?_rsc=aysIoAI4vNGu8dMt"
+    }
+  ],
+  "initialHarnessFailures": [
+    {
+      "name": "HTTP-contracts-en",
+      "ok": false,
+      "error": "PATCH /api/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5: 422 VALIDATION_ERROR\n\n422 !== 400\n"
+    },
+    {
+      "name": "project-edit-dialog-ja",
+      "ok": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /編集|名前変更/ }).first()\u001b[22m\n"
+    },
+    {
+      "name": "HTTP-contracts-ja",
+      "ok": false,
+      "error": "PATCH /api/projects/267a98cb-0ad4-4bad-9390-aeb302c3e52c: 422 VALIDATION_ERROR\n\n422 !== 400\n"
+    }
+  ],
+  "finalSupplementChecks": [
+    {
+      "name": "HTTP-contracts-en-corrected",
+      "ok": true,
+      "detail": {
+        "invalidInput": 422,
+        "certificate": 200,
+        "snapshot": 200
+      }
+    },
+    {
+      "name": "project-edit-dialog-en-corrected",
+      "ok": true
+    },
+    {
+      "name": "evidence-timeline-expanded-en",
+      "ok": true
+    },
+    {
+      "name": "project-pagination-archive-en",
+      "ok": true
+    },
+    {
+      "name": "session-pagination-inline-rename-en",
+      "ok": true
+    },
+    {
+      "name": "monitoring-feedback-state-en",
+      "ok": true
+    },
+    {
+      "name": "review-snapshot-remains-immutable-en",
+      "ok": true,
+      "detail": {
+        "checksum": "91eac844e1c18822b111232b5aa89522a89d919d157a67cc6921c985392f2143",
+        "checksStale": true
+      }
+    },
+    {
+      "name": "HTTP-contracts-ja-corrected",
+      "ok": true,
+      "detail": {
+        "invalidInput": 422,
+        "certificate": 200,
+        "snapshot": 200
+      }
+    },
+    {
+      "name": "project-edit-dialog-ja-corrected",
+      "ok": true
+    },
+    {
+      "name": "evidence-timeline-expanded-ja",
+      "ok": true
+    },
+    {
+      "name": "project-pagination-archive-ja",
+      "ok": true
+    },
+    {
+      "name": "session-pagination-inline-rename-ja",
+      "ok": true
+    },
+    {
+      "name": "monitoring-feedback-state-ja",
+      "ok": true
+    },
+    {
+      "name": "review-snapshot-remains-immutable-ja",
+      "ok": true,
+      "detail": {
+        "checksum": "eed8ba8b95c09c744f7e94c62004fbaea25700f0d4638a394237555863ebb2f3",
+        "checksStale": true
+      }
+    },
+    {
+      "name": "admin jobs RSC 502 final repeated verification",
+      "ok": true,
+      "detail": [
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        }
+      ]
+    },
+    {
+      "name": "running generation and running cancellation",
+      "ok": true,
+      "detail": {
+        "job": "99228cad-4fb4-4aa2-8a55-fe89ecd68265",
+        "status": "canceled"
+      }
+    },
+    {
+      "name": "invalid guide PDF upload UI",
+      "ok": true
+    },
+    {
+      "name": "admin restore/suspend synthetic member and audit",
+      "ok": true,
+      "detail": {
+        "restore": true,
+        "suspend": true,
+        "audited": true
+      }
+    },
+    {
+      "name": "admin locale editor dialog",
+      "ok": true
+    },
+    {
+      "name": "public HTTP invalid input status en",
+      "ok": true,
+      "actual": 422,
+      "correction": "The first capture harness expected 400; product contract is 422."
+    },
+    {
+      "name": "public HTTP invalid input status ja",
+      "ok": true,
+      "actual": 422,
+      "correction": "The first capture harness expected 400; product contract is 422."
+    }
+  ],
+  "storedFilesChecked": 58,
+  "storedFileChecksPassed": true,
+  "pendingJobs": 0,
+  "existingAdministratorPreserved": true,
+  "backup": "server backup/pre-evidence-v1-20261020",
+  "run": "run_5d77a4bd650f",
+  "task": "task_8bc3e4c471a5",
+  "dispatch": "ctx_01387ac4dab3"
+}

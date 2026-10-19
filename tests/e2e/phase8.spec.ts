@@ -9,7 +9,7 @@ import { assetFixture } from "../helpers/workspace-fixture";
 const exec = promisify(execFile);
 function testPool() {
   const url = process.env.TEST_DATABASE_URL;
-  if (!url || new URL(url).pathname !== "/claps_test") throw new Error("ISOLATED_TEST_DB_REQUIRED");
+  if (!url || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(url).pathname)) throw new Error("ISOLATED_TEST_DB_REQUIRED");
   return new Pool({ connectionString: url });
 }
 test.afterAll(async () => { await cleanupAccounts(); });

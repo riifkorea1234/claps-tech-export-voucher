@@ -1,32 +1,34 @@
 "use client";
-import { useT } from "@/lib/i18n/provider";
+import { validSplitName } from "@/lib/normalize-input";
+import { useLanguage } from "@/lib/i18n/provider";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ProfileFields } from "./profile-fields";
+import { ProfileFields, emptySplitName, type SplitName } from "./profile-fields";
 import { upsertAccount } from "@/lib/account-store";
 
 // 프로필 설정 폼 (제목 + 입력 + 동작)
 // - 이름·조직명이 채워지면 '시작하기' 활성화
 // - 저장(계정에 반영) 후 /projects로 이동
 export function ProfileSetupForm({ email }: { email: string }) {
-  const t = useT();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [name, setName] = useState("");
+  const [splitName, setSplitName] = useState<SplitName>(emptySplitName);
   const [org, setOrg] = useState("");
   const [role, setRole] = useState("");
 
-  const canSubmit = name.trim().length > 0 && org.trim().length > 0;
+  const canSubmit = (locale.split("-")[0] === "ja" ? validSplitName(splitName.familyName, splitName.givenName) : name.trim().length > 0) && org.trim().length > 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
     setPending(true); setError("");
     try { await upsertAccount({
-      name: name.trim(),
+      name: name.trim(), locale, ...splitName,
       org: org.trim(),
       role: role || undefined,
     });
@@ -54,6 +56,8 @@ export function ProfileSetupForm({ email }: { email: string }) {
       <ProfileFields
         idPrefix="setup"
         name={name}
+        splitName={splitName}
+        onSplitNameChange={setSplitName}
         org={org}
         role={role}
         onNameChange={setName}
@@ -61,7 +65,7 @@ export function ProfileSetupForm({ email }: { email: string }) {
         onRoleChange={setRole}
       />
 
-      <p className="text-sm text-muted-foreground">{email}</p>
+      <p className="min-w-0 break-all text-sm text-muted-foreground">{email}</p>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {/* 시작하기 */}
       <Button

@@ -1,0 +1,121 @@
+[
+  {
+    "file": "app/api/evidence-sample/route.ts",
+    "before": null,
+    "after": "1cd7ca36dd93996a5ae31a7d0259ba7bfdf101a6c07a970af6dbdd5fe880ab91"
+  },
+  {
+    "file": "app/(app)/projects/[id]/page-content.tsx",
+    "before": "70e1633c97d213ecb28003b11a72ebb2e239cb5b2941e7dc9c6135be161d5015",
+    "after": "a1c8f972b6668b2e44f3884003fd54145b51b17b07b326485f9dc115398056eb"
+  },
+  {
+    "file": "components/domain/asset-workspace-body.tsx",
+    "before": "915147c714de8e1809c1433ff3d56d8cba58d508757e68de83da5d3315140179",
+    "after": "bb62342a8f95907a97a50c3d886338cb04a11191a518f27d7f15fa44aac56f04"
+  },
+  {
+    "file": "components/domain/evidence-sample-panel.tsx",
+    "before": null,
+    "after": "c90a06b574910e0b5a581f2e057b47fcc2134491db3190d0d0891e595f7c2974"
+  },
+  {
+    "file": "lib/server/jobs/types.ts",
+    "before": "9e16977bf402364f3a38f0396deff0a36f5db520a42a5afab20cb7d25501706a",
+    "after": "4c8724165248e7fb3b34e4b13475b76dc456fe8fc4a6fc3646a40e930568e3ba"
+  },
+  {
+    "file": "lib/server/jobs/service.ts",
+    "before": "4ab9a5860c6754ff69054e0402522880a715d86d3f9dd00f5b4f9be05278332e",
+    "after": "c89100bf5d8c5deec072fb27e7c27533c54cfafacdd186e9573f6092a0dde90a"
+  },
+  {
+    "file": "lib/server/adapters/registry.ts",
+    "before": "40210e4c8ef20916a61ac2a0461379277bfa4d9aaca003eb1122280525beb15b",
+    "after": "05540555d1c95e8a328600e37570b86d8008f62f2e2f2cb060e3540cc891c2e6"
+  },
+  {
+    "file": "lib/server/evidence-sample/handlers.ts",
+    "before": null,
+    "after": "11355525071b5a13b1ab29b14d4f3bb0ee05a2b94384d566bd07ede2eaccd0ec"
+  },
+  {
+    "file": "lib/server/evidence-sample/service.ts",
+    "before": null,
+    "after": "41a7f3d7cc5cf5ec355570f8dac04d28ecb13bb76e3ad19c7aad4c1117276e5c"
+  },
+  {
+    "file": "scripts/report-evidence.py",
+    "before": null,
+    "after": "48bbae399c5f631381a18603d731a60ae548b197f14b70f4f785ab02c3be6871"
+  },
+  {
+    "file": "scripts/edge-evidence.mjs",
+    "before": null,
+    "after": "4ab9fd33da7a5999c4726b8bb783d641a496b92778163eec6f091f19e9ebba35"
+  },
+  {
+    "file": "scripts/protect-evidence-accounts.ps1",
+    "before": null,
+    "after": "bd5af743c2d95f96d86538b7b1ed6dff9b7726576698e796748fc9560d453f04"
+  },
+  {
+    "file": "scripts/verify-evidence-ui.mjs",
+    "before": null,
+    "after": "d735592085425eb635aadbf94e275746008b6485f5306a3584b527ae8754c3bb"
+  },
+  {
+    "file": "scripts/capture-evidence.mjs",
+    "before": null,
+    "after": "a726f334e1882c4553c42531513b4116216abe2fc3c6109d5b50aa3adebc0dbd"
+  },
+  {
+    "file": "scripts/audit-evidence.ts",
+    "before": null,
+    "after": "2bdc1f013e8b1f702b267b49e2528d039a996606b58eba0a371b1b8ad9aa80d1"
+  },
+  {
+    "file": "scripts/final-server-proof.py",
+    "before": null,
+    "after": "c6efd26caa021ebf65e7819c9bb16d819b5429005115059722d6ba49b009f3d1"
+  },
+  {
+    "file": "scripts/sync-evidence.py",
+    "before": null,
+    "after": "e7bfdec6c24c32a0d7e9ba3f685234bece8fb18b30727ba75ff7b25eafffff84"
+  },
+  {
+    "file": "scripts/evidence-backup.sh",
+    "before": null,
+    "after": "3eb59bd315132b78d05427a5e62c43e4055f49204e55bbec3c9f4c9a7a88aec2"
+  },
+  {
+    "file": "scripts/deploy-evidence.sh",
+    "before": null,
+    "after": "87e706bb8bddfe9c77168c5f8110f5d29c3df500d786768dc77cc096fa75d788"
+  },
+  {
+    "file": "scripts/supplement-evidence.mjs",
+    "before": null,
+    "after": "5c94f4ac6dfc6029f769f9b9eff901b994ce20425d4090ba78069da1f5126479"
+  },
+  {
+    "file": "scripts/seed-evidence.ts",
+    "before": null,
+    "after": "1919ce9f4778264e69088c7644a89ffeb31e45b857d40da8b77cc3dcf3af9a3c"
+  },
+  {
+    "file": "tests/unit/evidence-sample.test.ts",
+    "before": null,
+    "after": "28622dac841debf39b3e813fbcae59504b779df290e5a0da3d651b86a16eae60"
+  },
+  {
+    "file": "deploy/remote/compose.evidence.yaml",
+    "before": null,
+    "after": "3a82feba965da6eccce20feb8d4d2cce425fc566042681fc1433312f9e18aab8"
+  },
+  {
+    "file": ".gitignore",
+    "after": "7ce5d27c3ae573489a5768de366d360ff5147499b0fb1b3368f1db8e6f1ffd72"
+  }
+]

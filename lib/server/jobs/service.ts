@@ -1,4 +1,5 @@
 import "server-only";
+import { appendEvidence, guideProvenance, generationTerminal } from "../evidence/writer";
 import { createHash, randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
 import { idSchema } from "../../contracts/common";
@@ -30,11 +31,13 @@ export class JobService {
       count(*) FILTER(WHERE created_at>now()-interval '1 hour')::int requests FROM jobs WHERE owner_id=$1`, [owner]);
     if (counts.queued >= this.policy.queuedPerUser || counts.requests >= this.policy.requestsPerHour) throw new AppError("RATE_LIMITED");
   }
-  async insert(c: PoolClient, owner: string, input: JobInput, key: string, parent: string | null, retry?: JobRow) {
+  async insert(c: PoolClient, owner: string, input: JobInput, key: string, parent: string | null, retry?: JobRow, actorId: string = owner, actorType: "user" | "worker" | "admin" = "user") {
+    await this.registry.get(input.kind)?.authorize?.(c, owner);
     await this.limits(c, owner);
     const { rows: [row] } = await c.query<JobRow>(`INSERT INTO jobs(id,owner_id,project_id,kind,input,request_hash,idempotency_key,attempt,retry_of_id,next_run_at)
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,now()+$10*interval '1 millisecond') RETURNING *`,
     [randomUUID(), owner, parent, input.kind, input, requestHash(input), key, retry ? retry.attempt + 1 : 0, retry?.id ?? null, retry ? this.policy.kinds[input.kind].retryDelayMs * 2 ** retry.attempt : 0]);
+    if (input.kind === "generation") await appendEvidence(c, owner, input.sessionId, { schemaVersion: 1, kind: "generate.requested", actorType, guide: input.guideId ? await guideProvenance(c, input.guideId) : null }, null, row.id, actorId);
     return row;
   }
   async enqueue(raw: string | undefined, data: unknown) {
@@ -65,21 +68,24 @@ export class JobService {
       if (u.status !== "active") throw new AppError("FORBIDDEN");
       const { rows: [row] } = await c.query<JobRow>("SELECT * FROM jobs WHERE id=$1 AND owner_id=$2 FOR UPDATE", [id, u.id]);
       if (!row) throw new AppError("NOT_FOUND");
-      if (row.status === "queued" || row.status === "running") await c.query(`UPDATE jobs SET cancel_requested_at=COALESCE(cancel_requested_at,now()),
+      if (row.status === "queued" || row.status === "running") await c.query(`UPDATE jobs SET cancel_requested_actor_id=CASE WHEN cancel_requested_at IS NULL THEN $2 ELSE cancel_requested_actor_id END,
+        cancel_requested_actor_type=CASE WHEN cancel_requested_at IS NULL THEN 'user' ELSE cancel_requested_actor_type END,
+        cancel_requested_at=COALESCE(cancel_requested_at,now()),
         status=CASE WHEN status='queued' THEN 'canceled' ELSE status END,
         finished_at=CASE WHEN status='queued' THEN now() ELSE finished_at END,
-        error_code=CASE WHEN status='queued' THEN 'CANCELED' ELSE error_code END,updated_at=now() WHERE id=$1`, [id]);
+        error_code=CASE WHEN status='queued' THEN 'CANCELED' ELSE error_code END,updated_at=now() WHERE id=$1`, [id, u.id]);
       const updated = await c.query<JobRow>("SELECT j.*, (SELECT id FROM jobs WHERE retry_of_id=j.id) retry_job_id FROM jobs j WHERE id=$1", [id]);
+      if (row.status === "queued") await generationTerminal(c, updated.rows[0], u.id);
       return jobDto(updated.rows[0], this.policy);
     });
   }
-  async retryLocked(c: PoolClient, row: JobRow) {
+  async retryLocked(c: PoolClient, row: JobRow, actorId: string = row.owner_id, actorType: "user" | "worker" | "admin" = "user") {
     const child = await c.query<JobRow>("SELECT * FROM jobs WHERE retry_of_id=$1", [row.id]);
     if (child.rows[0]) return child.rows[0];
     if (!jobDto(row, this.policy).canRetry) throw new AppError("STATE_CONFLICT");
     if (!this.registry.get(row.kind)) throw new AppError("SERVICE_UNAVAILABLE");
     const parent = await lockJobParents(c, row.owner_id, parseJobInput(row.input));
-    return this.insert(c, row.owner_id, row.input, `retry_${row.id}`, parent, row);
+    return this.insert(c, row.owner_id, row.input, `retry_${row.id}`, parent, row, actorId, actorType);
   }
   async retry(raw: string | undefined, id: string) {
     idSchema.parse(id);

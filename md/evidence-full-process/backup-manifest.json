@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "project": "claps-prod",
+  "createdAt": "2026-10-19T20:53:36Z",
+  "images": {
+    "web": [
+      "sha256:f134a5168b669dec783c927717442e020978c589ddd845f159b6893d072971c7"
+    ],
+    "worker": [
+      "sha256:00840aac0ead85ede34732747c0ab592f4ea5780f64b8afe59a900a624d00870"
+    ],
+    "db": [
+      "sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652"
+    ]
+  },
+  "sha256": {
+    "database.dump": "0389234532e673054cbd6db3f8ce6d81b54eebcbc55f6861bae18831f637a59f",
+    "uploads.tar": "a9d76884e02e553391fc231a7f2ba9a36e8261c296156412730a82cc411a7128"
+  }
+}

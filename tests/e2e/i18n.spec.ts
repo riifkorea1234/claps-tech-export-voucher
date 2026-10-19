@@ -6,11 +6,13 @@ test.beforeEach(async ({ page, baseURL }, info) => {
 test.afterAll(cleanupAccounts);
 import { expect, test, type Page } from "@playwright/test";
 async function change(page: Page, label: string, target: string) {
-  await page.getByRole("button", { name: label, exact: true }).click();
+  await page.getByRole("button", { name: label, exact: true }).first().click();
+  const persisted = page.waitForResponse((response) => response.url().endsWith("/api/locale") && response.request().method() === "POST");
   await page.getByRole("menuitem", { name: target }).click();
+  await persisted;
   await expect(page.locator("html")).toHaveAttribute(
     "lang",
-    target === "English" ? "en" : "ko",
+    target === "English" ? "en" : "ja",
   );
 }
 test("API matches regional languages, rejects invalid origins/locales and sets a private cookie", async ({
@@ -21,7 +23,7 @@ test("API matches regional languages, rejects invalid origins/locales and sets a
   expect(locales.status()).toBe(200);
   expect(
     (await locales.json()).data.map((l: { code: string }) => l.code),
-  ).toEqual(["ko", "en"]);
+  ).toEqual(["en", "ja"]);
   expect(
     (
       await request.post("/api/locale", {
@@ -47,7 +49,7 @@ test("API matches regional languages, rejects invalid origins/locales and sets a
   expect(response.headers()["set-cookie"]).toContain("HttpOnly");
   expect(response.headers()["set-cookie"]).toContain("SameSite=lax");
   const expired = await request.post("/api/locale", {
-    headers: { Origin: baseURL!, Cookie: `claps-session=${"f".repeat(64)}` }, data: { locale: "ko" },
+    headers: { Origin: baseURL!, Cookie: `claps-session=${"f".repeat(64)}` }, data: { locale: "ja" },
   });
   expect(expired.status()).toBe(200);
   expect(expired.headers()["set-cookie"]).toContain("claps-session=;");
@@ -64,10 +66,10 @@ test("SSR chooses browser language and cookie without hydration errors", async (
   const response = await page.goto(baseURL + "/login");
   expect(await response!.text()).toContain('lang="en"');
   await expect(page.getByText("Continue with Google")).toBeVisible();
-  await change(page, "Language", "한국어");
+  await change(page, "Language", "日本語");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
-  await expect(page.getByText("Google로 계속")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ja");
+  await expect(page.getByText("Googleで続ける")).toBeVisible();
   expect(errors).toEqual([]);
   await context.close();
 });
@@ -77,17 +79,17 @@ test("login and recovery inputs survive language changes and failed persistence 
   await page
     .context()
     .addCookies([
-      { name: "claps-locale", value: "ko", domain: "127.0.0.1", path: "/" },
+      { name: "claps-locale", value: "ja", domain: "127.0.0.1", path: "/" },
     ]);
   await page.goto("/login");
   await page.locator("input[type=email]").fill("phase2@example.test");
-  await change(page, "언어", "English");
+  await change(page, "言語", "English");
   await expect(page.locator("input[type=email]")).toHaveValue(
     "phase2@example.test",
   );
   await page.goto("/forgot-password");
   await page.locator("input[type=email]").fill("restore@example.test");
-  await change(page, "Language", "한국어");
+  await change(page, "Language", "日本語");
   await expect(page.locator("input[type=email]")).toHaveValue(
     "restore@example.test",
   );
@@ -97,12 +99,12 @@ test("login and recovery inputs survive language changes and failed persistence 
       json: { error: { code: "SERVICE_UNAVAILABLE" } },
     }),
   );
-  await page.getByRole("button", { name: "언어", exact: true }).click();
+  await page.getByRole("button", { name: "言語", exact: true }).click();
   await page.getByRole("menuitem", { name: "English" }).click();
   await expect(page.locator("p[role=alert]")).toBeVisible();
-  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ja");
   await page.unroute("**/api/locale");
-  await change(page, "언어", "English");
+  await change(page, "言語", "English");
   await expect(page.locator("p[role=alert]")).toHaveCount(0);
 });
 test("project search and open form retain original input and server status", async ({
@@ -111,20 +113,20 @@ test("project search and open form retain original input and server status", asy
   await createProject(page.request, baseURL!);
   await page.goto("/projects");
   await page
-    .getByRole("textbox", { name: /Search projects|프로젝트 검색/ })
+    .getByRole("textbox", { name: /Search projects|プロジェクトを検索/ })
     .first()
     .fill("원문");
   const current = await page.locator("html").getAttribute("lang");
   await change(
     page,
-    current === "en" ? "Language" : "언어",
-    current === "en" ? "한국어" : "English",
+    current === "en" ? "Language" : "言語",
+    current === "en" ? "日本語" : "English",
   );
   await expect(page.locator("input[type=text]").first()).toHaveValue("원문");
   await expect(page.getByText("원문 프로젝트", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Verifying|검증 중/).first()).toBeVisible();
+  await expect(page.getByText(/Verifying|検証/).first()).toBeVisible();
   await page
-    .getByRole("button", { name: /New project|새 프로젝트/, exact: true })
+    .getByRole("button", { name: /New project|新規プロジェクト/, exact: true })
     .click();
   const dialog = page.getByRole("dialog");
   const name = dialog.locator("input").first();
@@ -132,18 +134,18 @@ test("project search and open form retain original input and server status", asy
   const dialogLocale = await page.locator("html").getAttribute("lang");
   await dialog
     .getByRole("button", {
-      name: dialogLocale === "en" ? "Language" : "언어",
+      name: dialogLocale === "en" ? "Language" : "言語",
       exact: true,
     })
     .click();
   await page
     .getByRole("menuitem", {
-      name: dialogLocale === "en" ? "한국어" : "English",
+      name: dialogLocale === "en" ? "日本語" : "English",
     })
     .click();
   await expect(page.locator("html")).toHaveAttribute(
     "lang",
-    dialogLocale === "en" ? "ko" : "en",
+    dialogLocale === "en" ? "ja" : "en",
   );
   await expect(name).toHaveValue("작성 중 원문");
 });
@@ -155,7 +157,7 @@ test("asset prompt, style, generated output and URL survive changing locale with
   const original = page.url();
   await page.locator("textarea").fill("원문 prompt stays");
   await page
-    .getByRole("button", { name: /Flat vector|플랫 벡터/, exact: true })
+    .getByRole("button", { name: /Flat vector|フラットベクター/, exact: true })
     .click();
   const current = await page.locator("html").getAttribute("lang");
   let jobs = 0;
@@ -164,16 +166,16 @@ test("asset prompt, style, generated output and URL survive changing locale with
   });
   await change(
     page,
-    current === "en" ? "Language" : "언어",
-    current === "en" ? "한국어" : "English",
+    current === "en" ? "Language" : "言語",
+    current === "en" ? "日本語" : "English",
   );
   await expect(page.locator("textarea")).toHaveValue("원문 prompt stays");
   expect(page.url()).toBe(original);
   expect(jobs).toBe(0);
-  await expect(page.getByRole("img", { name: /Generated images|생성 이미지/ })).toHaveCount(1);
+  await expect(page.getByRole("img", { name: /Generated images|生成画像/ })).toHaveCount(1);
   await expect(page.getByText("Original session", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /Flat vector|플랫 벡터/, exact: true }),
+    page.getByRole("button", { name: /Flat vector|フラットベクター/, exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
 });
 for (const width of [390, 1280])
@@ -182,7 +184,7 @@ for (const width of [390, 1280])
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const lang = page.getByRole("button", { name: /^Language$|^언어$/ });
+    const lang = page.getByRole("button", { name: /^Language$|^言語$/ }).first();
     await expect(lang).toBeInViewport();
     await lang.focus();
     await page.keyboard.press("Enter");
@@ -191,12 +193,12 @@ for (const width of [390, 1280])
     const current = await page.locator("html").getAttribute("lang");
     await change(
       page,
-      current === "en" ? "Language" : "언어",
-      current === "en" ? "한국어" : "English",
+      current === "en" ? "Language" : "言語",
+      current === "en" ? "日本語" : "English",
     );
     await page.goto("/projects");
     await expect(
-      page.getByRole("button", { name: /^Language$|^언어$/ }),
+      page.getByRole("button", { name: /^Language$|^言語$/ }).first(),
     ).toBeInViewport();
   });
 test("all existing page families render localized UI with no runtime errors", async ({
@@ -243,7 +245,7 @@ test("all existing page families render localized UI with no runtime errors", as
     await page.goto(url);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(
-      page.getByRole("button", { name: "Language", exact: true }),
+      page.getByRole("button", { name: "Language", exact: true }).first(),
     ).toBeVisible();
     expect(await page.locator("body").innerText()).not.toContain(
       "Text unavailable.",
@@ -259,32 +261,34 @@ test("profile role uses a stable code and entered values survive switching", asy
   await page.locator("#setup-org").fill("원문 회사");
   await page.getByRole("combobox").click();
   await page
-    .getByRole("option", { name: /Brand \/ Marketing|브랜드\/마케팅/ })
+    .getByRole("option", { name: /Brand \/ Marketing|ブランド・マーケティング/ })
     .click();
   const current = await page.locator("html").getAttribute("lang");
   await change(
     page,
-    current === "en" ? "Language" : "언어",
-    current === "en" ? "한국어" : "English",
+    current === "en" ? "Language" : "言語",
+    current === "en" ? "日本語" : "English",
   );
-  await expect(page.locator("#setup-name")).toHaveValue("Original name");
   await expect(page.locator("#setup-org")).toHaveValue("원문 회사");
   await expect(page.getByRole("combobox")).toContainText(
-    /Brand \/ Marketing|브랜드\/마케팅/,
+    /Brand \/ Marketing|ブランド・マーケティング/,
   );
+  // Japanese uses split name fields; switching back restores the English name input.
+  if (await page.locator("html").getAttribute("lang") === "ja") await change(page, "言語", "English");
+  await expect(page.locator("#setup-name")).toHaveValue("Original name");
 });
 test("partner sorting remains selected while business source content is preserved", async ({
   page,
 }) => {
   await page.goto("/partners");
-  await page.getByRole("combobox", { name: /Sort|정렬/ }).selectOption("world");
+  await page.getByRole("combobox", { name: /Sort|並び替え/ }).selectOption("world");
   const current = await page.locator("html").getAttribute("lang");
   await change(
     page,
-    current === "en" ? "Language" : "언어",
-    current === "en" ? "한국어" : "English",
+    current === "en" ? "Language" : "言語",
+    current === "en" ? "日本語" : "English",
   );
   await expect(
-    page.getByRole("combobox", { name: /Sort|정렬/ }),
+    page.getByRole("combobox", { name: /Sort|並び替え/ }),
   ).toHaveValue("world");
 });

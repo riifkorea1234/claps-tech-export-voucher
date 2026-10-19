@@ -29,11 +29,11 @@ async function rejects(sql: string, args: unknown[], code: string) {
   try { await expect(client.query(sql, args)).rejects.toMatchObject({ code }); }
   finally { await client.query("ROLLBACK TO SAVEPOINT invalid_write"); }
 }
-it("creates exactly the sixteen application tables and required timestamp/index types", async () => {
+it("creates exactly the twenty application tables and required timestamp/index types", async () => {
   const { rows } = await client.query("SELECT tablename FROM pg_tables WHERE schemaname='public'");
-  expect(rows.map(r => r.tablename).sort()).toEqual(["storage_tickets", "auth_rate_limits", "users", "projects", "partners", "asset_sessions", "assets", "brand_guides", "jobs", "monitoring_records", "admin_audit_logs", "locales", "localized_contents", "auth_sessions", "auth_accounts", "auth_verifications"].sort());
+  expect(rows.map(r => r.tablename).sort()).toEqual(["storage_tickets", "auth_rate_limits", "users", "projects", "review_checks", "review_package_snapshots", "partners", "asset_sessions", "assets", "brand_guides", "evidence_events", "jobs", "monitoring_feedback_events", "monitoring_records", "admin_audit_logs", "locales", "localized_contents", "auth_sessions", "auth_accounts", "auth_verifications"].sort());
   const times = await client.query("SELECT data_type FROM information_schema.columns WHERE table_schema='public' AND column_name='created_at'");
-  expect(times.rows).toHaveLength(15); expect(times.rows.every(r => r.data_type === "timestamp with time zone")).toBe(true);
+  expect(times.rows).toHaveLength(17); expect(times.rows.every(r => r.data_type === "timestamp with time zone")).toBe(true);
   const indexes = await client.query("SELECT indexname FROM pg_indexes WHERE schemaname='public'");
   for (const name of ["jobs_queue", "jobs_lease", "projects_owner_updated", "sessions_project_created", "assets_session_finalized", "audit_entity"]) expect(indexes.rows.map(r => r.indexname)).toContain(name);
 });
@@ -82,9 +82,10 @@ it("keeps seeds idempotent and preserves existing locale settings, users and pub
     await tx.insert(schema.localizedContents).values({ id: translation, resourceType: "partner", resourceKey: "fixture", localeCode: "ko", sourceRevision: 1, draft: translated, published: translated, updatedBy: seedUser });
     await seedDatabase(tx); await seedDatabase(tx);
     const result = await tx.select().from(schema.locales);
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
+    expect(result.find(r => r.code === "ja")).toMatchObject({ enabled: true, fallbackCode: "en", direction: "ltr" });
     expect(result.find(r => r.code === "ko")).toMatchObject({ enabled: true, displayName: "Reviewed Korean", version: 7 });
-    expect(result.find(r => r.code === "en")).toMatchObject({ enabled: false, fallbackCode: "ko" });
+    expect(result.find(r => r.code === "en")).toMatchObject({ enabled: false, fallbackCode: null });
     const [user] = await tx.select().from(schema.users).where(eq(schema.users.id, seedUser));
     expect(user).toMatchObject({ appRole: "member", profileCompletedAt: null });
     const [content] = await tx.select().from(schema.localizedContents).where(eq(schema.localizedContents.id, translation));

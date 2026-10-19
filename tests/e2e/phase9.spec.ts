@@ -11,7 +11,7 @@ test.afterAll(async () => cleanupAccounts());
 test("real matching worker: criteria restore, sorting, failure retention, privacy and ko/en mobile", async ({ page, baseURL, browser }) => {
   test.setTimeout(240000);
   page.setDefaultTimeout(15000);
-  if (!process.env.TEST_DATABASE_URL || new URL(process.env.TEST_DATABASE_URL).pathname !== "/claps_test") throw new Error("ISOLATED_DB_REQUIRED");
+  if (!process.env.TEST_DATABASE_URL || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(process.env.TEST_DATABASE_URL).pathname)) throw new Error("ISOLATED_DB_REQUIRED");
   const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL }), ids = [randomUUID(), randomUUID()];
   const headers = { Origin: baseURL! };
   const run = () => process.env.E2E_EXTERNAL_WORKER === "1" ? Promise.resolve() : exec(process.execPath, ["--conditions=react-server", "--import", "tsx", resolve("tests/helpers/phase9-worker.ts")], { env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL, APP_ORIGIN: baseURL }, timeout: 90000 });
@@ -37,11 +37,20 @@ test("real matching worker: criteria restore, sorting, failure retention, privac
     await expect(page.getByRole("img", { name: "reference.png" })).toBeVisible();
     await page.getByLabel("World attributes", { exact: true }).fill("sport");
     await page.getByLabel("Licensee attributes (your company)", { exact: true }).fill("sport");
-    await page.getByRole("button", { name: "Save and view matches", exact: true }).click();
-    await expect(page).toHaveURL(/\/partners$/);
-    const second = (await (await page.request.get("/api/matches/latest")).json()).data.attempt;
-    // Inject a failed attempt only in the isolated DB to exercise the production failure UI.
-    await pool.query("UPDATE jobs SET status='failed',error_code='INVALID_RESULT',finished_at=now() WHERE id=$1 AND status='queued'", [second.id]);
+    // Suspend only the explicitly owned synthetic worker while injecting this fixture.
+    // Otherwise it can claim the queued attempt before UPDATE and replace the retained result.
+    const workerPid = Number(process.env.E2E_WORKER_PID);
+    if (process.env.E2E_EXTERNAL_WORKER === "1" && (!Number.isInteger(workerPid) || workerPid <= 1)) throw new Error("OWNED_WORKER_PID_REQUIRED");
+    if (process.env.E2E_EXTERNAL_WORKER === "1") process.kill(workerPid, "SIGSTOP");
+    try {
+      await page.getByRole("button", { name: "Save and view matches", exact: true }).click();
+      await expect(page).toHaveURL(/\/partners$/);
+      const second = (await (await page.request.get("/api/matches/latest")).json()).data.attempt;
+      const failed = await pool.query("UPDATE jobs SET status='failed',error_code='INVALID_RESULT',finished_at=now() WHERE id=$1 AND status='queued'", [second.id]);
+      expect(failed.rowCount).toBe(1);
+    } finally {
+      if (process.env.E2E_EXTERNAL_WORKER === "1") process.kill(workerPid, "SIGCONT");
+    }
     await expect(page.getByText("The latest recommendation failed or was canceled. Previous successful results are retained.")).toBeVisible();
     expect((await (await page.request.get("/api/matches/latest")).json()).data.result.jobId).toBe(original);
     await page.getByRole("button", { name: "Match again", exact: true }).click(); await run();

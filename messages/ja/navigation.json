@@ -1,0 +1,18 @@
+{
+  "asset_generation": "アセット生成",
+  "guideline_verification": "ガイド検証",
+  "final_assets": "最終版",
+  "back_to_list": "一覧",
+  "language": "言語",
+  "licensee_contact": "ライセンシー",
+  "company_name": "組織名",
+  "my_account": "マイページ",
+  "log_out": "ログアウト",
+  "selected": "選択中",
+  "saveFailed": "言語を保存できませんでした。もう一度選択してください。",
+  "projects": "プロジェクト一覧",
+  "partners": "パートナー推薦",
+  "assets": "アセット生成",
+  "monitoring": "モニタリング",
+  "menu": "メニュー"
+}

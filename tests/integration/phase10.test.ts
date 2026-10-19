@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomUUID, randomBytes } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -42,6 +43,7 @@ beforeEach(async () => { const a = await account(); raw = a.token; owner = a.id;
 afterEach(async () => { await pool.query("UPDATE jobs SET status='canceled' WHERE owner_id=ANY($1) AND status IN ('queued','running')", [owners]); });
 afterAll(async () => {
   await pool.query("DELETE FROM admin_audit_logs WHERE actor_id=ANY($1)", [owners]);
+  await cleanupEvidence(pool, owners);
   await pool.query("DELETE FROM storage_tickets WHERE owner_id=ANY($1)", [owners]);
   await pool.query("DELETE FROM monitoring_records WHERE owner_id=ANY($1)", [owners]);
   await pool.query("DELETE FROM assets WHERE session_id IN (SELECT id FROM asset_sessions WHERE owner_id=ANY($1))", [owners]);

@@ -1,0 +1,31 @@
+# Phase13 독립 review 후속 수정 — 9건
+
+2026-10-01(KST), task_c6ea3540df87 / ctx_9288c5d87b4e. [독립 Claude review 원본](phase13-review.md)은 **CHANGES_REQUESTED Critical0/Major0/Minor5/Nit4** 그대로이며 hash를 보존했다. 이번 coder는 APPROVED 판정을 만들지 않았다. 사용자 live TASK의 종료 권한에 따라 수정·실제 재시험·인계 gate를 충족한 **Phase13 로컬 기술 COMPLETED / plan EXECUTED**만 판정한다. 미해결 finding **0/9**, 기술 차단0. Phase11 전체 IN_PROGRESS/외부 출시 BLOCKED와 phase12-plan §16 B 예외(Phase17 기술 인계까지)는 유지한다.
+
+| Finding | 변경·정책 근거 | 실제 검증·결과 |
+| --- | --- | --- |
+| m1 | 기존 asset verification/전체 jobs.output의 64KiB 상한을 유지한다. 새 verify.run은 jobId/verdict/engineVersion/checkedAt/ruleCount와 guide provenance를 저장하고 전체 ruleResults는 기존 job.output.results 및 asset.verification에 보존한다. 기존 전체 verification 사건도 strict union으로 읽는다. 원장 envelope로 asset 용량을 줄이지 않는다. 서버 검사는 PostgreSQL `octet_length(jsonb::text)`를 직접 측정하여 기존 DB CHECK와 같고 compact parseMetadata와 DB 사이의 부족분도 잡는다. provider 응답 전체 output을 run에서 미리 검사하고 queue.complete도 방어한다. 알려진 잘못된 결과는 dispatch 이후라도 INVALID_RESULT/재시도 없음이며 cost unknown은 유지한다. 과거 원장 rewrite/backfill0. | asset verification와 full jobs.output 각각 65535/65536/65537B integration, ≤상한 적용·원장 성공/DB 저장, >상한 DB23514 및 실제 queue fail INVALID_RESULT; 실제 provider oversized run→INVALID_RESULT→asset 적용0/원장0. integration-stale-final.log PASS |
+| m2 | actorType admin 추가. 사용자/admin 최초 running cancel 요청의 actor ID/type을 새 job nullable columns에 영속하고 반복 취소는 최초 initiator를 덮어쓰지 않는다. queued cancel은 같은 transaction의 실제 terminal, running은 요청만 유지하고 실제 worker end/recovery가 terminal 사건을 기록한다. admin retry requested는 admin, 자동 retry는 worker다. DB actual actor FK는 유지하고 owner DTO는 admin 및 owner와 다른 actor ID를 null로 마스킹한다(수정 전 immutable 사건도 포함). | admin queued/running cancel/retry 3경로, running 완료 이전 canceled0, admin 뒤 owner 반복요청도 최초 admin 보존, user running cancel+recovery replay1, raw DB actor 유지/owner PII0, pre-fix foreign actor masking, auto worker actor 시험 PASS |
+| m3 | cleanup/E2E/fixture DB명은 env와 같은 `^claps_test(?:_[a-z0-9]+)?$`. demo는 claps_demo 또는 같은 synthetic regex. owner/email 생성 manifest와 transaction 안 trigger 복원은 유지한다. | 새 claps_test_fix13 full integration156 PASS 및 후속 관련31/49 PASS; 새로운 synthetic demo DB PASS. 기존 DB명 하드코딩 우회0 |
+| m4 | 적용된0010 SQL/snapshot은 변경0. 새0011 migration에 BEFORE TRUNCATE FOR EACH STATEMENT guard와 cancel initiator columns/FK(NO ACTION)를 추가한다. 운영 table owner와 app role 분리 및 앱 SELECT/INSERT 전용 권한은 Phase17 운영 선행조건이다. owner/superuser의 trigger 해제 우회를 차단했다고 주장하지 않는다. | 기존 사건을 유지하며 TRUNCATE23514. 새 빈·0008·Phase12·Phase13 clone apply/replay12행, old fields/rows/evidence 보존, 구 b4749eb Auth session/profile/logout PASS. snapshot generate 정합/보호0010 hash PASS |
+| m5 | 중복 query key는 어떤 순서든422. limit는 양의 decimal string 정규식→숫자(1~100), 기본30. exponent/hex/space/+/float/leading0 거절. cursor 상한 유지. | unit 및 실제 production HTTP에서 반복 limit/cursor, 1e1/0x10/%205/5%20/%2B7/5.0/01/0/101/빈값422, 1/100200 PASS |
+| n1 | LEFT JOIN에서 undefined를 찾던 도달 불가 guard 삭제. owner/세션 존재 guard 및 DB 관계 FK는 유지한다. | 보관·삭제/foreign owner/없는ID 읽기 regression PASS |
+| n2 | workspace.run 인증/활성 owner 판단 후 query/id parse. 미인증의 잘못된 ID/query도401, 인증 후 strict DTO 오류는422. | integration invalid auth-first와 production 반복키/잘못된ID401, 인증422 PASS |
+| n3 | HEAD는 GET과 같은 인증/조회/status/header를 쓰고 성공·오류 body는0. OPTIONS204, POST/PUT/PATCH/DELETE405; Allow GET, HEAD, OPTIONS 및 private,no-store/requestId를 명시한다. | 두 실제 production route의 HEAD200/401 emptybody, 405/OPTIONS/Allow/private-no-store PASS |
+| n4 | certificate selection coverage는 native asset 탄생(requested+succeeded)부터 complete다. legacy session 자체 timeline은 partial 유지. native selection count0은 확인 가능한0이고 legacy unknown은 null 유지. guideVersion 없는 verification는 stale. FinalizationService/certificate가 같은 guide ID/version 및 기록 checksum 비교를 사용한다. finalization의 snapshot/asset-version/rules/job-output deep equality/busy guard는 약화0. | legacy session native asset 채택 count1/complete, old missing-version stale true·canFinalize false 양쪽 일치, 동일ID/version에서 checksum drift도 양쪽 stale, 기존 finalization regression PASS |
+
+## 계약 영향·Phase14 3언어 표시 인계
+
+T19/T20/T26의 job/ruleResults/engineVersion 연결·원본 보존/최소정보 원칙을 따른다. 저장 envelope만 job 참조·요약으로 바뀌며 source trace에 명시한다. 이전 전체 verify.run payload도 읽기 호환된다. 현재 certificate는 asset의 실제 전체 verification을 제공하며 역사 사건은 해당 jobId+assetId의 기존 jobs.output.results 참조다. 새 공개 write API/원장 backfill/전체 ruleResults 복제0. summary를 전체 ruleResults 또는 법적 확정 판정으로 표시하지 않는다.
+
+Phase14 ko/en/ja 모두 동일한 정책으로 admin 역할만 표시하고 null actor ID를 사용자로 추정하지 않는다. summary는 job 참조 및 ruleCount로 표시한다. certificate selection complete/partial/unrecorded와 unknown null을 구별하고 session timeline history와 혼동하지 않는다. guide version 미기록 또는 현재 guide ID/version/기록 checksum 불일치는 stale 표시, canFinalize 별도 서버판정이다. ja는 disabled/운영 활성화0, 이번 UI·번역 변경0.
+
+## 실제 재시험·실패·미해결
+
+최종 고유 **275 = unit56 + integration157 + i18n9 + productionE2E52(51+수정재시험1) + demo1**, Phase13 새 **39 = unit5 + integration31 + E2E3**. 최초 전체 integration156 이후 privacy 보완31 및 stale 관련49(31+기존Phase8 18)을 재실행해 관련 최신 코드를 검증했고 변경 없는 기존126을 다시 세지 않았다. 최종 고유157은 기존126+Phase13최신31이다. 시험 반복을 합산하지 않는다. skip0/0개suite0/최종FAIL0. 정적/lint(기존2warnings)/network-none 최종3팩build/actual2restart/nativeSharp/migration/보존/동일MDHTML PASS.
+
+최초 unit55PASS/1FAIL은 변환 숫자 기대를 문자열로 쓴 fixture 오류, typecheck exit2는 경계 fixture literal 타입 추론, integration153PASS/2FAIL은 apply 뒤 dispatch하여 snapshot version을 바꾼 시험순서 오류였다. 기대·타입·dispatch 순서를 교정했다. 최초 offline build exit1은 외부 node_modules symlink를 Turbopack이 거절하여 내부 Linux deps 복사로 교정했다. 모든 최초 로그/재시험은 fixes/execution.jsonl에 보존한다. 기존 Phase13 429·Phase12 exit139 원인 미확정 기록은 유지한다. 최초production51PASS/1FAIL은 release 복사 시 public/public 중첩으로 이미지14요청400이 발생한 coder의 fixture 오류다. 올바른 새 immutable3팩 release를 평탄복사·전체 public hash대조한 뒤 실패한1건만 재실행해 PASS했다. 기존PASS51은 반복하지 않았다. 재시작 중 쓰기/Orca 제한은 실제 Errno30/WSLsocket1을 기록하고 Full Access 복구 후 재개했다. 마지막 강화 boundary3건만 필터 재시험하여3PASS/28deselected(Vitest skipped 표기)였고28은앞선31전체PASS이므로 필수시험누락0이다. fresh DB의 이번 E2E는4290, controlled web143/worker0; 이는139 원인 규명이 아니다.
+
+외부 출시/실공급자/과금/법무/보존/RPO·RTO/ja 검수/OAuth/운영 role 분리는 Phase17 책임·외부 gate이며 기술 finding 이월0. Phase14 준비 DTO·정책 인계만 했고 착수/clear/commit/push/PR/실송신/영구삭제0.
+
+마지막 artifact 구조검사에서 과거 실패 E2E release의 messages/messages 중첩 사본도 발견했다. 해당 historical release는 실패 증거로만 보존하며 재사용하지 않는다. 그 안의 자체 en-GB13파일은 서버 종료 및 정확한 SHA manifest 대조 후 추가 정리했고 최종 source/build/3팩 release는 public/messages 중첩0이다. 최초 검사 exit1과 교정은 fixes execution 원장에 보존했다.

@@ -5,24 +5,23 @@ import { eq, sql, and } from "drizzle-orm";
 import { locales } from "@/db/schema";
 import { getDatabase } from "@/lib/server/db";
 import { deployedLocales } from "./server";
-import { validateFallbacks } from "./core";
+import { adminLocaleCodes, DEFAULT_LOCALE, validateFallbacks } from "./core";
 // One-time transition of untouched Phase 1 seed rows. Versioned operator settings
 // are preserved on repeated execution. Run only with a reviewed deployment pack.
 export async function activateInitialLocales(
   db: NodePgDatabase<typeof schema> = getDatabase().db,
 ) {
   const packs = await deployedLocales();
-  if (!packs.includes("ko") || !packs.includes("en"))
+  if (adminLocaleCodes.some((code) => !packs.includes(code)))
     throw new Error("Required language packs are incomplete");
   await db.transaction(async (tx) => {
     const entries = await tx.select().from(locales).for("update");
     validateFallbacks(entries);
     if (
-      !entries.some((e) => e.code === "ko") ||
-      !entries.some((e) => e.code === "en")
+      adminLocaleCodes.some((code) => !entries.some((e) => e.code === code))
     )
       throw new Error("Seed locales first");
-    for (const code of ["ko", "en"]) {
+    for (const code of adminLocaleCodes) {
       await tx
         .update(locales)
         .set({
@@ -41,7 +40,7 @@ export async function activateInitialLocales(
     const [base] = await tx
       .select()
       .from(locales)
-      .where(eq(locales.code, "ko"));
+      .where(eq(locales.code, DEFAULT_LOCALE));
     if (!base.enabled) throw new Error("Default locale must remain enabled");
   });
 }

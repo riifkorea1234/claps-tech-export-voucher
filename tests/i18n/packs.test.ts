@@ -6,16 +6,19 @@ import { namespaces, variables, uiNamespaces } from "../../lib/i18n/core";
 import { jobStatuses, jobFailureCodes } from "../../lib/contracts/jobs";
 import { deployedLocales, readPack } from "../../lib/i18n/server";
 it("ships all namespaces with equal keys and interpolation variables", async () => {
-  expect(await deployedLocales()).toEqual(expect.arrayContaining(["ko", "en"]));
+  expect(await deployedLocales()).toEqual(expect.arrayContaining(["ko", "en", "ja"]));
   const ko = await readPack("ko"),
     en = await readPack("en");
+  const ja = await readPack("ja");
+  expect(Object.keys(ja).sort()).toEqual(Object.keys(ko).sort());
+  for (const key of Object.keys(ko)) expect(variables(ja[key]), key).toEqual(variables(ko[key]));
   expect(Object.keys(ko).length).toBeGreaterThan(400);
   expect(Object.keys(en).sort()).toEqual(Object.keys(ko).sort());
   for (const key of Object.keys(ko)) {
     expect(en[key].trim(), key).not.toBe("");
     expect(variables(en[key]), key).toEqual(variables(ko[key]));
   }
-  for (const locale of ["ko", "en"])
+  for (const locale of ["ko", "en", "ja"])
     expect(readdirSync(`messages/${locale}`).sort()).toEqual(
       namespaces.map((ns) => `${ns}.json`).sort(),
     );
@@ -171,7 +174,7 @@ it("has no unextracted Korean UI literals outside documented business fixtures",
 
 it("includes admin UI messages in the shared shell and locale-switch payload", async () => {
   expect(uiNamespaces).toContain("admin");
-  for (const locale of ["ko", "en"]) {
+  for (const locale of ["ko", "en", "ja"]) {
     const pack = await readPack(locale, uiNamespaces);
     expect(pack["admin.reauth"]).toBeTruthy();
     expect(pack["admin.contentLanguage"]).toBeTruthy();
@@ -182,14 +185,14 @@ it("includes admin UI messages in the shared shell and locale-switch payload", a
 it("delivers public errors to client renderers on initial load and language switches", async () => {
   expect(uiNamespaces).toContain("errors");
   expect(uiNamespaces).not.toContain("email");
-  for (const locale of ["ko", "en"]) {
+  for (const locale of ["ko", "en", "ja"]) {
     const pack = await readPack(locale, uiNamespaces);
     expect(pack["errors.NOT_FOUND"]).toBeTruthy();
     expect(pack["errors.SERVICE_UNAVAILABLE"]).toBeTruthy();
   }
 });
 it("covers dynamic administration columns, tabs, resource types and audit actions", async () => {
-  for (const locale of ["ko", "en"]) {
+  for (const locale of ["ko", "en", "ja"]) {
     const pack = await readPack(locale);
     for (const field of ["name","email","org_name","created_at","status","ip_name","archived_at","visibility","kind","attempt","error_code","latest_result_count","action","entity_type","reason","version","email_verified","profile_completed_at","contact_email","tags","ipNames","marketDescription","imageAlt"]) expect(pack[`admin.field.${field}`], field).toBeTruthy();
     for (const tab of ["basic","history","scans","images","translations","operations"]) expect(pack[`admin.${tab}`]).toBeTruthy();

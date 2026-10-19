@@ -22,7 +22,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             className="min-h-9 gap-1.5 text-foreground bg-background"
           >
             <Globe className="size-4" aria-hidden="true" />
-            {locales.find((l) => l.code === locale)?.nativeName ?? "한국어"}
+            {locales.find((l) => l.code === locale)?.nativeName ?? "English"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

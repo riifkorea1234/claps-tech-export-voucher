@@ -1,3 +1,4 @@
+import { normalizeInput } from "@/lib/normalize-input";
 import { z } from "zod";
 import { idSchema, paginationSchema, versionSchema } from "./common";
 export const projectStatus = z.enum(["preparing", "generating", "verifying", "needs_fix", "completed"]);
@@ -7,7 +8,7 @@ export const projectPatch = z.strictObject({ name: name.optional(), ip: z.string
 export const sessionCreate = z.strictObject({ title: name, projectId: idSchema.nullable().optional() });
 export const sessionPatch = sessionCreate.partial().extend({ version: versionSchema, archived: z.boolean().optional() });
 export const assetPatch = z.strictObject({ version: versionSchema, adopted: z.boolean().optional(), deleted: z.literal(true).optional() });
-export const listQuery = paginationSchema.extend({ q: z.string().trim().max(200).default(""), archived: z.enum(["true", "false"]).default("false"), sort: z.enum(["recent", "oldest"]).default("recent"), projectId: idSchema.optional() });
+export const listQuery = paginationSchema.extend({ q: z.string().transform(normalizeInput).pipe(z.string().max(200)).default(""), archived: z.enum(["true", "false"]).default("false"), sort: z.enum(["recent", "oldest"]).default("recent"), projectId: idSchema.optional() });
 export type ProjectInput = z.input<typeof projectCreate>;
 export type ProjectPatch = z.infer<typeof projectPatch>;
 export type SessionPatch = z.infer<typeof sessionPatch>;

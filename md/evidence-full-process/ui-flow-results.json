@@ -1,0 +1,210 @@
+{
+  "target": "https://claps.arcreation.work",
+  "scenarios": [
+    {
+      "locale": "en",
+      "status": "passed",
+      "project": "e6582517-5ddc-4574-b2db-61e9b7486170",
+      "session": "d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a",
+      "guide": "938de15e-6b3c-4394-9716-b0b94beb0a96",
+      "generation": "2b863269-4115-4ead-8a21-4ade9baba9b3",
+      "verification": "03df610a-8c90-4302-a2d1-e2a7c418f5dd",
+      "finalAsset": "6841d97c-e57b-4ed3-95b1-7227145804e7",
+      "export": "d94928db-3527-4a91-8a47-f743fbb1195e",
+      "snapshot": "eed7b857-5d1f-4297-9220-028cfbc7c60d",
+      "monitoring": "ce48ac86-80a2-440d-9877-a82d0a1a12f7",
+      "scan": "b260129a-5c8a-47ec-bc84-c303e021e6df"
+    },
+    {
+      "locale": "ja",
+      "status": "passed",
+      "project": "329bbf6c-84a4-4ccc-85c2-0216bac7ca9d",
+      "session": "be269893-7664-4eff-8579-bcee4cc3d470",
+      "guide": "ab3821a9-1284-40f7-a59a-fbd76d957919",
+      "generation": "7a927094-dc55-428d-8e97-f78ed0fbdbaf",
+      "verification": "09fd3b6d-7bb8-4e2d-ab6a-2fb18d8d9f20",
+      "finalAsset": "1165e7e4-8c5c-4c41-a674-4d1d97e4778c",
+      "export": "0851d809-ccd5-479c-9f3a-2011df63518d",
+      "snapshot": "b3171ea3-6bf7-4717-9fd5-4e0d49b437cf",
+      "monitoring": "15fb65b1-c2aa-4195-ac26-5aac54b56366",
+      "scan": "89437f12-0015-4932-be0c-f2dd3fb85b49"
+    }
+  ],
+  "captures": [
+    {
+      "label": "guide-uploaded",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-001-en-guide-uploaded.png",
+      "route": "/projects/e6582517-5ddc-4574-b2db-61e9b7486170",
+      "at": "2026-10-19T21:30:19.580Z"
+    },
+    {
+      "label": "guide-extracted-draft",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-002-en-guide-extracted-draft.png",
+      "route": "/projects/e6582517-5ddc-4574-b2db-61e9b7486170",
+      "at": "2026-10-19T21:30:23.967Z"
+    },
+    {
+      "label": "guide-published",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-003-en-guide-published.png",
+      "route": "/projects/e6582517-5ddc-4574-b2db-61e9b7486170",
+      "at": "2026-10-19T21:30:24.791Z"
+    },
+    {
+      "label": "generation-submitted",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-004-en-generation-submitted.png",
+      "route": "/assets/d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a",
+      "at": "2026-10-19T21:30:27.192Z"
+    },
+    {
+      "label": "generation-succeeded",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-005-en-generation-succeeded.png",
+      "route": "/assets/d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a",
+      "at": "2026-10-19T21:30:31.758Z"
+    },
+    {
+      "label": "verification-three-verdicts",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-006-en-verification-three-verdicts.png",
+      "route": "/assets/d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a/verify",
+      "at": "2026-10-19T21:30:38.362Z"
+    },
+    {
+      "label": "final-selected-zip",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-007-en-final-selected-zip.png",
+      "route": "/assets/d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a/final",
+      "at": "2026-10-19T21:30:43.099Z"
+    },
+    {
+      "label": "review-issued",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-008-en-review-issued.png",
+      "route": "/assets/d8d6bbf5-aba8-4a45-8a37-7a7e0d09d87a/review-package",
+      "at": "2026-10-19T21:30:47.548Z"
+    },
+    {
+      "label": "monitoring-upload-created",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-009-en-monitoring-upload-created.png",
+      "route": "/monitoring/ce48ac86-80a2-440d-9877-a82d0a1a12f7",
+      "at": "2026-10-19T21:30:53.538Z"
+    },
+    {
+      "label": "monitoring-scan-results",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/flow-010-en-monitoring-scan-results.png",
+      "route": "/monitoring/ce48ac86-80a2-440d-9877-a82d0a1a12f7",
+      "at": "2026-10-19T21:30:57.357Z"
+    },
+    {
+      "label": "guide-uploaded",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-011-ja-guide-uploaded.png",
+      "route": "/projects/329bbf6c-84a4-4ccc-85c2-0216bac7ca9d",
+      "at": "2026-10-19T21:31:05.962Z"
+    },
+    {
+      "label": "guide-extracted-draft",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-012-ja-guide-extracted-draft.png",
+      "route": "/projects/329bbf6c-84a4-4ccc-85c2-0216bac7ca9d",
+      "at": "2026-10-19T21:31:07.772Z"
+    },
+    {
+      "label": "guide-published",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-013-ja-guide-published.png",
+      "route": "/projects/329bbf6c-84a4-4ccc-85c2-0216bac7ca9d",
+      "at": "2026-10-19T21:31:08.447Z"
+    },
+    {
+      "label": "generation-submitted",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-014-ja-generation-submitted.png",
+      "route": "/assets/be269893-7664-4eff-8579-bcee4cc3d470",
+      "at": "2026-10-19T21:31:10.826Z"
+    },
+    {
+      "label": "generation-succeeded",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-015-ja-generation-succeeded.png",
+      "route": "/assets/be269893-7664-4eff-8579-bcee4cc3d470",
+      "at": "2026-10-19T21:31:15.902Z"
+    },
+    {
+      "label": "verification-three-verdicts",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-016-ja-verification-three-verdicts.png",
+      "route": "/assets/be269893-7664-4eff-8579-bcee4cc3d470/verify",
+      "at": "2026-10-19T21:31:23.155Z"
+    },
+    {
+      "label": "final-selected-zip",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-017-ja-final-selected-zip.png",
+      "route": "/assets/be269893-7664-4eff-8579-bcee4cc3d470/final",
+      "at": "2026-10-19T21:31:27.307Z"
+    },
+    {
+      "label": "review-issued",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-018-ja-review-issued.png",
+      "route": "/assets/be269893-7664-4eff-8579-bcee4cc3d470/review-package",
+      "at": "2026-10-19T21:31:31.979Z"
+    },
+    {
+      "label": "monitoring-upload-created",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-019-ja-monitoring-upload-created.png",
+      "route": "/monitoring/15fb65b1-c2aa-4195-ac26-5aac54b56366",
+      "at": "2026-10-19T21:31:36.614Z"
+    },
+    {
+      "label": "monitoring-scan-results",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/flow-020-ja-monitoring-scan-results.png",
+      "route": "/monitoring/15fb65b1-c2aa-4195-ac26-5aac54b56366",
+      "at": "2026-10-19T21:31:40.618Z"
+    }
+  ],
+  "checks": [
+    {
+      "name": "public HTTP invalid input status en",
+      "ok": true,
+      "actual": 422,
+      "correction": "The first capture harness expected 400; product contract is 422."
+    },
+    {
+      "name": "public HTTP invalid input status ja",
+      "ok": true,
+      "actual": 422,
+      "correction": "The first capture harness expected 400; product contract is 422."
+    }
+  ],
+  "errors": []
+}

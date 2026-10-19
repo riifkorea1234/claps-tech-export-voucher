@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { readFile, writeFile, chmod } from "node:fs/promises";
 
-test('sample content: real projects/sessions, originals, recommendations, bilingual UI and recovery fixture',async({page,baseURL,browser})=>{
+test('sample content: real projects/sessions, originals, recommendations, bilingual UI and recovery fixture',async({page,baseURL,browser},testInfo)=>{
  test.setTimeout(120000);
- const config=Object.fromEntries((await readFile('.env.seed.local','utf8')).trim().split('\n').map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));
- if(baseURL!==config.APP_ORIGIN||config.POSTGRES_DB!=='claps_demo')throw new Error('LOCAL_DEMO_REQUIRED');
+ const config=Object.fromEntries((await readFile(process.env.PHASE13_DEMO_ENV||'.env.seed.local','utf8')).trim().split('\n').map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));
+ if(baseURL!==config.APP_ORIGIN||!(config.POSTGRES_DB==='claps_demo'||/^claps_test(?:_[a-z0-9]+)?$/.test(config.POSTGRES_DB)))throw new Error('LOCAL_DEMO_REQUIRED');
  const headers={Origin:baseURL!};
  expect((await page.request.post('/api/auth/sign-in',{headers,data:{email:config.DEMO_EMAIL,password:config.DEMO_PASSWORD}})).status()).toBe(200);
  const projects=(await (await page.request.get('/api/projects')).json()).data.items;
@@ -36,9 +36,9 @@ test('sample content: real projects/sessions, originals, recommendations, biling
  await page.goto(`/monitoring/${records[0].id}`);await expect(page.getByText('No executions yet.',{exact:true})).toBeVisible();
  expect((await page.request.post(`/api/monitoring-records/${records[0].id}/scans`,{headers,data:{outputLocale:'en',idempotencyKey:'demo-unavailable'}})).status()).toBe(503);
  const other=await browser.newContext({baseURL});expect((await other.request.get(`/api/projects/${project.id}`)).status()).toBe(401);expect((await other.request.get(records[0].imageUrl)).status()).toBe(401);await other.close();
- await page.setViewportSize({width:390,height:844});await page.goto('/partners');await expect(page.getByTestId('match-hero')).toContainText('Sample · Moonlit Stationery');await expect(page.getByText('Sample · Cloud Digital',{exact:true}).first()).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'md/evidence/content-seed/partners-mobile.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.goto('/partners');await expect(page.getByTestId('match-hero')).toContainText('Sample · Moonlit Stationery');await expect(page.getByText('Sample · Cloud Digital',{exact:true}).first()).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:testInfo.outputPath('partners-mobile.png'),fullPage:true});
  await page.request.post('/api/locale',{headers,data:{locale:'ko'}});await page.goto('/projects');await expect(page.getByText(project.name,{exact:true})).toBeVisible();await page.reload();await expect(page.getByText(project.name,{exact:true})).toBeVisible();
- await page.screenshot({path:'md/evidence/content-seed/projects-mobile.png',fullPage:true});
- await page.context().storageState({path:'/tmp/claps-content-state.json'});await chmod('/tmp/claps-content-state.json',0o600);
- await writeFile('/tmp/claps-content-fixture.json',JSON.stringify({projectId:project.id,projectName:project.name,sessionIds:sessions.map((s:{id:string})=>s.id),recordId:records[0].id,image:bytes.toString('base64'),jobId}),{mode:0o600});
+ await page.screenshot({path:testInfo.outputPath('projects-mobile.png'),fullPage:true});
+ await page.context().storageState({path:`${process.env.DEMO_FIXTURE_DIR||'/tmp'}/claps-content-state.json`});await chmod(`${process.env.DEMO_FIXTURE_DIR||'/tmp'}/claps-content-state.json`,0o600);
+ await writeFile(`${process.env.DEMO_FIXTURE_DIR||'/tmp'}/claps-content-fixture.json`,JSON.stringify({projectId:project.id,projectName:project.name,sessionIds:sessions.map((s:{id:string})=>s.id),recordId:records[0].id,image:bytes.toString('base64'),jobId}),{mode:0o600});
 });

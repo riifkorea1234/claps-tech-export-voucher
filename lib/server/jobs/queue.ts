@@ -1,4 +1,6 @@
 import "server-only";
+import { assertDatabaseMetadata } from "../evidence/size";
+import { generationTerminal, generationSucceeded } from "../evidence/writer";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { PoolClient } from "pg";
@@ -51,6 +53,7 @@ export class JobQueue {
     const { rows: [ended] } = await c.query<JobRow>(`UPDATE jobs SET status=$2,error_code=$3,error_summary=NULL,
       finished_at=now(),lease_until=NULL,locked_by=NULL,updated_at=now(),cost_state=CASE WHEN dispatched_at IS NOT NULL THEN cost_state ELSE 'none' END
       WHERE id=$1 AND status IN ('queued','running') RETURNING *`, [row.id, status, code]);
+    if (ended) await generationTerminal(c, ended);
     return ended;
   }
   private alive(row: JobRow | undefined) {
@@ -87,6 +90,7 @@ export class JobQueue {
     });
   }
   async complete(job: JobRow, handler: JobHandler, result: JobResult, canCommit: () => boolean = () => true) {
+    await assertDatabaseMetadata(this.service.auth.pool, result.output);
     const output = parseJobOutput(job.kind, result.output), usage = result.usage ? parseMetadata(usageSchema, result.usage) : null;
     return this.service.auth.transaction(async c => {
       const { row, active } = await this.locked(c, job);
@@ -111,6 +115,7 @@ export class JobQueue {
         await this.end(c, row, "failed", "PARENT_INACTIVE"); return false;
       }
       await handler.apply?.(c, row, { output, ...(usage ? { usage } : {}) });
+      if (output.kind === "generation") await generationSucceeded(c, row, output.assetIds);
       if (!canCommit()) throw new JobFailure("WORKER_LOST", true);
       const committed = await c.query(`UPDATE jobs SET status='succeeded',output=$2,usage=$3,cost_state=$4,finished_at=now(),lease_until=NULL,locked_by=NULL,updated_at=now()
         WHERE id=$1 AND lease_until>clock_timestamp() AND deadline_at>clock_timestamp()`, [row.id, output, usage, usage ? "confirmed" : row.dispatched_at ? "unknown" : "none"]);
@@ -123,13 +128,13 @@ export class JobQueue {
       const { row, active } = await this.locked(c, job);
       if (!row || row.status !== "running") return;
       const failure = error instanceof JobFailure ? error : new JobFailure("INTERNAL");
-      const code = row.cancel_requested_at ? "CANCELED" : !active ? "PARENT_INACTIVE" : row.dispatched_at ? "PROVIDER_UNKNOWN" : failure.code;
+      const code = row.cancel_requested_at ? "CANCELED" : !active ? "PARENT_INACTIVE" : failure.code === "INVALID_RESULT" ? "INVALID_RESULT" : row.dispatched_at ? "PROVIDER_UNKNOWN" : failure.code;
       const ended = await this.end(c, row, code === "CANCELED" ? "canceled" : "failed", code);
       if (ended && failure.retryable && !row.dispatched_at && active && !row.cancel_requested_at) await this.autoRetry(c, ended);
     });
   }
   private async autoRetry(c: PoolClient, row: JobRow) {
-    try { await this.service.retryLocked(c, row); }
+    try { await this.service.retryLocked(c, row, row.owner_id, "worker"); }
     catch (error) { if (!(error instanceof AppError)) throw error; }
   }
   async recoverExpired(limit = 100) {

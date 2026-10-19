@@ -145,3 +145,17 @@ Better Auth 기본 handler를 현재 digest 세션 저장 방식과 함께 노�
 - en-GB는 영어 기반 확장 시험용이며 운영 파일팩/seed에는 추가하지 않았다. 생성 script와 격리 E2E로 재현한다. 이전 이미지에 팩이 없으면 언어 선택에서 제외되고 SSR en/콘텐츠 원문으로 fallback한다. DB 게시본과 계정 선호는 보존된다.
 - `scripts/backup-restore.py`는 web/worker/migrate 정지를 요구하고 신규 디렉터리에 dump+tar+SHA-256+이미지 ID를 저장한다. 복구는 빈 DB·빈 uploads 볼륨만 허용하며 checksum/압축 경로를 검사한다. 외부 writer 중지·별도 백업 보관·RPO/RTO·보존 정책은 운영자 결정이다. 상세 절차는 scripts/README.md를 따른다.
 - 랜딩 미연결 링크는 비활성 텍스트다. 실제 대상/법무 문서를 임의 생성하지 않았다. 가이드 분석 시연은 기존 사용자 결정대로 유지하며 실제 추출로 간주하지 않는다.
+
+
+## Phase17 local technical implementation — REVIEW_READY / IN_PROGRESS
+
+2026-10-01 live task_b9e371f25c19/ctx_6fad68e01617 in actual parent. Current351unique PASS=70unit+193integration+9i18n+78production+1separate demo; final3pack12related repeats.34/34sourceSHA/decisions/exact tests,13features/missing0. Nonempty writer-stopped Compose recovery into empty DB/uploads:21tables/80files mismatch0; post migrate/seed replay preserved. Genuine previous local application838d8cd runs new schema/privatefiles/ja fallback/alltablepreservation. Actual isolated adminja reauth/CAS/audit/twoowners/preferences finallyfalse; full1205ja-key native request packet ready, unsent/unapproved. InheritedTHREE conditions have local scale/lock and nonowner-role proof; operating rate/budget/grants remain BLOCKED.
+
+[Result](md/phase17-result.md), [checklist](md/phase17-test-checklist.md), [handoff](md/phase17-handoff.md), [audit](md/evidence/phase17/final-audit.json). Existing product/API/schema/SQL/meta/journal/seed changes0; source changes only3local scripts+1E2E. Prior originals/fixedHEAD/sixrefs preserved, owned services stopped/ja false, synthetic reviewer fixtures retained. Independent existing reviewer and same-coder fixes/closure pending; no premature COMPLETED/APPROVED. Phase11 whole IN_PROGRESS/external BLOCKED; real owner assignments/native/product/provider/OAuth/legal/RPO/operatingja/role gates pending. Phase12 native139 root cause unresolved. No Phase18/clear/commit/push/PR/deploy/sending.
+
+
+## Phase17 SAME CODER fixes — current local COMPLETED / EXECUTED
+
+2026-10-01 task4c669be04d81/ctx_b8b50122ea23 supersedes the INITIAL coder REVIEW_READY/IN_PROGRESS state above, which remains historical. Original independent CHANGES_REQUESTED C0/M1/m3/n6 unchanged; SAME CODER fixed all10 with actual retests, requiredtechnical0, no independent APPROVED invented. Current354unique PASS=73unit+193integration+9i18n+78wholeproduction(one fresh noncoderDB)+1demo; final3pack related15repeats and actualdemoCLI3 preservation. Recovery21/21nonemptytables82files0mismatch/replays preserved; oldappenabledjaabsentpack+oldworker25s/21fingerprints unchanged; appoperationalroleA/B/16denials/readerSELECTonly,12proofrolesNOLOGIN.7ownDBja=false, ownedruntimes/dbcontainers stopped, oldevidence/privatefixtures/volumes retained, protectedruntimes unchanged. Native1205keys/durable78FINALsample packet unsent/unapproved/realownerspending; THREE inheritedlocalconditions supported, operatingrate/budget/grantsBLOCKED. Phase11wholeIN_PROGRESS/externalBLOCKED, SIGSEGV139causeunresolved. NoPhase18/clear/commit/push/PR/deploy/sending.
+
+[Current result](md/phase17-result.md), [fixes](md/phase17-review-fixes.md), [checklist](md/phase17-test-checklist.md), [handoff](md/phase17-handoff.md), [audit](md/evidence/phase17/fixes/final-audit.json).

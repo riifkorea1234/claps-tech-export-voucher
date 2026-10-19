@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { mkdtemp, rm, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -33,6 +34,7 @@ async function syntheticAsset(sessionId: string) {
 }
 beforeAll(async () => { await migrateDatabase(pool); directory = await mkdtemp(join(tmpdir(), "claps-p4-")); process.env.UPLOADS_DIR = directory; png = await sharp({ create: { width: 640, height: 480, channels: 3, background: "#ee4488" } }).png().toBuffer(); a = await account(); b = await account(); });
 afterAll(async () => {
+  await cleanupEvidence(pool, owners);
   await pool.query("DELETE FROM storage_tickets WHERE owner_id=ANY($1)", [owners]);
   await pool.query("UPDATE projects SET cover='{\"schemaVersion\":1,\"kind\":\"default\"}' WHERE owner_id=ANY($1)", [owners]);
   await pool.query("DELETE FROM assets WHERE session_id IN(SELECT id FROM asset_sessions WHERE owner_id=ANY($1))", [owners]);

@@ -1,3 +1,4 @@
+import { normalizeInput } from "@/lib/normalize-input";
 import { z } from "zod";
 import {
   idSchema,
@@ -9,7 +10,7 @@ import { localizedContentSchema } from "./metadata";
 export const reasonSchema = z.string().trim().min(1).max(500);
 export const adminQuery = paginationSchema
   .extend({
-    q: z.string().trim().max(200).default(""),
+    q: z.string().transform(normalizeInput).pipe(z.string().max(200)).default(""),
     status: z.string().max(40).optional(),
     kind: z.string().max(40).optional(),
     ownerId: idSchema.optional(),

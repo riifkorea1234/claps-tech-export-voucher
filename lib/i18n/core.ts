@@ -1,5 +1,20 @@
-export const DEFAULT_LOCALE = "ko";
+export const DEFAULT_LOCALE = "en";
 export const LOCALE_COOKIE = "claps-locale";
+export const ADMIN_LOCALE_COOKIE = "claps-admin-locale";
+export const LANGUAGE_SCOPE_HEADER = "x-claps-language-scope";
+export type LanguageScope = "public" | "admin";
+export const publicLocaleCodes = ["en", "ja"] as const;
+export const adminLocaleCodes = ["ko", "en", "ja"] as const;
+export function languageScope(pathname: string): LanguageScope {
+  return pathname === "/admin" || pathname.startsWith("/admin/") ? "admin" : "public";
+}
+export function localeCookieName(scope: LanguageScope) {
+  return scope === "admin" ? ADMIN_LOCALE_COOKIE : LOCALE_COOKIE;
+}
+export function scopedLocales(entries: readonly LocaleEntry[], scope: LanguageScope = "public") {
+  const codes: readonly string[] = scope === "admin" ? adminLocaleCodes : publicLocaleCodes;
+  return entries.filter((entry) => codes.includes(entry.code));
+}
 export const namespaces = [
   "common",
   "navigation",
@@ -12,6 +27,8 @@ export const namespaces = [
   "admin",
   "email",
   "errors",
+  "evidence",
+  "review",
 ] as const;
 export type Namespace = (typeof namespaces)[number];
 export type Messages = Record<string, string>;
@@ -67,7 +84,7 @@ export function resolveLocale(
     const found = matchLocale(tag, supported);
     if (found) return found;
   }
-  return DEFAULT_LOCALE;
+  return supported.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : supported[0] ?? DEFAULT_LOCALE;
 }
 export function validateFallbacks(entries: readonly LocaleEntry[]) {
   const registry = new Map(entries.map((entry) => [entry.code, entry]));

@@ -26,5 +26,5 @@ it("preserves the selected locale in API requests and safely falls back for netw
 });
 it("uses a regional English error fallback while invalid headers cannot escape into responses", () => {
   expect(requestContext(new Request("http://test", { headers: { "X-Claps-Locale": "en-GB" } })).locale).toBe("en");
-  expect(requestContext(new Request("http://test", { headers: { "X-Claps-Locale": "../en" } })).locale).toBe("ko");
+  expect(requestContext(new Request("http://test", { headers: { "X-Claps-Locale": "../en" } })).locale).toBe("en");
 });

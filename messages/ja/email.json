@@ -1,0 +1,6 @@
+{
+  "verifySubject": "CLAPSのメールアドレスを確認してください",
+  "verifyBody": "24時間以内にメールアドレスを確認してください：{url}",
+  "resetSubject": "CLAPSのパスワードを再設定してください",
+  "resetBody": "1時間以内にパスワードを再設定してください：{url}"
+}

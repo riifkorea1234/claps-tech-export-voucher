@@ -20,7 +20,7 @@ export function ServerSessionList({ projectId }: { projectId?: string }) {
   const remote = useRemote<PageResult<SessionDto>>(`/api/asset-sessions?q=${encodeURIComponent(query)}&page=${page}&archived=${archived}&sort=${sort}${filter ? `&projectId=${filter}` : ""}`);
   const project = useRemote<ProjectDto | null>(projectId ? `/api/projects/${projectId}` : "/api/projects/stats");
   const m = useWorkspaceMutation(remote.reload);
-  return <div className="flex flex-col gap-5 px-6 py-7">
+  return <div className="reflow-surface flex flex-col gap-5 px-6 py-7">
     {projectId && <Link href={`/projects/${projectId}`} className="text-sm text-muted-foreground">{project.data?.name}</Link>}
     <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-xl font-bold">{t("projects.generation_sessions")}</h1><Button disabled={m.pending} onClick={() => m.run(async () => { const s = await createSession(t("assets.untitled"), projectId); router.push(`/assets/${s.id}`); })}>{t("assets.new_asset_generation")}</Button></div>
     <WorkspaceError error={remote.error ?? project.error ?? m.error} retry={remote.reload} />
