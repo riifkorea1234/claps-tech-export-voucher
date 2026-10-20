@@ -39,7 +39,8 @@ test("recovery UI resets password, rejects reuse and invalidates another browser
 test("URL/localStorage/social bypasses and malformed, cross-origin or privilege-escalating requests are rejected", async ({ page, baseURL }) => {
   await page.addInitScript(() => { localStorage.setItem("claps:current-email", "forged@example.test"); localStorage.setItem("claps:accounts", JSON.stringify({ "forged@example.test": { email: "forged@example.test", name: "Forged" } })); });
   for (const path of ["/projects", "/assets/fixture", "/profile-setup?email=forged@example.test"]) { await page.goto(path); await expect(page).toHaveURL(/\/login$/); }
-  await expect(page.getByRole("button", { name: /Google/ })).toBeDisabled(); await expect(page.getByRole("button", { name: /Kakao|카카오/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Google/ })).toBeDisabled(); if ((await page.locator("html").getAttribute("lang")) === "ko") await expect(page.getByRole("button", { name: /Kakao|카카오/ })).toBeDisabled();
+  else await expect(page.getByRole("button", { name: /Kakao|카카오/ })).toHaveCount(0);
   expect((await page.request.get("/api/admin/access")).status()).toBe(401);
   expect((await page.request.post("/api/auth/lookup", { data: { email: fixtureEmail() } })).status()).toBe(403);
   expect((await page.request.post("/api/auth/lookup", { headers: { Origin: "https://evil.example" }, data: { email: fixtureEmail() } })).status()).toBe(403);

@@ -1,0 +1,6 @@
+import { it, expect } from "vitest";
+import { reviewPatch, reviewIssue, manualKeys } from "../../lib/contracts/review";
+const base={version:0,targetHash:"a".repeat(64),manual:{copyrightNotice:true,thirdPartyAssets:false,recipientConfirmed:true}};
+it("R01 strict manual-only contract rejects automatic true/false and forged actor",()=>{expect(manualKeys).toHaveLength(3);expect(reviewPatch.parse(base)).toEqual(base);for(const extra of [{automatic:{verified:true}},{finalized:false},{actorId:"forged"}])expect(reviewPatch.safeParse({...base,...extra}).success).toBe(false);});
+it("R01 CAS hash/version and exact manual shape reject missing/unknown/nonboolean",()=>{for(const d of [{...base,version:-1},{...base,targetHash:"wrong"},{...base,manual:{copyrightNotice:true}},{...base,manual:{...base.manual,unknown:true}},{...base,manual:{...base.manual,copyrightNotice:"true"}}])expect(reviewPatch.safeParse(d).success).toBe(false);});
+it("R02 bounded issuance key is required and cannot carry locale/job/provider",()=>{const d={version:1,targetHash:base.targetHash,idempotencyKey:"retry-1"};expect(reviewIssue.parse(d)).toEqual(d);for(const extra of [{locale:"en"},{kind:"export"},{idempotencyKey:"x".repeat(129)},{idempotencyKey:"bad key"}])expect(reviewIssue.safeParse({...d,...extra}).success).toBe(false);});

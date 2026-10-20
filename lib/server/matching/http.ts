@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { DEFAULT_LOCALE } from "@/lib/i18n/core";
 import { assertOrigin, rawSession } from "../auth/http";
 import { withApi, jsonResponse, AppError } from "../errors/http";
 import { readJson } from "../errors/validation";
@@ -22,6 +23,6 @@ export const matchingApi = withApi(async (request, context) => {
     return new Response(new Uint8Array(file.bytes), { headers: { "Content-Type": file.mime, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "X-Request-ID": context.requestId } });
   }
   if (url.pathname === "/api/matches" && request.method === "POST") return acceptedJobResponse(await s.request(raw, await readJson(request, z.unknown())), context);
-  if (url.pathname === "/api/matches/latest" && request.method === "GET") return jsonResponse(await s.latest(raw, request.headers.get("x-claps-locale") ?? "ko"), context);
+  if (url.pathname === "/api/matches/latest" && request.method === "GET") return jsonResponse(await s.latest(raw, request.headers.get("x-claps-locale") ?? DEFAULT_LOCALE), context);
   throw new AppError("NOT_FOUND");
 });

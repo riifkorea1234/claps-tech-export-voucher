@@ -6,7 +6,7 @@ import sharp from "sharp";
 test("third file pack deploy → register → publish → activate → disable with preference and file persistence", async ({ page, baseURL }) => {
   test.setTimeout(120000);
   const url = process.env.TEST_DATABASE_URL;
-  if (!url || new URL(url).pathname !== "/claps_test") throw new Error("ISOLATED_DB_REQUIRED");
+  if (!url || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(url).pathname)) throw new Error("ISOLATED_DB_REQUIRED");
   const pool = new Pool({ connectionString: url });
   let partnerId: string | undefined;
   const keep = process.env.PHASE11_KEEP_RECOVERY_FIXTURE === "1";

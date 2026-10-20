@@ -20,6 +20,7 @@ export async function hasStoredFileReferences(c: PoolClient, storageKey: string)
     UNION ALL SELECT 1 FROM partners p WHERE EXISTS(SELECT 1 FROM jsonb_array_elements(p.profile->'images') image WHERE image->>'storageKey'=$1 OR image->>'thumbnailKey'=$1)
     UNION ALL SELECT 1 FROM users u WHERE EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(u.preferences->'matching'->'references','[]'::jsonb)) r WHERE r->'file'->>'storageKey'=$1 OR r->'file'->>'thumbnailKey'=$1)
     UNION ALL SELECT 1 FROM jobs j WHERE EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(j.input->'preferences'->'matching'->'references','[]'::jsonb)) r WHERE r->'file'->>'storageKey'=$1 OR r->'file'->>'thumbnailKey'=$1)
+    UNION ALL SELECT 1 FROM review_package_snapshots s WHERE EXISTS(SELECT 1 FROM jsonb_array_elements(s.file_refs) f WHERE f->>'storageKey'=$1 OR f->>'thumbnailKey'=$1)
     UNION ALL SELECT 1 FROM assets WHERE file->>'storageKey'=$1
     UNION ALL SELECT 1 FROM brand_guides WHERE file->>'storageKey'=$1
     UNION ALL SELECT 1 FROM monitoring_records WHERE source_file->>'storageKey'=$1 OR source_file->>'thumbnailKey'=$1

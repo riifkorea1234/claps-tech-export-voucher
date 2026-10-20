@@ -4,7 +4,7 @@
 
 The initial migration contains fourteen application tables. It creates tables first and adds foreign keys afterwards, including the projects ↔ brand_guides cycle. IDs are application-generated opaque text; timestamps use timestamptz. Foreign keys use NO ACTION, with no automatic cascading deletion. The `authSchema` export maps Better Auth's four core models to users and the three auth tables. Core fields are compared against installed Better Auth 1.7.5 in a unit test. Authentication routes, lifecycle hooks and policy remain Phase 3 work.
 
-`corepack pnpm db:seed` only inserts absent ko/en locale rows. Both start disabled; en falls back to ko. It does not change existing names, enabled flags, revisions, users, roles or published content. Phase 2 must verify file packs before enabling languages. Synthetic development data is confined to tests, never included in the operational seed.
+`corepack pnpm db:seed` only inserts absent en/ja/ko locale rows. Seed rows start disabled; ja and ko fall back to en. Migration 0014 enables all three shipped packs and makes English the default. Public pages offer en/ja; the admin console offers ko/en/ja. It does not change existing names, enabled flags, revisions, users, roles or published content. Phase 2 must verify file packs before enabling languages. Synthetic development data is confined to tests, never included in the operational seed.
 
 JSONB columns enforce an object with numeric schemaVersion=1 and a 64 KiB metadata limit. Before service writes, use `parseMetadata` with the strict schemas in `lib/contracts/metadata.ts`; SQL envelope checks do not replace field validation. The current job output schemas are bounded references, not raw provider payloads. Provider-specific fields/limits and business rules must be reviewed in the owning Phase before those APIs are exposed. Authorization, JSON reference ownership, full locale fallback cycle checks and state transitions require service transactions and are not implied by the initial schema.
 
@@ -35,3 +35,13 @@ Phase 6: `0004`는 세션 추가 인증 만료 및 번역 게시 revision/versio
 전역 가상 파트너 6개와 ko/en 게시 소개 12개, 계정별 프로젝트 3개·세션 3개·모니터링 원본 2개·초기 추천 기준을 추가한다. 실제 업체/연락처/AI 결과는 포함하지 않는다. 안정된 ID와 advisory lock으로 재실행·동시 실행 중복을 막고, 기존 편집·보관·게시·선호를 보존한다. 기본 seed와 데모 seed는 서로 독립적이다.
 
 **파일도 생성하므로 web과 같은 UPLOADS_DIR/볼륨을 사용해야 한다.** 기존 Compose에서는 업로드 볼륨이 없는 migrate 대신 **worker** 서비스로 실행한다. CLI는 환경 변수를 읽으며 비밀번호를 인수로 받지 않는다. 로컬 실행 예시는 [scripts/README.md](../scripts/README.md)의 샘플 체험 절을 참고한다.
+
+## Phase12 locale/profile additions
+
+`0009_natural_quicksilver.sql` adds nullable `family_name`, `given_name`, `family_name_kana`, and `given_name_kana` to users. It performs no guessed name backfill and leaves the old `name` column intact. Apply it before deploying the Phase12 web/worker. Empty and populated 0008 clone databases, migration replay, published content/preferences preservation, and the fixed b4749eb authentication service read/write were checked in `md/evidence/phase12/`.
+
+The normal seed inserts absent en/ja/ko rows only, with English as the fallback base. `i18n:activate` initializes untouched seed rows for all three shipped packs and preserves versioned settings. Migration 0014 applies the English-default language policy to existing databases, including enabling Japanese. Demo business content retains its original language and explicit fallback metadata.
+
+## Phase15 monitoring feedback ledger
+
+`0012_worried_george_stacy.sql` adds `monitoring_feedback_events` only. It stores user reports/withdrawals, separate from immutable provider results: canonical `jobId:itemIndex`, actual array bounds, record/job/owner guard, owner+action+key unique/requestHash, result sequence and latest-state index. UPDATE/DELETE/TRUNCATE are denied by append-only triggers; reporting does not change similarity, train a provider or send an external report. Apply the additive migration before Phase15 web deployment; do not roll back SQL/journal or delete ledger rows. Empty/0008/Phase12/13/14 clone/replay and fixed b4749eb AuthService compatibility evidence is in `md/evidence/phase15/migration.log`.

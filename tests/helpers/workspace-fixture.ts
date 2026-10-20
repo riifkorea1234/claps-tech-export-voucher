@@ -18,7 +18,7 @@ export async function coverFixture(request: APIRequestContext, origin: string, p
 export async function assetFixture(request: APIRequestContext, origin: string, project: { id: string; version: number }, sessionId: string) {
   await coverFixture(request, origin, project);
   const url = process.env.TEST_DATABASE_URL;
-  if (!url || new URL(url).pathname !== "/claps_test") throw new Error("Isolated test DB required");
+  if (!url || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(url).pathname)) throw new Error("Isolated test DB required");
   const pool = new Pool({ connectionString: url }); const assetId = randomUUID(), jobId = randomUUID();
   try {
     const { rows: [p] } = await pool.query("SELECT owner_id,cover FROM projects WHERE id=$1", [project.id]);

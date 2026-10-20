@@ -9,7 +9,7 @@ import { LanguageSwitcher } from "./language-switcher";
 // 로그인 / 비밀번호 찾기 / 프로필 설정에서 공용으로 사용
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-[100dvh] flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="reflow-surface relative flex min-h-[100dvh] flex-col items-center justify-center bg-background px-6 py-16">
       {/* 상단 좌측 로고 (클릭 시 랜딩으로) */}
       <Link href="/" className="absolute top-6 left-6 flex h-8 items-center">
         <Image

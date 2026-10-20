@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "name": "running generation and running cancellation",
+      "ok": true,
+      "detail": {
+        "job": "99228cad-4fb4-4aa2-8a55-fe89ecd68265",
+        "status": "canceled"
+      }
+    },
+    {
+      "name": "invalid guide PDF upload UI",
+      "ok": true
+    },
+    {
+      "name": "admin restore/suspend synthetic member and audit",
+      "ok": true,
+      "detail": {
+        "restore": true,
+        "suspend": true,
+        "audited": true
+      }
+    },
+    {
+      "name": "admin locale editor dialog",
+      "ok": true
+    }
+  ],
+  "records": [
+    {
+      "label": "generation-job-running",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-001-en-generation-job-running.png",
+      "route": "/jobs/99228cad-4fb4-4aa2-8a55-fe89ecd68265",
+      "at": "2026-10-19T21:33:53.782Z"
+    },
+    {
+      "label": "generation-running-canceled",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-002-en-generation-running-canceled.png",
+      "route": "/jobs/99228cad-4fb4-4aa2-8a55-fe89ecd68265",
+      "at": "2026-10-19T21:33:55.312Z"
+    },
+    {
+      "label": "guide-upload-invalid-error",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-003-en-guide-upload-invalid-error.png",
+      "route": "/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5",
+      "at": "2026-10-19T21:33:56.949Z"
+    },
+    {
+      "label": "profile-setup-mobile-en",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/edge-004-en-profile-setup-mobile-en.png",
+      "route": "/profile-setup",
+      "at": "2026-10-19T21:33:59.920Z"
+    },
+    {
+      "label": "admin-user-restored",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-005-en-admin-user-restored.png",
+      "route": "/admin/users/8520ee65-6817-4370-b279-b82a56e144bb",
+      "at": "2026-10-19T21:34:04.721Z"
+    },
+    {
+      "label": "admin-user-confirm-dialog",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-006-en-admin-user-confirm-dialog.png",
+      "route": "/admin/users/8520ee65-6817-4370-b279-b82a56e144bb",
+      "at": "2026-10-19T21:34:07.127Z"
+    },
+    {
+      "label": "admin-locale-editor-dialog",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/edge-007-en-admin-locale-editor-dialog.png",
+      "route": "/admin/locales",
+      "at": "2026-10-19T21:34:09.082Z"
+    }
+  ],
+  "errors": []
+}

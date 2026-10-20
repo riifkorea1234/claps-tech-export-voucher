@@ -32,17 +32,18 @@ it("activates initial file packs once and preserves versioned operator settings"
           .filter((r) => r.enabled)
           .map((r) => r.code)
           .sort(),
-      ).toEqual(["en", "ko"]);
+      ).toEqual(["en", "ja", "ko"]);
       expect(rows.every((r) => r.version === 2)).toBe(true);
       await tx
         .update(schema.locales)
         .set({ enabled: false, version: 3 })
-        .where(eq(schema.locales.code, "en"));
+        .where(eq(schema.locales.code, "ja"));
       await activateInitialLocales(tx);
       await seedDatabase(tx);
       rows = await tx.select().from(schema.locales);
-      expect(rows.find((r) => r.code === "en")?.enabled).toBe(false);
-      expect((await availableLocales(rows)).map((r) => r.code)).toEqual(["ko"]);
+      expect(rows.find((r) => r.code === "ja")?.enabled).toBe(false);
+      expect((await availableLocales(rows)).map((r) => r.code)).toEqual(["en"]);
+      expect((await availableLocales(rows, "admin")).map((r) => r.code).sort()).toEqual(["en", "ko"]);
       throw rollback;
     }),
   ).rejects.toBe(rollback);
@@ -118,7 +119,7 @@ it("returns published content, fallback metadata and original without exposing d
         });
       result = await publishedContent(input, tx);
       expect(result).toMatchObject({
-        content: translated,
+        content: original,
         resolvedLocale: "ko",
         fallbackUsed: true,
       });

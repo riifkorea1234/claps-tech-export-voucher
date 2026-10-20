@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { mkdtemp, rm, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -25,6 +26,7 @@ async function account(status="active") {
 }
 beforeAll(async()=>{await migrateDatabase(pool);await seedDatabase(db);expect((await pool.query("SELECT 1 FROM partners WHERE id=ANY($1)",[partnerIds])).rowCount).toBe(0);dir=await mkdtemp(join(tmpdir(),"claps-demo-test-"));process.env.UPLOADS_DIR=dir;});
 afterEach(async()=>{
+ await cleanupEvidence(pool, ids);
  await pool.query("DELETE FROM localized_contents WHERE resource_key=ANY($1)",[partnerIds]);
  for(const table of ['monitoring_records','storage_tickets','asset_sessions','projects']) await pool.query(`DELETE FROM ${table} WHERE owner_id=ANY($1)`,[ids]);
  await pool.query("DELETE FROM partners WHERE id=ANY($1)",[partnerIds]);

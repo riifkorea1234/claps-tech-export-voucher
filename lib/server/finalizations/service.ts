@@ -1,4 +1,6 @@
 import "server-only";
+import { verificationStale } from "../verifications/stale";
+import { appendEvidence, guideProvenance } from "../evidence/writer";
 import { isDeepStrictEqual } from "node:util";
 import type { PoolClient, QueryResultRow } from "pg";
 import { finalizationRequest, aggregateVerdict, type VerificationView } from "../../contracts/verification";
@@ -14,6 +16,8 @@ export class FinalizationService {
     const p = s.project_id ? await this.workspace.projectRow(c, owner, s.project_id) : null;
     const parsed = verificationSchema.safeParse(row.verification), verification = parsed.success ? parsed.data : null;
     const currentGuideId = p?.active_guide_id ?? null;
+    const current = currentGuideId ? (await c.query("SELECT id,version,file->>'checksum' checksum FROM brand_guides WHERE id=$1 AND project_id=$2", [currentGuideId, p.id])).rows[0] ?? null : null;
+    const recordedGuide = verification ? (await c.query("SELECT payload->'guide' guide FROM evidence_events WHERE owner_id=$1 AND asset_id=$2 AND job_id=$3 AND kind='verify.run' ORDER BY sequence DESC LIMIT 1", [owner, row.id, row.verification_job_id])).rows[0]?.guide : null;
     let canFinalize = false;
     if (verification && row.adopted && !row.finalized_at && verification.guideId === currentGuideId && row.verification_job_id === verification.jobId && verification.verdict === "pass" && aggregateVerdict(verification.ruleResults) === "pass") {
       const { rows: [job] } = await c.query<JobRow>("SELECT * FROM jobs WHERE id=$1 AND owner_id=$2 AND status='succeeded' AND kind='verification'", [verification.jobId, owner]);
@@ -35,7 +39,7 @@ export class FinalizationService {
         input.assetIds.includes(row.id) && input.guideId === currentGuideId && matchingAsset && matchingGuide &&
         matchingRules && stored && isDeepStrictEqual(stored, verification) && !busy.rowCount);
     }
-    return { verification, currentGuideId, stale: !!verification && verification.guideId !== currentGuideId, canFinalize };
+    return { verification, currentGuideId, stale: !!verification && verificationStale(verification, current, recordedGuide?.checksum), canFinalize };
   }
   get(raw: string | undefined, id: string) { return this.workspace.run(raw, async (c, owner) => this.view(c, owner, await this.workspace.assetRow(c, owner, id))); }
   async set(raw: string | undefined, id: string, data: unknown, finalized: boolean) {
@@ -51,6 +55,9 @@ export class FinalizationService {
         guide = view.verification!.guideId;
       }
       const { rows: [updated] } = await c.query("UPDATE assets SET finalized_at=$2,finalized_guide_id=$3,version=version+1,updated_at=now() WHERE id=$1 RETURNING *", [id, finalized ? new Date() : null, guide]);
+      await appendEvidence(c, owner, a.session_id, finalized
+        ? { schemaVersion: 1, kind: "final.added", actorType: "user", assetVersion: updated.version, verificationJobId: a.verification_job_id, guide: await guideProvenance(c, guide!) }
+        : { schemaVersion: 1, kind: "final.removed", actorType: "user", assetVersion: updated.version }, id);
       // Past verification remains in jobs and assets. Cancellation only changes the final marker.
       if (!finalized) await c.query(`UPDATE projects SET cover='{"schemaVersion":1,"kind":"default"}',version=version+1,updated_at=now() WHERE owner_id=$1 AND cover->>'assetId'=$2`, [owner, id]);
       return this.workspace.assetDto(c, owner, updated);

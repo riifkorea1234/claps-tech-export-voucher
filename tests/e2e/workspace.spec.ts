@@ -61,7 +61,7 @@ test("uses server pagination and ignores unowned browser data", async ({ page, b
 test("shows failed loads distinctly and works on mobile", async ({ page, baseURL }) => {
   await createProject(page.request, baseURL!, "Mobile project"); await page.setViewportSize({ width: 390, height: 844 });
   await page.route("**/api/projects?*", route => route.fulfill({ status: 503, json: { error: { code: "SERVICE_UNAVAILABLE", message: "Unavailable", requestId: "fixture" } } }));
-  await page.goto("/projects"); await expect(page.getByRole("alert")).toBeVisible(); await page.unroute("**/api/projects?*"); await page.getByRole("button", { name: "Reload", exact: true }).click(); await expect(page.getByText("Mobile project", { exact: true })).toBeVisible();
+  await page.goto("/projects"); await expect(page.locator("main").getByRole("alert")).toBeVisible(); await page.unroute("**/api/projects?*"); await page.getByRole("button", { name: "Reload", exact: true }).click(); await expect(page.getByText("Mobile project", { exact: true })).toBeVisible();
   await page.getByText("Mobile project", { exact: true }).click(); await expect(page.getByRole("heading", { name: "Mobile project" })).toBeVisible();
   expect((await page.getByRole("heading", { name: "Mobile project" }).boundingBox())!.width).toBeGreaterThan(150);
   await page.screenshot({ path: "md/evidence/phase4/project-mobile.png", fullPage: true });

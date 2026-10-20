@@ -1,12 +1,13 @@
-import { matchLocale } from "./i18n/core";
-import { errorMessages } from "./contracts/errors";
+import { DEFAULT_LOCALE, matchLocale } from "./i18n/core";
+import { errorMessages, errorLocales, type ErrorLocale } from "./contracts/errors";
 // Account data comes only from the authenticated server session.
-export type Account = { id: string; email: string; name: string; org: string; role?: string; status: string; locale?: string };
+export type { Account } from "./contracts/account";
+import { accountSchema, type Account } from "./contracts/account";
 export const ROLES = ["marketing", "design", "merchandising", "licensing", "management", "other"];
 class AccountRequestError extends Error {}
 export async function accountRequest<T>(path: string, method = "GET", body?: unknown): Promise<T> {
-  const locale = document.documentElement.lang || "ko";
-  const fallback = matchLocale(locale, ["ko", "en"]) === "en" ? "en" : "ko";
+  const locale = document.documentElement.lang || DEFAULT_LOCALE;
+  const fallback = (matchLocale(locale, errorLocales) ?? DEFAULT_LOCALE) as ErrorLocale;
   try {
     const response = await fetch(path, { method, cache: "no-store", headers: { "Content-Type": "application/json", "X-Claps-Locale": locale }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const result = await response.json();
@@ -24,7 +25,7 @@ export function navigateAfterAuth(path: string) {
   if (url.origin !== window.location.origin) throw new Error("Invalid authentication destination");
   window.location.replace(url.href);
 }
-export const getAccount = () => accountRequest<Account>("/api/me");
-export const upsertAccount = (a: { name: string; org: string; role?: string }) => accountRequest<Account>("/api/me", "PATCH", a);
+export const getAccount = () => accountRequest<Account>("/api/me").then(data => accountSchema.parse(data));
+export const upsertAccount = (a: { name: string; org: string; role?: string; locale?: string; familyName?: string | null; givenName?: string | null; familyNameKana?: string | null; givenNameKana?: string | null }) => accountRequest<Account>("/api/me", "PATCH", a).then(data => accountSchema.parse(data));
 export const deleteAccount = () => accountRequest("/api/me", "DELETE", {});
 export const clearCurrent = () => accountRequest("/api/auth/sign-out", "POST", {});

@@ -47,7 +47,7 @@ export function EmptyState({
           {title}
         </p>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="whitespace-pre-line text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {action}

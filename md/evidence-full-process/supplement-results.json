@@ -1,0 +1,348 @@
+{
+  "checks": [
+    {
+      "name": "HTTP-contracts-en-corrected",
+      "ok": true,
+      "detail": {
+        "invalidInput": 422,
+        "certificate": 200,
+        "snapshot": 200
+      }
+    },
+    {
+      "name": "project-edit-dialog-en-corrected",
+      "ok": true
+    },
+    {
+      "name": "evidence-timeline-expanded-en",
+      "ok": true
+    },
+    {
+      "name": "project-pagination-archive-en",
+      "ok": true
+    },
+    {
+      "name": "session-pagination-inline-rename-en",
+      "ok": true
+    },
+    {
+      "name": "monitoring-feedback-state-en",
+      "ok": true
+    },
+    {
+      "name": "review-snapshot-remains-immutable-en",
+      "ok": true,
+      "detail": {
+        "checksum": "91eac844e1c18822b111232b5aa89522a89d919d157a67cc6921c985392f2143",
+        "checksStale": true
+      }
+    },
+    {
+      "name": "HTTP-contracts-ja-corrected",
+      "ok": true,
+      "detail": {
+        "invalidInput": 422,
+        "certificate": 200,
+        "snapshot": 200
+      }
+    },
+    {
+      "name": "project-edit-dialog-ja-corrected",
+      "ok": true
+    },
+    {
+      "name": "evidence-timeline-expanded-ja",
+      "ok": true
+    },
+    {
+      "name": "project-pagination-archive-ja",
+      "ok": true
+    },
+    {
+      "name": "session-pagination-inline-rename-ja",
+      "ok": true
+    },
+    {
+      "name": "monitoring-feedback-state-ja",
+      "ok": true
+    },
+    {
+      "name": "review-snapshot-remains-immutable-ja",
+      "ok": true,
+      "detail": {
+        "checksum": "eed8ba8b95c09c744f7e94c62004fbaea25700f0d4638a394237555863ebb2f3",
+        "checksStale": true
+      }
+    },
+    {
+      "name": "admin jobs RSC 502 final repeated verification",
+      "ok": true,
+      "detail": [
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        },
+        {
+          "status": 200,
+          "type": "text/x-component"
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "label": "project-edit-dialog-corrected",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-001-en-project-edit-dialog-corrected.png",
+      "route": "/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5",
+      "at": "2026-10-19T21:29:00.779Z"
+    },
+    {
+      "label": "evidence-timeline-expanded",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-002-en-evidence-timeline-expanded.png",
+      "route": "/assets/46d50a9c-5f2e-4599-ade1-6016acbe71b3/evidence",
+      "at": "2026-10-19T21:29:03.463Z"
+    },
+    {
+      "label": "projects-page-2",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-003-en-projects-page-2.png",
+      "route": "/projects",
+      "at": "2026-10-19T21:29:05.434Z"
+    },
+    {
+      "label": "projects-archived",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-004-en-projects-archived.png",
+      "route": "/projects",
+      "at": "2026-10-19T21:29:05.708Z"
+    },
+    {
+      "label": "sessions-page-2",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-005-en-sessions-page-2.png",
+      "route": "/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5/sessions",
+      "at": "2026-10-19T21:29:06.390Z"
+    },
+    {
+      "label": "session-rename-input",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-006-en-session-rename-input.png",
+      "route": "/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5/sessions",
+      "at": "2026-10-19T21:29:06.623Z"
+    },
+    {
+      "label": "monitoring-feedback-expanded",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-007-en-monitoring-feedback-expanded.png",
+      "route": "/monitoring/450852a8-39bf-4afa-a5f7-51fd16503c51",
+      "at": "2026-10-19T21:29:09.339Z"
+    },
+    {
+      "label": "review-stale-checks-fixed-snapshot",
+      "locale": "en",
+      "device": "desktop",
+      "file": "captures/supplement-008-en-review-stale-checks-fixed-snapshot.png",
+      "route": "/assets/46d50a9c-5f2e-4599-ade1-6016acbe71b3/review-package?snapshot=84d7de67-cdd2-4288-8ded-3b6c6e27dfc2",
+      "at": "2026-10-19T21:29:12.208Z"
+    },
+    {
+      "label": "project-edit-dialog-corrected",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-009-ja-project-edit-dialog-corrected.png",
+      "route": "/projects/267a98cb-0ad4-4bad-9390-aeb302c3e52c",
+      "at": "2026-10-19T21:29:17.885Z"
+    },
+    {
+      "label": "evidence-timeline-expanded",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-010-ja-evidence-timeline-expanded.png",
+      "route": "/assets/275898c6-aae7-4f76-ab8a-2073ad576f30/evidence",
+      "at": "2026-10-19T21:29:20.880Z"
+    },
+    {
+      "label": "projects-archived",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-011-ja-projects-archived.png",
+      "route": "/projects",
+      "at": "2026-10-19T21:29:23.524Z"
+    },
+    {
+      "label": "session-rename-input",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-012-ja-session-rename-input.png",
+      "route": "/projects/267a98cb-0ad4-4bad-9390-aeb302c3e52c/sessions",
+      "at": "2026-10-19T21:29:25.833Z"
+    },
+    {
+      "label": "monitoring-feedback-expanded",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-013-ja-monitoring-feedback-expanded.png",
+      "route": "/monitoring/e014a32d-967a-400f-9d1c-d0075264afa7",
+      "at": "2026-10-19T21:29:29.716Z"
+    },
+    {
+      "label": "review-stale-checks-fixed-snapshot",
+      "locale": "ja",
+      "device": "desktop",
+      "file": "captures/supplement-014-ja-review-stale-checks-fixed-snapshot.png",
+      "route": "/assets/275898c6-aae7-4f76-ab8a-2073ad576f30/review-package?snapshot=ab3012d3-9438-4000-8937-95414f23326e",
+      "at": "2026-10-19T21:29:33.874Z"
+    },
+    {
+      "label": "admin-mobile-admin",
+      "locale": "ko",
+      "device": "mobile",
+      "file": "captures/supplement-015-ko-admin-mobile-admin.png",
+      "route": "/admin",
+      "at": "2026-10-19T21:29:35.982Z"
+    },
+    {
+      "label": "admin-mobile-users",
+      "locale": "ko",
+      "device": "mobile",
+      "file": "captures/supplement-016-ko-admin-mobile-users.png",
+      "route": "/admin/users",
+      "at": "2026-10-19T21:29:38.357Z"
+    },
+    {
+      "label": "admin-mobile-jobs",
+      "locale": "ko",
+      "device": "mobile",
+      "file": "captures/supplement-017-ko-admin-mobile-jobs.png",
+      "route": "/admin/jobs",
+      "at": "2026-10-19T21:29:41.014Z"
+    },
+    {
+      "label": "admin-mobile-locales",
+      "locale": "ko",
+      "device": "mobile",
+      "file": "captures/supplement-018-ko-admin-mobile-locales.png",
+      "route": "/admin/locales",
+      "at": "2026-10-19T21:29:43.178Z"
+    },
+    {
+      "label": "admin-mobile-afeac--a-d-cdefftabguides",
+      "locale": "ko",
+      "device": "mobile",
+      "file": "captures/supplement-019-ko-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "route": "/admin/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5?tab=guides",
+      "at": "2026-10-19T21:29:45.195Z"
+    },
+    {
+      "label": "admin-mobile-admin",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/supplement-020-en-admin-mobile-admin.png",
+      "route": "/admin",
+      "at": "2026-10-19T21:29:47.202Z"
+    },
+    {
+      "label": "admin-mobile-users",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/supplement-021-en-admin-mobile-users.png",
+      "route": "/admin/users",
+      "at": "2026-10-19T21:29:49.197Z"
+    },
+    {
+      "label": "admin-mobile-jobs",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/supplement-022-en-admin-mobile-jobs.png",
+      "route": "/admin/jobs",
+      "at": "2026-10-19T21:29:51.353Z"
+    },
+    {
+      "label": "admin-mobile-locales",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/supplement-023-en-admin-mobile-locales.png",
+      "route": "/admin/locales",
+      "at": "2026-10-19T21:29:53.361Z"
+    },
+    {
+      "label": "admin-mobile-afeac--a-d-cdefftabguides",
+      "locale": "en",
+      "device": "mobile",
+      "file": "captures/supplement-024-en-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "route": "/admin/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5?tab=guides",
+      "at": "2026-10-19T21:29:55.321Z"
+    },
+    {
+      "label": "admin-mobile-admin",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-025-ja-admin-mobile-admin.png",
+      "route": "/admin",
+      "at": "2026-10-19T21:29:57.976Z"
+    },
+    {
+      "label": "admin-mobile-users",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-026-ja-admin-mobile-users.png",
+      "route": "/admin/users",
+      "at": "2026-10-19T21:30:00.085Z"
+    },
+    {
+      "label": "admin-mobile-jobs",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-027-ja-admin-mobile-jobs.png",
+      "route": "/admin/jobs",
+      "at": "2026-10-19T21:30:02.504Z"
+    },
+    {
+      "label": "admin-mobile-locales",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-028-ja-admin-mobile-locales.png",
+      "route": "/admin/locales",
+      "at": "2026-10-19T21:30:04.590Z"
+    },
+    {
+      "label": "admin-mobile-afeac--a-d-cdefftabguides",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-029-ja-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "route": "/admin/projects/af2e5ac8-7234-424a-93d7-0cd5e5483ff5?tab=guides",
+      "at": "2026-10-19T21:30:06.503Z"
+    },
+    {
+      "label": "admin-jobs-final-recheck",
+      "locale": "ja",
+      "device": "mobile",
+      "file": "captures/supplement-030-ja-admin-jobs-final-recheck.png",
+      "route": "/admin/jobs",
+      "at": "2026-10-19T21:30:10.033Z"
+    }
+  ],
+  "errors": [],
+  "target": "https://claps.arcreation.work"
+}

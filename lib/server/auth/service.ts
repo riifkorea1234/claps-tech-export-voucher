@@ -2,18 +2,20 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { hashPassword, verifyPassword } from "better-auth/crypto";
+import { deployedLocales } from "@/lib/i18n/packs";
+import { DEFAULT_LOCALE, matchLocale } from "@/lib/i18n/core";
 import { AppError } from "@/lib/server/errors/http";
 import { getDatabase } from "@/lib/server/db";
 import { sandboxMail, type Mailer } from "@/lib/server/mail/sandbox";
-import { SESSION_SECONDS, emailSchema, passwordSchema, profileSchema, tokenSchema } from "./policy";
+import { SESSION_SECONDS, emailSchema, passwordSchema, profileSchema, validateProfile, tokenSchema } from "./policy";
 export type AuthUser = {
-  id: string; email: string; name: string; org_name: string | null; job_role: string | null;
+  id: string; email: string; name: string; family_name: string | null; given_name: string | null; family_name_kana: string | null; given_name_kana: string | null; org_name: string | null; job_role: string | null;
   app_role: string; status: string; email_verified: boolean; preferences: { schemaVersion: 1; locale?: string }; profile_completed_at: Date | null;
 };
 export const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 const allowed = (u: AuthUser) => !["suspended", "withdrawal_pending"].includes(u.status);
 export function accountDto(u: AuthUser) {
-  return { id: u.id, email: u.email, name: u.name, org: u.org_name ?? "", role: u.job_role ?? undefined, status: u.status, locale: u.preferences.locale };
+  return { id: u.id, email: u.email, name: u.name, familyName: u.family_name ?? null, givenName: u.given_name ?? null, familyNameKana: u.family_name_kana ?? null, givenNameKana: u.given_name_kana ?? null, org: u.org_name ?? "", role: u.job_role ?? undefined, status: u.status, locale: u.preferences.locale };
 }
 export class AuthService {
   constructor(readonly pool: Pool, readonly mail: Mailer, readonly origin: string) {}
@@ -87,7 +89,7 @@ export class AuthService {
       return { accepted: true };
     });
   }
-  async consume(raw: string, kind: "verify" | "reset", password?: string, locale = "ko") {
+  async consume(raw: string, kind: "verify" | "reset", password?: string, locale: string = DEFAULT_LOCALE) {
     tokenSchema.parse(raw);
     const hashed = kind === "reset" ? await hashPassword(passwordSchema.parse(password)) : undefined;
     return this.transaction(async c => {
@@ -134,7 +136,23 @@ export class AuthService {
   async profile(raw: string | undefined, input: unknown) {
     const data = profileSchema.parse(input);
     return this.authenticated(raw, async (c, u) => {
-      const { rows } = await c.query<AuthUser>(`UPDATE users SET name=$2,org_name=$3,job_role=$4,status='active',profile_completed_at=COALESCE(profile_completed_at,now()),version=version+1,updated_at=now() WHERE id=$1 RETURNING *`, [u.id, data.name, data.org, data.role ?? null]);
+      const requested = data.locale ?? u.preferences.locale ?? DEFAULT_LOCALE;
+      const registry = await c.query("SELECT code FROM locales WHERE enabled=true");
+      const deployed = await deployedLocales();
+      const supported = registry.rows.map(r => r.code as string).filter(code => deployed.includes(code));
+      // Explicit locale must be enabled and deployed; unavailable preferences use English.
+      if (data.locale && !supported.includes(data.locale)) throw new AppError("VALIDATION_ERROR");
+      const locale = matchLocale(requested, supported) ?? DEFAULT_LOCALE;
+      validateProfile(data, locale);
+      const name = locale.split("-")[0] === "ja" ? `${data.familyName} ${data.givenName}` : data.name;
+      const { rows } = await c.query<AuthUser>(`UPDATE users SET name=$2,org_name=$3,job_role=$4,
+        family_name=$5,given_name=$6,family_name_kana=$7,given_name_kana=$8,
+        status='active',profile_completed_at=COALESCE(profile_completed_at,now()),version=version+1,updated_at=now() WHERE id=$1 RETURNING *`,
+        [u.id, name, data.org, data.role ?? null,
+          data.familyName === undefined ? u.family_name : data.familyName || null,
+          data.givenName === undefined ? u.given_name : data.givenName || null,
+          data.familyNameKana === undefined ? u.family_name_kana : data.familyNameKana || null,
+          data.givenNameKana === undefined ? u.given_name_kana : data.givenNameKana || null]);
       return accountDto(rows[0]);
     });
   }

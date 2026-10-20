@@ -210,3 +210,13 @@ corepack pnpm test:demo
 `test:demo`는 별도 `playwright.demo.config.ts`로 실행하며 기본 `test:e2e`와 분리돼 있다. 프로젝트/세션/원본/한·영 추천/모바일/미인증 접근을 확인하고 프로젝트 커버와 실제 규칙 추천 결과를 남긴다. AI 결과를 생성하지 않는다. 복구 비교용 `/tmp/claps-content-{state,fixture}.json`은 0600이며, `CHECK_ORIGIN=http://127.0.0.1:3194 node scripts/demo-recovery-check.mjs`로 격리 복구본을 확인한 뒤 제거한다. 테스트 trace에는 세션 정보가 포함될 수 있으므로 공개 보고서에 복사하지 않는다.
 
 임시 Compose 사본과 포트는 로컬 검수용이며 운영 배포 설정이 아니다. 결과와 범위는 [콘텐츠·시드 결과](../md/content-seed-result.md)에 기록한다.
+
+## Phase12 local verification
+
+The Phase12 profile API accepts strict nullable split-name fields (`familyName`, `givenName`, `familyNameKana`, `givenNameKana`) and an optional canonical `locale`. An explicit locale must be enabled and deployed; Japanese profile saves require family/given names and synchronize `name`. Language selection alone leaves existing active accounts usable. Only names, organization and search q use width/space normalization; kana fields additionally compose half-width kana. Passwords, tokens, emails, URLs and free prompts are excluded.
+
+`phase12-migration-check.ts` and `phase12-demo-check.ts` are dedicated synthetic checkers for the isolated Phase12 PostgreSQL on loopback 55437. They reject other targets, retain synthetic DBs for review, and never run down migrations. Migration checks require unused `claps_test_prefix12`, `claps_test_empty12`, `claps_test_upgrade12` names; a retry must use a fresh isolated database instance instead of deleting existing data. The demo checker uses a private `/tmp/claps-phase12-*` environment file; do not replace the user's `.env.seed.local`. Exact commands, failed attempts and results are in the Phase12 checklist/evidence. No real provider, OAuth credentials, production Japanese activation or external mail is involved.
+
+## Phase15 isolated verification
+
+`phase15-migration-check.ts` requires `/claps_test_phase15` on loopback 55437 and unused Phase15 clone names. It creates empty/0008 upgrade and predecessor Phase12/13/14 clones, preserves prior rows, verifies migration replay and runs the fixed b4749eb AuthService. It never migrates the original predecessor DBs or deletes any database. The actual code target is `/mnt/f/claps-product`; Linux sandbox `/tmp/claps-phase15-sandbox` reuses physical internal dependencies from Phase14 and contains a test copy only. Reports, command/exit ledger, immutable release hashes and actual two-restart evidence are under `md/evidence/phase15/`; private credentials/session fixtures stay in 0600 `/tmp/claps-phase15-*` files. Phase15 output is REVIEW_READY, pending independent reviewer and same-coder fix/closure. No Phase16, clear, external providers or production Japanese activation are performed.

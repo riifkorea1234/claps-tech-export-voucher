@@ -872,6 +872,7 @@ export default function LandingPage() {
 
       {/* 다크 푸터 */}
       <footer className="relative overflow-hidden bg-landing-ink text-white">
+        <div className="mx-auto max-w-7xl px-6 pt-8"><LanguageSwitcher /></div>
         {/* 좌하단 웜 글로우 */}
         <div
           aria-hidden

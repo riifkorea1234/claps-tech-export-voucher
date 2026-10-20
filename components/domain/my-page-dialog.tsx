@@ -1,6 +1,7 @@
 "use client";
 import { navigateAfterAuth } from "@/lib/account-store";
-import { useT } from "@/lib/i18n/provider";
+import { validSplitName } from "@/lib/normalize-input";
+import { useLanguage } from "@/lib/i18n/provider";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ProfileFields } from "./profile-fields";
+import { ProfileFields, emptySplitName, type SplitName } from "./profile-fields";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import {
   getAccount,
@@ -34,11 +35,12 @@ export function MyPageDialog({
   onOpenChange: (open: boolean) => void;
   onSaved?: () => void; // 저장 후 사이드바 등 갱신용
 }) {
-  const t = useT();
+  const { t, locale } = useLanguage();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [account, setAccount] = useState<Account | null>(null);
   const [name, setName] = useState("");
+  const [splitName, setSplitName] = useState<SplitName>(emptySplitName);
   const [org, setOrg] = useState("");
   const [role, setRole] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -49,19 +51,24 @@ export function MyPageDialog({
     let cancelled = false;
     getAccount().then(a => {
       if (cancelled) return;
-      setError(""); setAccount(a); setName(a.name); setOrg(a.org); setRole(a.role ?? "");
+      setError(""); setAccount(a); setName(a.name); setSplitName({ familyName: a.familyName ?? "", givenName: a.givenName ?? "", familyNameKana: a.familyNameKana ?? "", givenNameKana: a.givenNameKana ?? "" }); setOrg(a.org); setRole(a.role ?? "");
     }).catch(() => { if (!cancelled) { setAccount(null); setError(t("auth.requestFailed")); } });
     return () => { cancelled = true; };
   }, [open, t]);
 
-  const canSave = name.trim().length > 0 && org.trim().length > 0;
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) setAccount(null);
+    onOpenChange(nextOpen);
+  }
+
+  const canSave = (locale.split("-")[0] === "ja" ? validSplitName(splitName.familyName, splitName.givenName) : name.trim().length > 0) && org.trim().length > 0;
 
   async function handleSave() {
     if (!canSave || !account || pending) return;
     setPending(true); setError("");
     try {
-      await upsertAccount({ name: name.trim(), org: org.trim(), role: role || undefined });
-      onSaved?.(); onOpenChange(false);
+      await upsertAccount({ name: name.trim(), locale, ...splitName, org: org.trim(), role: role || undefined });
+      onSaved?.(); handleOpenChange(false);
     } catch (e) { setError(e instanceof Error ? e.message : t("auth.requestFailed")); }
     finally { setPending(false); }
   }
@@ -75,8 +82,8 @@ export function MyPageDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[420px]">
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="min-w-0 grid-cols-[minmax(0,1fr)] max-h-[90dvh] overflow-y-auto sm:max-w-[420px]">
           <DialogHeader>
             <DialogTitle>{t("auth.my_account")}</DialogTitle>
             <DialogDescription>
@@ -88,14 +95,17 @@ export function MyPageDialog({
             {/* 이메일 (수정 불가) */}
             <div className="flex flex-col gap-2">
               <Label>{t("auth.email")}</Label>
-              <div className="flex h-11 items-center rounded-lg border border-input bg-muted px-3 text-sm text-muted-foreground">
+              <div className="min-h-11 min-w-0 break-all rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
                 {account?.email ?? "-"}
               </div>
             </div>
 
             <ProfileFields
               idPrefix="my"
+              disabled={!account || pending}
               name={name}
+              splitName={splitName}
+              onSplitNameChange={setSplitName}
               org={org}
               role={role}
               onNameChange={setName}
@@ -104,7 +114,7 @@ export function MyPageDialog({
             />
 
             {/* 회원 탈퇴 */}
-            <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
+            <div className="flex flex-col items-start justify-between gap-3 border-t border-border pt-4 sm:flex-row sm:items-center">
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-foreground">
                   {t("auth.delete_account")}

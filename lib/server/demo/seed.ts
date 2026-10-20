@@ -1,4 +1,7 @@
 import "server-only";
+// Japanese business content falls back to ko until independently reviewed; never auto-copy it.
+export const DEMO_CONTENT_LOCALES = ["ko", "en"] as const;
+export const DEMO_JA_FALLBACK = "ko";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 import { AuthService, digest } from "../auth/service";
@@ -22,7 +25,7 @@ export async function seedDemo(auth: AuthService, raw: string) {
         const profile = partnerProfileSchema.parse({ schemaVersion: 1, description: p.koDescription, tags: p.tags, ipNames: [], marketDescription: p.marketKo, images: [] });
         const inserted = await c.query("INSERT INTO partners(id,name,visibility,profile) VALUES($1,$2,'public',$3) ON CONFLICT(id) DO NOTHING RETURNING id", [id, p.ko, profile]);
         if (!inserted.rowCount) continue; // Preserve edited master and translations together.
-        for (const locale of ["ko", "en"]) {
+        for (const locale of DEMO_CONTENT_LOCALES) {
           const content = localizedContentSchema.parse({ schemaVersion: 1, resourceType: "partner", name: locale === "ko" ? p.ko : p.en, description: locale === "ko" ? p.koDescription : p.enDescription, marketDescription: locale === "ko" ? p.marketKo : p.marketEn });
           await c.query("INSERT INTO localized_contents(id,resource_type,resource_key,locale_code,source_revision,draft,published,published_source_revision,published_version,published_at,updated_by) VALUES($1,'partner',$2,$3,1,$4,$4,1,1,now(),$5)", [`${id}-${locale}`, id, locale, content, owner]);
         }

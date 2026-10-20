@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n/provider";
+import { DEFAULT_LOCALE } from "@/lib/i18n/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,7 +30,7 @@ export function LocaleEditor({
     [nativeName, setNativeName] = useState(""),
     [displayName, setDisplayName] = useState(""),
     [direction, setDirection] = useState("ltr"),
-    [fallbackCode, setFallback] = useState("ko"),
+    [fallbackCode, setFallback] = useState<string>(DEFAULT_LOCALE),
     [enabled, setEnabled] = useState(false),
     [order, setOrder] = useState(0),
     [reason, setReason] = useState("");
@@ -39,7 +40,7 @@ export function LocaleEditor({
     setNativeName(String(row?.native_name ?? ""));
     setDisplayName(String(row?.display_name ?? ""));
     setDirection(String(row?.direction ?? "ltr"));
-    setFallback(String(row?.fallback_code ?? (row?.code === "ko" ? "" : "ko")));
+    setFallback(String(row?.fallback_code ?? (row?.code === DEFAULT_LOCALE ? "" : DEFAULT_LOCALE)));
     setEnabled(!!row?.enabled);
     setOrder(Number(row?.sort_order ?? 0));
     setReason("");
@@ -102,7 +103,7 @@ export function LocaleEditor({
                   <Button variant="outline" onClick={() => edit(row)}>
                     {t("admin.edit")}
                   </Button>
-                  {row.code !== "ko" && (!!row.deployed || !!row.enabled) && (
+                  {row.code !== DEFAULT_LOCALE && (!!row.deployed || !!row.enabled) && (
                     <ConfirmAction
                       label={t(
                         row.enabled
@@ -172,7 +173,7 @@ export function LocaleEditor({
                 aria-label={t("admin.fallback")}
                 className="ml-2 rounded border p-2"
                 value={fallbackCode}
-                disabled={code === "ko"}
+                disabled={code === DEFAULT_LOCALE}
                 onChange={(e) => setFallback(e.target.value)}
               >
                 <option value="">—</option>
@@ -210,7 +211,7 @@ export function LocaleEditor({
               <input
                 type="checkbox"
                 disabled={
-                  code === "ko" || !rows.find((r) => r.code === code)?.deployed
+                  code === DEFAULT_LOCALE || !rows.find((r) => r.code === code)?.deployed
                 }
                 checked={enabled}
                 onChange={(e) => setEnabled(e.target.checked)}

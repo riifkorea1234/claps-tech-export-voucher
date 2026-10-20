@@ -74,9 +74,9 @@ lib/
 
 ### Phase 2 언어팩
 
-고정 UI는 `messages/ko`와 `messages/en`에서 관리합니다. `GET /api/locales`는 활성 DB 언어와 완성된 배포 파일팩의 교집합만 반환하며, `POST /api/locale`은 same-origin JSON 요청으로 HttpOnly 언어 쿠키를 저장합니다. URL과 현재 폼/필터/생성 결과를 유지합니다. 로그인 회원의 언어 선호도 DB에 저장하며 계정 전환 시 회원 선호로 쿠키를 동기화합니다.
+기본 UI 언어는 영어입니다. 일반 화면에는 영어·일본어만 표시하며, `/admin`은 한국어·영어·일본어를 지원합니다. 고정 UI는 `messages/en`, `messages/ja`, `messages/ko`에서 관리합니다. `GET /api/locales`는 일반 화면 언어를 반환하며, 관리자 전용 `?scope=admin`은 어드민 언어를 반환합니다. 활성 DB 언어와 완성된 배포 파일팩의 교집합만 제공합니다. `POST /api/locale`은 same-origin JSON `{ locale, scope? }` 요청으로 HttpOnly 언어 쿠키를 저장합니다. 일반 화면은 `claps-locale`과 회원 선호도를 사용하고, 어드민은 별도 `claps-admin-locale` 쿠키를 사용합니다. URL과 현재 폼/필터/생성 결과를 유지합니다.
 
-기존 Phase 1 seed는 언어를 비활성으로 등록합니다. 파일팩 검증 후 **검수된 배포 환경**에서 `corepack pnpm i18n:activate`를 한 번 실행하면 초기 ko/en을 활성화합니다. 이미 변경한 version의 운영 설정은 재실행으로 덮어쓰지 않습니다. 로컬에서도 DB migration과 seed가 선행되어야 합니다. `corepack pnpm test:i18n`으로 key/변수/enum/문구 누락을 검사합니다.
+`corepack pnpm db:migrate`의 `0014_english_default_locales`가 en/ja/ko를 활성화하고 영어를 fallback 기준으로 설정합니다. seed는 없는 언어만 비활성으로 등록합니다. 초기 seed만 존재한다면 `corepack pnpm i18n:activate`로 세 언어를 활성화할 수 있으며, 이미 변경한 version의 운영 설정은 재실행으로 덮어쓰지 않습니다. `corepack pnpm test:i18n`으로 key/변수/enum/문구 누락을 검사합니다.
 
 리버스 프록시 환경에서는 `APP_ORIGIN`을 실제 공개 origin(예: `https://studio.example.com`)으로 설정하세요. 로컬 검증에서는 브라우저가 접속하는 origin을 사용합니다. 언어 변경 API는 다른 origin과 누락된 Origin을 거절합니다.
 

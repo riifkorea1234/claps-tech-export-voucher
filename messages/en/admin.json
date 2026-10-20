@@ -293,5 +293,10 @@
   "field.tags": "Matching tags · comma separated",
   "field.ipNames": "IP names · comma separated",
   "field.marketDescription": "Market description",
-  "field.imageAlt": "Image alternative text"
+  "field.imageAlt": "Image alternative text",
+  "field.family_name": "Family name",
+  "field.given_name": "Given name",
+  "field.family_name_kana": "Family name (kana)",
+  "field.given_name_kana": "Given name (kana)",
+  "splitNameNote": "The display name and Japanese name are stored separately. Changing language preserves the saved Japanese name."
 }

@@ -8,7 +8,8 @@ import {
   loadMessages,
   localeRegistry,
 } from "@/lib/i18n/server";
-import { LOCALE_COOKIE, matchLocale } from "@/lib/i18n/core";
+import { localeCookieName, matchLocale } from "@/lib/i18n/core";
+import { currentUser } from "@/lib/server/auth/session";
 import { AppError, jsonResponse, withApi } from "@/lib/server/errors/http";
 import { readJson } from "@/lib/server/errors/validation";
 export const POST = withApi(async (request, context) => {
@@ -22,10 +23,14 @@ export const POST = withApi(async (request, context) => {
     throw new AppError("FORBIDDEN");
   const input = await readJson(
     request,
-    z.object({ locale: z.string().min(2).max(64) }).strict(),
+    z.object({ locale: z.string().min(2).max(64), scope: z.enum(["public", "admin"]).default("public") }).strict(),
   );
+  if (input.scope === "admin") {
+    const user = await currentUser();
+    if (!user || user.app_role !== "admin" || user.status !== "active") throw new AppError("FORBIDDEN");
+  }
   const entries = await localeRegistry();
-  const available = await availableLocales(entries);
+  const available = await availableLocales(entries, input.scope);
   const locale = matchLocale(
     input.locale,
     available.map((entry) => entry.code),
@@ -33,11 +38,11 @@ export const POST = withApi(async (request, context) => {
   if (!locale) throw new AppError("VALIDATION_ERROR");
   const messages = await loadMessages(locale, entries, uiNamespaces);
   const raw = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (raw) {
+  if (raw && input.scope === "public") {
     if (await authService().session(raw)) await authService().preferences(raw, locale);
     else (await cookies()).delete(SESSION_COOKIE);
   }
-  (await cookies()).set(LOCALE_COOKIE, locale, {
+  (await cookies()).set(localeCookieName(input.scope), locale, {
     httpOnly: true,
     sameSite: "lax",
     secure: new URL(expected).protocol === "https:",

@@ -5,7 +5,7 @@ import { AppError, jsonResponse, withApi } from "../errors/http";
 import { rawSession } from "../auth/http";
 import { adminQuery } from "../../contracts/admin";
 import { idSchema, paginate } from "../../contracts/common";
-import { fallbackChain, resolveLocale, type LocaleEntry } from "../../i18n/core";
+import { DEFAULT_LOCALE, fallbackChain, resolveLocale, type LocaleEntry } from "../../i18n/core";
 import { availableLocales } from "../../i18n/server";
 import { localizedContentSchema } from "../../contracts/metadata";
 export async function publicPartner(c: PoolClient, row: QueryResultRow, requested: string) {
@@ -30,7 +30,7 @@ export const partnersApi = withApi(async (request, context) => {
   if (id) idSchema.parse(id);
   const data = await authService().authenticated(await rawSession(), async (c, u) => {
     if (u.status !== "active") throw new AppError("FORBIDDEN");
-    const locale = request.headers.get("x-claps-locale") ?? "ko";
+    const locale = request.headers.get("x-claps-locale") ?? DEFAULT_LOCALE;
     if (id) {
       const { rows: [row] } = await c.query("SELECT * FROM partners WHERE id=$1 AND visibility='public' AND archived_at IS NULL", [id]);
       if (!row) throw new AppError("NOT_FOUND");

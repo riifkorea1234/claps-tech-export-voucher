@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { errorMessages } from "../contracts/errors";
-import { matchLocale } from "../i18n/core";
+import { errorMessages, errorLocales, type ErrorLocale } from "../contracts/errors";
+import { DEFAULT_LOCALE, matchLocale } from "../i18n/core";
 import type { ApiResponse } from "../contracts/common";
 const errorEnvelope = z.object({ error: z.object({ code: z.string().max(100), message: z.string().max(1000), requestId: z.string().max(128), fieldErrors: z.record(z.string(), z.array(z.string())).optional() }) });
 export class ApiClientError extends Error {
@@ -8,8 +8,9 @@ export class ApiClientError extends Error {
 }
 export async function apiRequest<T>(path: string, options: RequestInit & { locale?: string; schema: z.ZodType<T> }): Promise<ApiResponse<T>> {
   if (!path.startsWith("/api/") || path.includes("\\") || /[\r\n]/.test(path)) throw new Error("API path must be same-origin /api/");
-  const { locale = "ko", schema, ...init } = options;
-  const fallback = matchLocale(locale, ["ko", "en"]) === "en" ? "en" : "ko";
+  const { locale: explicitLocale, schema, ...init } = options;
+  const locale = explicitLocale ?? (typeof document === "undefined" ? DEFAULT_LOCALE : document.documentElement.lang || DEFAULT_LOCALE);
+  const fallback = (matchLocale(locale, errorLocales) ?? DEFAULT_LOCALE) as ErrorLocale;
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json"); headers.set("X-Claps-Locale", locale);
   if (typeof init.body === "string" && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");

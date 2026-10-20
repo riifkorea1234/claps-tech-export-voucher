@@ -7,9 +7,11 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   createTranslator,
+  languageScope,
+  type LanguageScope,
   type LocaleEntry,
   type Messages,
   type Translator,
@@ -23,22 +25,29 @@ type LanguageContext = {
   changeLocale: (locale: string) => Promise<void>;
 };
 const Context = createContext<LanguageContext | null>(null);
+export type LanguageSnapshot = { locale: string; messages: Messages; locales: LocaleEntry[] };
 export function LanguageProvider({
   children,
-  initialLocale,
-  initialMessages,
-  locales,
+  languages,
 }: {
   children: React.ReactNode;
-  initialLocale: string;
-  initialMessages: Messages;
-  locales: LocaleEntry[];
+  languages: { public: LanguageSnapshot; admin?: LanguageSnapshot };
 }) {
   const router = useRouter();
-  const [current, setCurrent] = useState({
-    locale: initialLocale,
-    messages: initialMessages,
+  const scope = languageScope(usePathname());
+  const initial = languages[scope] ?? languages.public;
+  const [state, setState] = useState({
+    publicLocale: languages.public.locale,
+    adminLocale: languages.admin?.locale,
+    selections: {} as Partial<Record<LanguageScope, Pick<LanguageSnapshot, "locale" | "messages">>>,
   });
+  let selections = state.selections;
+  if (state.publicLocale !== languages.public.locale || state.adminLocale !== languages.admin?.locale) {
+    selections = {};
+    setState({ publicLocale: languages.public.locale, adminLocale: languages.admin?.locale, selections });
+  }
+  const current = selections[scope] ?? initial;
+  const locales = initial.locales;
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
   const busy = useRef(false);
@@ -48,11 +57,12 @@ export function LanguageProvider({
   );
   useEffect(() => {
     document.documentElement.lang = current.locale;
+    document.documentElement.dataset.locale = current.locale;
     document.documentElement.dir =
       locales.find((l) => l.code === current.locale)?.direction ?? "ltr";
   }, [current.locale, locales]);
   async function changeLocale(locale: string) {
-    if (busy.current || locale === current.locale) return;
+    if (busy.current || locale === current.locale || !locales.some((entry) => entry.code === locale)) return;
     busy.current = true;
     setPending(true);
     setError(false);
@@ -63,11 +73,11 @@ export function LanguageProvider({
           "Content-Type": "application/json",
           "X-Claps-Locale": current.locale,
         },
-        body: JSON.stringify({ locale }),
+        body: JSON.stringify({ locale, scope }),
       });
       if (!response.ok) throw new Error("Locale persistence failed");
       const { data } = await response.json();
-      setCurrent({ locale: data.locale, messages: data.messages });
+      setState((previous) => ({ ...previous, selections: { ...previous.selections, [scope]: { locale: data.locale, messages: data.messages } } }));
       router.refresh();
     } catch {
       setError(true);

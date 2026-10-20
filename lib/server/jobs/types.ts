@@ -10,6 +10,7 @@ export type JobRow = {
   lease_token: string | null; lease_until: Date | null; deadline_at: Date | null;
   dispatched_at: Date | null; provider_request_id: string | null; provider: string | null;
   cost_state: JobDto["costState"]; error_code: JobFailureCode | null;
+  cancel_requested_actor_id?: string | null; cancel_requested_actor_type?: "user" | "admin" | null;
   cancel_requested_at: Date | null; created_at: Date; started_at: Date | null; finished_at: Date | null;
 };
 export type JobUsage = z.infer<typeof usageSchema>;
@@ -24,6 +25,7 @@ export type JobContext = {
 };
 export type JobResult = { output: JobOutput; usage?: JobUsage };
 export type JobHandler = {
+  authorize?: (client: PoolClient, owner: string) => Promise<void>;
   run: (context: JobContext) => Promise<JobResult>;
   // Only database writes; invoked inside the guarded completion transaction. No external IO here.
   apply?: (client: PoolClient, job: JobRow, result: JobResult) => Promise<void>;

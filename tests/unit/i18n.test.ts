@@ -36,10 +36,10 @@ it("honors cookie, member preference, browser quality, and default priority", ()
     resolveLocale(["ko", "en"], "bogus", undefined, "ko;q=0.2,en-US;q=0.9"),
   ).toBe("en");
   expect(resolveLocale(["ko", "en"], undefined, undefined, "en;q=0,fr")).toBe(
-    "ko",
+    "en",
   );
   expect(resolveLocale(["ko"], "en", undefined, "en-US")).toBe("ko");
-  expect(resolveLocale(["ko", "en"], "../../en", undefined, "zz")).toBe("ko");
+  expect(resolveLocale(["ko", "en"], "../../en", undefined, "zz")).toBe("en");
 });
 it("rejects cycles and missing fallback registrations", () => {
   expect(fallbackChain("en", registry)).toEqual(["en", "ko"]);

@@ -217,6 +217,10 @@ export function RecordView({ row: record }: { row: Row }) {
     "name",
     "email",
     "org_name",
+    "family_name",
+    "given_name",
+    "family_name_kana",
+    "given_name_kana",
     "app_role",
     "status",
     "ip_name",
@@ -240,6 +244,9 @@ export function RecordView({ row: record }: { row: Row }) {
   ];
   return (
     <>
+      {row.family_name && row.given_name && row.name !== `${row.family_name} ${row.given_name}` && (
+        <p className="text-sm text-muted-foreground">{t("admin.splitNameNote")}</p>
+      )}
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         {visible
           .filter((key) => key in row)

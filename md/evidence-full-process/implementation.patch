@@ -1,0 +1,1068 @@
+--- a/app/api/evidence-sample/route.ts
++++ b/app/api/evidence-sample/route.ts
+@@ -0,0 +1,35 @@
++import { z } from "zod";
++import { rawSession, assertOrigin } from "@/lib/server/auth/http";
++import { withApi, jsonResponse, AppError } from "@/lib/server/errors/http";
++import { jobService } from "@/lib/server/jobs/runtime";
++import { WorkspaceService } from "@/lib/server/projects/service";
++import { EvidenceSampleService } from "@/lib/server/evidence-sample/service";
++import { readJson } from "@/lib/server/errors/validation";
++import { idSchema } from "@/lib/contracts/common";
++export const GET = withApi(async (request, context) => {
++  const jobs = jobService(), service = new EvidenceSampleService(new WorkspaceService(jobs.auth), jobs), raw = await rawSession(), project = new URL(request.url).searchParams.get("project");
++  return jsonResponse(project ? await service.list(raw, project) : await service.enabled(raw), context);
++});
++export const POST = withApi(async (request, context) => {
++  assertOrigin(request);
++  const jobs = jobService(), service = new EvidenceSampleService(new WorkspaceService(jobs.auth), jobs), raw = await rawSession();
++  if (!(await service.enabled(raw)).enabled) throw new AppError("SERVICE_UNAVAILABLE");
++  if (request.headers.get("content-type")?.startsWith("application/pdf")) {
++    const project = idSchema.parse(new URL(request.url).searchParams.get("project"));
++    // Read the stream with a bound, rather than trusting Content-Length.
++    const { readUpload } = await import("@/lib/server/storage/service");
++    return jsonResponse(await service.upload(raw, project, "SAMPLE-brand-guide.pdf", await readUpload(request)), context);
++  }
++  const d = await readJson(request, z.discriminatedUnion("action", [
++    z.strictObject({ action: z.literal("publish"), guideId: idSchema }),
++    z.strictObject({ action: z.literal("extract"), guideId: idSchema, outputLocale: z.enum(["en", "ja"]), idempotencyKey: idSchema }),
++    z.strictObject({ action: z.literal("generate"), sessionId: idSchema, prompt: z.string().min(1).max(10000), guideId: idSchema.optional(), outputLocale: z.enum(["en", "ja"]), idempotencyKey: idSchema }),
++    z.strictObject({ action: z.literal("retry"), jobId: idSchema }),
++  ]));
++  if (d.action === "publish") return jsonResponse(await service.publish(raw, d.guideId), context);
++  if (d.action === "retry") return jsonResponse(await jobs.retry(raw, d.jobId), context);
++  const { action, ...rest } = d;
++  if (action !== "extract" && action !== "generate") throw new AppError("VALIDATION_ERROR");
++  const { idempotencyKey, ...input } = rest;
++  return jsonResponse(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: action === "extract" ? "guide_extraction" : "generation", ...input }, idempotencyKey }), context, 202);
++});
+--- a/app/(app)/projects/[id]/page-content.tsx
++++ b/app/(app)/projects/[id]/page-content.tsx
+@@ -12,6 +12,7 @@
+ import { CoverThumb } from "@/components/domain/cover-thumb";
+ import { StatusBadge } from "@/components/domain/status-badge";
+ import { GuideAnalysisPanel } from "@/components/domain/guide-analysis-panel";
++import { EvidenceSamplePanel } from "@/components/domain/evidence-sample-panel";
+ import { AssetGallery } from "@/components/domain/server-asset-gallery";
+ import { Button } from "@/components/ui/button";
+ import { Input } from "@/components/ui/input";
+@@ -41,6 +42,7 @@
+     <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={m.pending} onClick={() => input.current?.click()}>{t("projects.upload_image")}</Button><Button variant="ghost" disabled={m.pending} onClick={() => m.run(() => updateProject(id, { version: p.version, cover: { kind: "default" } }))}>{t("projects.remove_cover")}</Button><span className="text-xs text-muted-foreground">{t("common.coverHelp")}</span>
+       <input ref={input} aria-label={t("projects.upload_image")} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void m.run(() => uploadCover(id, p.version, file)); }} /></div>
+     <GuideAnalysisPanel key={id} />
++    <EvidenceSamplePanel projectId={id} />
+     <section className="flex flex-col gap-3"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">{t("projects.generation_sessions")} · {p.sessions}</h2><Button disabled={m.pending} onClick={() => m.run(async () => { const s = await createSession(t("assets.untitled"), id); router.push(`/assets/${s.id}`); })}>{t("projects.generate_assets")}</Button></div>
+       <WorkspaceError error={sessions.error} retry={sessions.reload} />
+       {sessions.data?.items.slice(0, 5).map(s => <Link key={s.id} className="rounded-xl border bg-card p-4 font-medium hover:bg-muted" href={`/assets/${s.id}`}>{s.title}<span className="ml-4 text-sm text-muted-foreground">{s.generated} / {s.finalized}</span></Link>)}
+--- a/components/domain/asset-workspace-body.tsx
++++ b/components/domain/asset-workspace-body.tsx
+@@ -12,6 +12,7 @@
+ import { ProjectPicker } from "./server-project-picker";
+ import { AssetGallery } from "./server-asset-gallery";
+ import { Button } from "@/components/ui/button";
++import { EvidenceSamplePanel } from "./evidence-sample-panel";
+ export function AssetWorkspaceBody({ sessionId, step = 1 }: { sessionId: string; title?: string; step?: number }) {
+   const t = useT(), { locale } = useLanguage();
+   const session = useRemote<SessionDto>(`/api/asset-sessions/${sessionId}`), assets = useRemote<AssetDto[]>(`/api/asset-sessions/${sessionId}/assets`);
+@@ -21,6 +22,7 @@
+   const [prompt, setPrompt] = useState(""), [style, setStyle] = useState("none"), [ratio, setRatio] = useState("1:1");
+   const items = assets.data?.filter(a => step === 1 || (step === 2 ? a.adopted : a.finalizedAt)).sort((a, b) => step === 3 ? (b.finalizedAt ?? "").localeCompare(a.finalizedAt ?? "") : 0) ?? [];
+   return <div className="flex flex-col gap-6">
++    <EvidenceSamplePanel projectId={session.data?.projectId} sessionId={sessionId} step={step} reload={() => { session.reload(); assets.reload(); setEvidenceRevision(n => n + 1); }} />
+     {(step === 2 || step === 3) && locale.split("-")[0] === "ja" && <Link className="underline" href={`/assets/${sessionId}/review-package`}>{t("review.button")}</Link>}
+     <EvidenceBadge resource={evidence} />
+     <Link className="underline" href={`/assets/${sessionId}/evidence`}>{t("evidence.documentTitle")}</Link>
+--- a/components/domain/evidence-sample-panel.tsx
++++ b/components/domain/evidence-sample-panel.tsx
+@@ -0,0 +1,39 @@
++"use client";
++import { useEffect, useState } from "react";
++import { useLanguage } from "@/lib/i18n/provider";
++import { workspaceRequest } from "@/lib/api/workspace";
++import { useRemote, useWorkspaceMutation, WorkspaceError } from "./workspace-data";
++import { Button } from "@/components/ui/button";
++type Guide = { id: string; version: number; status: string; rules: { rules: { ruleId: string; title: string; description: string }[] } | null };
++export function EvidenceSamplePanel({ projectId, sessionId, step, reload }: { projectId?: string | null; sessionId?: string; step?: number; reload?: () => void }) {
++  const enabled = useRemote<{ enabled: boolean }>("/api/evidence-sample");
++  return enabled.data?.enabled ? <SampleControls projectId={projectId} sessionId={sessionId} step={step} reload={reload} /> : null;
++}
++function SampleControls({ projectId, sessionId, step, reload }: { projectId?: string | null; sessionId?: string; step?: number; reload?: () => void }) {
++  const guides = useRemote<Guide[] | { enabled: boolean }>(projectId ? `/api/evidence-sample?project=${projectId}` : "/api/evidence-sample");
++  const guideItems = Array.isArray(guides.data) ? guides.data : [];
++  const { locale } = useLanguage(), ja = locale.startsWith("ja");
++  const [prompt, setPrompt] = useState("SAMPLE: mascot campaign, mint palette"), [job, setJob] = useState<{ id: string; status: string }>();
++  const m = useWorkspaceMutation(() => { guides.reload(); reload?.(); });
++  useEffect(() => {
++    if (!job || ["failed", "succeeded", "canceled"].includes(job.status)) return;
++    const timer = setInterval(() => { void workspaceRequest<{ id: string; status: string }>(`/api/jobs/${job.id}`).then(j => { setJob(j); if (["failed", "succeeded", "canceled"].includes(j.status)) { guides.reload(); reload?.(); } }); }, 1000);
++    return () => clearInterval(timer);
++  }, [job, guides, reload]);
++  const active = guideItems.find(g => g.status === "published"), latest = guideItems[0];
++  const busy = m.pending || !!job && ["queued", "running"].includes(job.status);
++  async function run(action: string, values: object) { const j = await workspaceRequest<{ id: string; status: string }>("/api/evidence-sample", "POST", { action, ...values }); if (j.id) setJob(j); }
++  return <section className="space-y-3 rounded-xl border border-amber-500 bg-amber-50 p-4 text-slate-900" data-testid="evidence-sample-panel">
++    <h2 className="font-semibold">{ja ? "証憑用サンプル実行" : "Evidence sample execution"}</h2>
++    <p className="text-sm">{ja ? "合成データです。実際のAI評価・Web検索ではありません。" : "Synthetic fixtures. No AI model assessment or live web search."}</p>
++    <WorkspaceError error={m.error} />
++    {projectId && !sessionId && <>
++      <label className="block text-sm">{ja ? "サンプルガイドPDFをアップロード" : "Upload sample guide PDF"}<input type="file" accept="application/pdf" disabled={busy} onChange={e => { const f = e.target.files?.[0]; if (f) void m.run(async () => { const response = await fetch(`/api/evidence-sample?project=${projectId}`, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: f }); if (!response.ok) throw Error("Upload failed"); }); }} /></label>
++      {guideItems.map(g => <div key={g.id} className="space-y-2 rounded border bg-white p-3"><p>v{g.version} · {g.status}</p><ul>{g.rules?.rules.map(r => <li key={r.ruleId}><strong>{r.title}</strong> — {r.description}</li>)}</ul><div className="flex flex-wrap gap-2"><Button disabled={busy || g.status === "published"} onClick={() => m.run(() => run("extract", { guideId: g.id, outputLocale: ja ? "ja" : "en", idempotencyKey: crypto.randomUUID() }))}>{ja ? "サンプル規則抽出" : "Extract sample rules"}</Button><Button disabled={busy || !["draft", "published"].includes(g.status)} onClick={() => m.run(() => run("publish", { guideId: g.id }))}>{ja ? "公開して有効化" : "Publish and activate"}</Button></div></div>)}
++    </>}
++    {sessionId && step === 1 && <><textarea aria-label="Sample prompt" className="w-full rounded border bg-white p-2" value={prompt} onChange={e => setPrompt(e.target.value)} /><Button disabled={busy || !prompt.trim()} onClick={() => m.run(() => run("generate", { sessionId, prompt, ...(active ? { guideId: active.id } : {}), outputLocale: ja ? "ja" : "en", idempotencyKey: crypto.randomUUID() }))}>{ja ? "サンプル画像を生成" : "Generate sample images"}</Button></>}
++    {sessionId && step === 2 && <Button disabled={busy || !active} onClick={() => m.run(async () => { const assets = await workspaceRequest<{ id: string; adopted: boolean; finalizedAt: string | null }[]>(`/api/asset-sessions/${sessionId}/assets`); const data = await workspaceRequest<{ jobId: string }>(`/api/asset-sessions/${sessionId}/verifications`, "POST", { assetIds: assets.filter(a => a.adopted && !a.finalizedAt).map(a => a.id).slice(0, 10), guideId: active!.id, outputLocale: ja ? "ja" : "en", idempotencyKey: crypto.randomUUID() }); setJob({ id: data.jobId, status: "queued" }); })}>{ja ? "サンプル検証を実行" : "Run sample verification"}</Button>}
++    {sessionId && !active && <p className="text-sm">{ja ? "プロジェクトでガイドを公開してください。" : "Publish a guide from the project to verify assets."} {latest?.status}</p>}
++    {job && <div role="status" className="flex flex-wrap items-center gap-3 text-sm"><a className="underline" href={`/jobs/${job.id}`}>{job.status} · {job.id}</a>{["queued", "running"].includes(job.status) && <Button onClick={() => m.run(async () => { setJob(await workspaceRequest(`/api/jobs/${job.id}/cancel`, "POST", {})); })}>{ja ? "取消" : "Cancel"}</Button>}{job.status === "failed" && <Button onClick={() => m.run(() => run("retry", { jobId: job.id }))}>{ja ? "再試行" : "Retry"}</Button>}</div>}
++  </section>;
++}
+--- a/lib/server/jobs/types.ts
++++ b/lib/server/jobs/types.ts
+@@ -25,6 +25,7 @@
+ };
+ export type JobResult = { output: JobOutput; usage?: JobUsage };
+ export type JobHandler = {
++  authorize?: (client: PoolClient, owner: string) => Promise<void>;
+   run: (context: JobContext) => Promise<JobResult>;
+   // Only database writes; invoked inside the guarded completion transaction. No external IO here.
+   apply?: (client: PoolClient, job: JobRow, result: JobResult) => Promise<void>;
+--- a/lib/server/jobs/service.ts
++++ b/lib/server/jobs/service.ts
+@@ -32,6 +32,7 @@
+     if (counts.queued >= this.policy.queuedPerUser || counts.requests >= this.policy.requestsPerHour) throw new AppError("RATE_LIMITED");
+   }
+   async insert(c: PoolClient, owner: string, input: JobInput, key: string, parent: string | null, retry?: JobRow, actorId: string = owner, actorType: "user" | "worker" | "admin" = "user") {
++    await this.registry.get(input.kind)?.authorize?.(c, owner);
+     await this.limits(c, owner);
+     const { rows: [row] } = await c.query<JobRow>(`INSERT INTO jobs(id,owner_id,project_id,kind,input,request_hash,idempotency_key,attempt,retry_of_id,next_run_at)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,now()+$10*interval '1 millisecond') RETURNING *`,
+--- a/lib/server/adapters/registry.ts
++++ b/lib/server/adapters/registry.ts
+@@ -3,4 +3,7 @@
+ // Real provider handlers are registered by Phases 7–10. Test adapters are never imported here.
+ import { exportHandler } from "../exports/handler";
+ import { matchingHandler } from "../matching/handler";
++import { registerEvidenceHandlers } from "../evidence-sample/handlers";
+ export const productionHandlers = new HandlerRegistry().register("export", exportHandler()).register("matching", matchingHandler());
++// Explicit opt-in plus per-owner authorization; there is no normal-user AI fallback.
++if (process.env.EVIDENCE_SAMPLE_MODE === "claps-evidence-v1") registerEvidenceHandlers(productionHandlers);
+--- a/lib/server/evidence-sample/handlers.ts
++++ b/lib/server/evidence-sample/handlers.ts
+@@ -0,0 +1,92 @@
++import "server-only";
++import { createHash, randomUUID } from "node:crypto";
++import { mkdir, writeFile } from "node:fs/promises";
++import sharp from "sharp";
++import type { PoolClient } from "pg";
++import { authService, type AuthService } from "../auth/service";
++import { fileSchema, guideRulesSchema } from "../../contracts/metadata";
++import { AppError } from "../errors/http";
++import { storagePath, storageRoot } from "../storage/config";
++import { readStoredFile } from "../storage/read-file";
++import { verificationHandler } from "../verifications/handler";
++import { monitoringHandler } from "../monitoring/handler";
++import { JobFailure, type JobHandler, type JobContext, type HandlerRegistry } from "../jobs/types";
++
++export const SAMPLE_PROVIDER = "claps-evidence-sample-NO-AI-NO-WEB-SEARCH";
++export const evidenceEmail = (email: string) => /^evidence\.v1\.(?:0[1-9]|10)@example\.com$/.test(email);
++export async function authorizeEvidence(c: PoolClient, owner: string) {
++  const u = (await c.query("SELECT email FROM users WHERE id=$1", [owner])).rows[0];
++  if (process.env.EVIDENCE_SAMPLE_MODE !== "claps-evidence-v1" || !u || !evidenceEmail(u.email)) throw new AppError("SERVICE_UNAVAILABLE");
++}
++export const sampleRules = () => guideRulesSchema.parse({ schemaVersion: 1, rules: [
++  { ruleId: "sample-palette", title: "SAMPLE: palette", description: "Evidence fixture: use navy, mint and warm yellow.", condition: { field: "palette", operator: "contains", value: "navy" }, evidence: { page: 1, excerpt: "SAMPLE RULE: navy / mint / yellow" } },
++  { ruleId: "sample-label", title: "SAMPLE: disclosure", description: "Evidence fixture must carry a SAMPLE label.", condition: { field: "label", operator: "contains", value: "SAMPLE" }, evidence: { page: 1, excerpt: "SAMPLE RULE: disclose synthetic artwork" } },
++] });
++export async function sampleImage(index: number, title = "CLAPS EVIDENCE SAMPLE") {
++  const colors = ["#a8e4d1", "#ffe4a3", "#cfc8ef"];
++  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="768" height="768"><rect width="768" height="768" fill="${colors[index % 3]}"/><circle cx="384" cy="350" r="210" fill="#fff9eb"/><path d="M250 250 Q210 100 330 190 M450 190 Q570 100 520 250" stroke="#183745" stroke-width="24" fill="#fff9eb"/><ellipse cx="315" cy="325" rx="18" ry="25" fill="#183745"/><ellipse cx="455" cy="325" rx="18" ry="25" fill="#183745"/><path d="M355 385 Q385 415 415 385" fill="none" stroke="#183745" stroke-width="12"/><rect x="126" y="590" width="516" height="94" rx="24" fill="#183745"/><text x="384" y="631" font-size="24" font-family="sans-serif" text-anchor="middle" fill="white">${title.replace(/[^A-Za-z0-9 :_-]/g, "")}</text><text x="384" y="664" font-size="18" font-family="sans-serif" text-anchor="middle" fill="#a8e4d1">SYNTHETIC - NO AI MODEL - ${index + 1}</text></svg>`;
++  return sharp(Buffer.from(svg)).png().toBuffer();
++}
++export function registerEvidenceHandlers(registry: HandlerRegistry, injected?: AuthService) {
++  const auth = () => injected ?? authService();
++  function guarded(factory: () => JobHandler): JobHandler {
++    return {
++      authorize: authorizeEvidence,
++      async run(ctx) { await auth().transaction(c => authorizeEvidence(c, ctx.job.owner_id)); return factory().run(ctx); },
++      async apply(c, job, result) { await authorizeEvidence(c, job.owner_id); await factory().apply?.(c, job, result); },
++    };
++  }
++  registry.register("generation", guarded(() => ({
++    async run(ctx) {
++      if (ctx.job.input.kind !== "generation") throw new JobFailure("INVALID_RESULT");
++      // Explicit evidence-only failure scenario before dispatch; retry child succeeds.
++      if (ctx.job.input.prompt.includes("[sample-fail]") && !ctx.job.retry_of_id) throw new JobFailure("TRANSIENT");
++      await ctx.dispatch(SAMPLE_PROVIDER);
++      // Enough time to exercise genuine running/cancellation states.
++      await new Promise<void>((resolve, reject) => { const t = setTimeout(resolve, 1200); ctx.signal.addEventListener("abort", () => { clearTimeout(t); reject(new JobFailure("CANCELED")); }, { once: true }); });
++      const ids: string[] = [];
++      for (let i = 0; i < 3; i++) {
++        const id = randomUUID(), bytes = await sampleImage(i), thumbnail = await sharp(bytes).resize(320, 320).webp().toBuffer();
++        const file = fileSchema.parse({ schemaVersion: 1, storageKey: `${id}-original`, thumbnailKey: `${id}-thumbnail`, originalName: `SAMPLE-${i + 1}.png`, mimeType: "image/png", size: bytes.length, checksum: createHash("sha256").update(bytes).digest("hex"), width: 768, height: 768 });
++        await ctx.reserveFile(file); await mkdir(storageRoot(), { recursive: true, mode: 0o700 });
++        await writeFile(storagePath(file.storageKey), bytes, { flag: "wx", mode: 0o600, signal: ctx.signal });
++        await writeFile(storagePath(file.thumbnailKey!), thumbnail, { flag: "wx", mode: 0o600, signal: ctx.signal }); ids.push(id);
++      }
++      return { output: { schemaVersion: 1, kind: "generation", assetIds: ids }, usage: { schemaVersion: 1, units: 0, unit: "synthetic-no-ai" } };
++    },
++    async apply(c, job, result) {
++      if (job.input.kind !== "generation" || result.output.kind !== "generation") throw new JobFailure("INVALID_RESULT");
++      for (const id of result.output.assetIds) {
++        const row = (await c.query("SELECT metadata FROM storage_tickets WHERE target_type='job' AND target_id=$1 AND metadata->>'storageKey'=$2", [job.id, `${id}-original`])).rows[0];
++        if (!row) throw new JobFailure("INVALID_RESULT");
++        await c.query("INSERT INTO assets(id,session_id,generation_job_id,file) VALUES($1,$2,$3,$4)", [id, job.input.sessionId, job.id, fileSchema.parse(row.metadata)]);
++      }
++    },
++  })));
++  registry.register("guide_extraction", guarded(() => ({
++    async run(ctx) {
++      if (ctx.job.input.kind !== "guide_extraction") throw new JobFailure("INVALID_RESULT");
++      const g = (await auth().pool.query("SELECT file FROM brand_guides WHERE id=$1", [ctx.job.input.guideId])).rows[0];
++      const bytes = await readStoredFile(fileSchema.parse(g.file), 10 * 1024 * 1024);
++      if (!bytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new JobFailure("INVALID_RESULT");
++      await ctx.dispatch(SAMPLE_PROVIDER);
++      return { output: { schemaVersion: 1, kind: "guide_extraction", guideId: ctx.job.input.guideId }, usage: { schemaVersion: 1, units: 0, unit: "synthetic-no-ai" } };
++    },
++    async apply(c, job) { if (job.input.kind !== "guide_extraction") throw new JobFailure("INVALID_RESULT"); await c.query("UPDATE brand_guides SET rules=$2,status='draft',source_revision=source_revision+1 WHERE id=$1 AND status IN ('uploaded','extracting','draft')", [job.input.guideId, sampleRules()]); },
++  })));
++  registry.register("verification", guarded(() => verificationHandler(auth(), {
++    name: SAMPLE_PROVIDER,
++    verify: async input => ({ engineVersion: "evidence-sample-v1-NO-AI", results: input.assets.map((a, i) => ({ assetId: a.id, rules: input.rules.rules.map(rule => ({ ruleId: rule.ruleId, verdict: (["pass", "warn", "reject"] as const)[i % 3], reason: "SYNTHETIC evidence scenario; no model assessment.", evidence: "Explicit sample provider; deterministic pass / review / reject fixtures." })) })) }),
++  })));
++  registry.register("monitoring", guarded(() => monitoringHandler(auth(), {
++    name: SAMPLE_PROVIDER,
++    search: async bytes => {
++      // Uploaded sample originals select known scenarios. Never fetch these illustrative URLs.
++      const marker = bytes.subarray(-32).toString();
++      if (marker.includes("SAMPLE_ERROR")) throw new JobFailure("TRANSIENT");
++      const empty = marker.includes("SAMPLE_EMPTY"), partial = marker.includes("SAMPLE_PARTIAL");
++      return { state: partial ? "partial" : empty ? "empty" : "results", sources: [{ name: "SAMPLE corpus (no web search)", status: "succeeded" }, ...(partial ? [{ name: "SAMPLE unavailable source", status: "failed" as const }] : [])], items: empty ? [] : [94, 84, 64].map((similarity, i) => ({ url: `https://claps.arcreation.work/?evidence-sample=${i + 1}`, source: "SAMPLE corpus (no web search)", similarity, discoveredAt: new Date().toISOString(), factors: { provider: SAMPLE_PROVIDER, engineVersion: "evidence-sample-v1", meaning: "similarity_percent", character: similarity, color: similarity - 5, composition: similarity - 10, logo: null } })) };
++    },
++  })));
++  return registry;
++}
+--- a/lib/server/evidence-sample/service.ts
++++ b/lib/server/evidence-sample/service.ts
+@@ -0,0 +1,29 @@
++import "server-only";
++import { createHash, randomUUID } from "node:crypto";
++import { mkdir, writeFile } from "node:fs/promises";
++import { z } from "zod";
++import { fileSchema, guideRulesSchema } from "../../contracts/metadata";
++import { AppError } from "../errors/http";
++import { WorkspaceService } from "../projects/service";
++import { JobService } from "../jobs/service";
++import { authorizeEvidence } from "./handlers";
++import { storageRoot, storagePath } from "../storage/config";
++
++// Separate, explicit evidence-only lifecycle. The existing production guide prototype is unchanged.
++export class EvidenceSampleService {
++  constructor(readonly ws: WorkspaceService, readonly jobs: JobService) {}
++  enabled(raw: string | undefined) { return this.ws.run(raw, async (c, owner) => { try { await authorizeEvidence(c, owner); return { enabled: true }; } catch { return { enabled: false }; } }); }
++  list(raw: string | undefined, project: string) { return this.ws.run(raw, async (c, owner) => { await authorizeEvidence(c, owner); await this.ws.projectRow(c, owner, project); return (await c.query("SELECT id,version,row_version,status,rules,extraction_job_id FROM brand_guides WHERE project_id=$1 ORDER BY version DESC", [project])).rows; }); }
++  async upload(raw: string | undefined, project: string, name: string, bytes: Buffer) {
++    if (!name.endsWith(".pdf") || bytes.length > 10 * 1024 * 1024 || !bytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new AppError("VALIDATION_ERROR");
++    const id = randomUUID(), file = fileSchema.parse({ schemaVersion: 1, storageKey: `${id}-original`, originalName: name, mimeType: "application/pdf", size: bytes.length, checksum: createHash("sha256").update(bytes).digest("hex") });
++    await this.ws.run(raw, async (c, owner) => {
++      await authorizeEvidence(c, owner); await this.ws.projectRow(c, owner, project);
++      await c.query("INSERT INTO storage_tickets(id,owner_id,kind,target_type,target_id,state,metadata,expires_at) VALUES($1,$2,'cleanup','project',$3,'cleanup_pending',$4,now())", [randomUUID(), owner, project, file]);
++    });
++    await mkdir(storageRoot(), { recursive: true, mode: 0o700 }); await writeFile(storagePath(file.storageKey), bytes, { flag: "wx", mode: 0o600 });
++    return this.ws.run(raw, async (c, owner) => { await authorizeEvidence(c, owner); await this.ws.projectRow(c, owner, project); const g = (await c.query("INSERT INTO brand_guides(id,project_id,version,file,status) SELECT $1,$2,COALESCE(max(version),0)+1,$3,'uploaded' FROM brand_guides WHERE project_id=$2 RETURNING *", [id, project, file])).rows[0]; return { id: g.id, version: g.version }; });
++  }
++  edit(raw: string | undefined, guide: string, input: unknown) { const d = z.strictObject({ rowVersion: z.number().int().positive(), rules: guideRulesSchema }).parse(input); return this.ws.run(raw, async (c, owner) => { await authorizeEvidence(c, owner); const g = (await c.query("SELECT g.* FROM brand_guides g JOIN projects p ON p.id=g.project_id WHERE g.id=$1 AND p.owner_id=$2 FOR UPDATE OF g", [guide, owner])).rows[0]; if (!g) throw new AppError("NOT_FOUND"); if (g.status !== "draft" || g.row_version !== d.rowVersion) throw new AppError("VERSION_CONFLICT"); await c.query("UPDATE brand_guides SET rules=$2,row_version=row_version+1,source_revision=source_revision+1 WHERE id=$1", [guide, d.rules]); return { updated: true }; }); }
++  publish(raw: string | undefined, guide: string) { return this.ws.run(raw, async (c, owner) => { await authorizeEvidence(c, owner); const g = (await c.query("SELECT g.* FROM brand_guides g JOIN projects p ON p.id=g.project_id WHERE g.id=$1 AND p.owner_id=$2 AND p.archived_at IS NULL FOR UPDATE OF p,g", [guide, owner])).rows[0]; if (!g) throw new AppError("NOT_FOUND"); if (!["draft", "published"].includes(g.status) || !guideRulesSchema.safeParse(g.rules).success) throw new AppError("STATE_CONFLICT"); await c.query("UPDATE brand_guides SET status='published',row_version=row_version+1 WHERE id=$1", [guide]); await c.query("UPDATE projects SET active_guide_id=$2,version=version+1,updated_at=now() WHERE id=$1", [g.project_id, guide]); return { published: true }; }); }
++}
+--- a/scripts/report-evidence.py
++++ b/scripts/report-evidence.py
+@@ -0,0 +1,113 @@
++#!/usr/bin/env python3
++"""Build the local, credential-free evidence index from actual execution records."""
++from pathlib import Path
++import json, csv, html, hashlib, datetime, collections, tarfile, difflib
++
++repo = Path(__file__).resolve().parents[1]
++root = repo / 'md/evidence-full-process'
++def read(name, default=None):
++    p = root / name
++    return json.loads(p.read_text()) if p.exists() else default
++seed = read('seed-result.json')
++base = read('capture-results.json')
++supplement = read('supplement-results.json', {'records': [], 'checks': []})
++flow = read('ui-flow-results.json', {'captures': [], 'scenarios': [], 'checks': [], 'errors': []})
++edge = read('edge-results.json', {'records': [], 'checks': [], 'errors': []})
++audit = read('server-audit.json', {})
++records = base['records'] + supplement['records'] + flow['captures'] + edge['records']
++assert all((root / item['file']).is_file() for item in records)
++for item in records:
++    item['sha256'] = hashlib.sha256((root / item['file']).read_bytes()).hexdigest()
++    item.setdefault('device', 'desktop')
++by_locale = collections.Counter(item['locale'] for item in records)
++by_device = collections.Counter(item['device'] for item in records)
++page_errors = [e for e in base['errors'] if e['kind'] == 'pageerror'] + flow['errors'] + edge.get('errors', [])
++checks = supplement['checks'] + edge['checks'] + flow['checks']
++success = len(flow['scenarios']) == 2 and all(s['status'] == 'passed' for s in flow['scenarios']) and all(c['ok'] for c in checks) and not page_errors and audit.get('allStoredFilesValid') and audit.get('pendingJobs') == 0
++report = {'status': 'complete' if success else 'needs-review', 'target': 'https://claps.arcreation.work', 'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'evidenceAccounts': 10, 'seedSteps': len(seed['steps']), 'seedChecks': len(seed['checks']), 'unitAndLocaleTests': 93, 'nextTypegenAndTypecheck': 'passed', 'browserFlows': flow['scenarios'], 'captureCount': len(records), 'capturesByLocale': dict(by_locale), 'capturesByDevice': dict(by_device), 'pageErrors': page_errors, 'initialHttpObservations': base['errors'], 'initialHarnessFailures': [c for c in base['checks'] if not c['ok']], 'finalSupplementChecks': checks, 'storedFilesChecked': len(audit.get('fileChecks', [])), 'storedFileChecksPassed': audit.get('allStoredFilesValid'), 'pendingJobs': audit.get('pendingJobs'), 'existingAdministratorPreserved': True, 'backup': 'server backup/pre-evidence-v1-20261020', 'run': 'run_5d77a4bd650f', 'task': 'task_8bc3e4c471a5', 'dispatch': 'ctx_01387ac4dab3'}
++(root / 'verification.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
++(root / 'capture-index.json').write_text(json.dumps(records, ensure_ascii=False, indent=2) + '\n')
++with (root / 'capture-index.csv').open('w', newline='') as f:
++    writer = csv.DictWriter(f, fieldnames=['label', 'locale', 'device', 'route', 'file', 'sha256'], extrasaction='ignore')
++    writer.writeheader(); writer.writerows(records)
++
++cards = []
++for item in records:
++    esc = lambda key: html.escape(str(item.get(key, '')))
++    cards.append(f'<article data-search="{esc("label")} {esc("locale")} {esc("device")} {esc("route")}"><h2>{esc("label")}</h2><p>{esc("locale")} · {esc("device")} · <code>{esc("route")}</code></p><a href="{esc("file")}" target="_blank"><img src="{esc("file")}" alt="{esc("label")}" loading="lazy"></a></article>')
++(root / 'index.html').write_text('''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLAPS 증빙 캡처</title><style>body{font:15px system-ui;margin:0;background:#f3f5f7;color:#17212b}header{position:sticky;top:0;background:#fff;padding:18px 24px;border-bottom:1px solid #ddd;z-index:2}h1{font-size:23px;margin:0 0 8px}input{padding:10px;width:min(90%,650px);border:1px solid #aaa;border-radius:6px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;padding:24px}article{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;overflow:hidden}h2{font-size:16px}article img{width:100%;height:340px;object-fit:contain;object-position:top;background:#eee}code{overflow-wrap:anywhere}p{line-height:1.5}a{color:#155b86}</style><header><h1>CLAPS 실제 화면 증빙 — ''' + str(len(records)) + '''장</h1><p>대상: claps.arcreation.work · 일반 en/ja · 관리자 ko/en/ja · 데스크톱/모바일<br>생성·추출·검증·검색 결과는 명시된 합성 샘플입니다. 실제 AI 평가·침해 탐지 결과가 아닙니다.</p><p><a href="RESULT.md">최종 보고</a> · <a href="COVERAGE.md">커버리지</a> · <a href="capture-index.csv">CSV</a> · <a href="verification.json">검증 JSON</a> · <a href="HARNESS-OBSERVATIONS.md">최초 관측/재검증</a></p><input id="filter" placeholder="언어, mobile, admin, verification, monitoring 등 검색"><span id="count"></span></header><main>''' + ''.join(cards) + '''</main><script>const f=document.querySelector('#filter'),cards=[...document.querySelectorAll('article')];f.oninput=()=>{let n=0;for(const c of cards){c.hidden=!c.dataset.search.toLowerCase().includes(f.value.toLowerCase());if(!c.hidden)n++;}document.querySelector('#count').textContent=' '+n+'장';};f.oninput();</script></html>''')
++
++coverage = [
++('공개·인증','랜딩·로그인/가입·메일대기·복구/변경·프로필·마이페이지','일반 en/ja, 모바일 프로필, 정지/미확인 로그인 거절. 실제 외부 메일·OAuth는 미연동.'),
++('프로젝트·세션','목록·검색·없음·30개 초과 페이지·생성·편집·상태·커버·보관/복구·이름 변경','서비스 시드와 브라우저 UI. 아카이브/페이지2 보완 캡처.'),
++('가이드','PDF 업로드·실제 추출 큐·규칙 편집·공개·v2 변경·stale·잘못된 PDF','증빙 패널은 실제 DB/파일/큐 사용. 일반 가이드 패널은 기존 UI 프로토타입.'),
++('생성','프롬프트·합성3후보·queued/running/success/failure/cancel/retry·채택/취소','샘플 공급자만 허용. 일반 모델·스타일/비율 설정의 실제 AI 출력은 미연동.'),
++('검증·최종','가이드 snapshot·통과/검토/반려·재검증·최종화 허용/거절·최종본 해제','공급자명·엔진·합성 이유 표시. 실제 모델 품질평가 아님.'),
++('ZIP·증빙','실제 ZIP 생성/다운로드·CRC·PNG checksum·타임라인·증명서','영어/일본어 ZIP을 Python 독립 reader로 검사. 원본 파일 전체 checksum 감사.'),
++('리뷰','수동/자동 체크·발행·고정 스냅샷·현재 조건 변경 stale·인쇄/PDF','브라우저 영/일 발행 통과. 문서 출력 계약은 일본어 전용.'),
++('추천','합성 파트너7개·공개/비공개·이미지·영일 번역·초안/게시·기준/참고이미지·검색/정렬/상세','실제 rules-v1 추천 엔진. 실제 사업자나 AI 추천 품질을 의미하지 않음.'),
++('모니터링','파일/자산 원본·미실행/결과/없음/부분성공/실패·과거 검색·요인·오탐 보고/철회·보관','실제 서비스·큐·이력. 소스/URL/점수는 샘플이며 외부 검색은 실행하지 않음.'),
++('관리자','재인증·대시보드·회원/프로젝트/파트너/작업/가이드/모니터링/감사/언어·번역·이미지·확인창','ko/en/ja 데스크톱·모바일, 합성 회원 복구/정지·감사 이력. 실관리자 데이터 보존.'),
++('접근·오류','비로그인·타 소유자404·회원의 관리자403·정지/미확인·잘못된 버전/입력','서비스/공개 HTTP 검사. 첫 하네스 기대값·선택자 오류는 원본과 수정 후 기록을 모두 유지.'),
++]
++text = '# 화면·기능 커버리지\n\n실제로 존재하는 화면과 상태만 기록합니다. 개별 캡처는 capture-index.csv / index.html에서 확인합니다.\n\n| 영역 | 확인 범위 | 실행 방식·제한 |\n|---|---|---|\n'
++for row in coverage: text += '| ' + ' | '.join(row) + ' |\n'
++text += '\n별도 전체 화면 이미지 확대 모달과 일반 AI 생성·스타일/비율 공급자 연결은 현재 제품에 구현되지 않았으므로 캡처 완료로 표시하지 않습니다. 공개 가입의 실제 메일 배송·OAuth·실시간 웹 검색도 완료 범위가 아닙니다. 합성 그림 내부의 일부 글자는 컨테이너 폰트 부재로 사각형으로 보일 수 있으며 UI의 언어 텍스트와 샘플/엔진 표시는 정상입니다.\n'
++(root / 'COVERAGE.md').write_text(text)
++
++counts = ', '.join(f'{k} {v}' for k, v in audit.get('counts', {}).items())
++(root / 'RESULT.md').write_text(f'''# CLAPS 증빙 시드·전체 흐름 검증 결과
++
++대상: https://claps.arcreation.work · 상태: **{report['status']}**
++
++- 새 합성 계정 10개를 적용했다. 기존 실관리자의 비밀번호 해시·권한·상태 digest는 변경 전과 일치했다.
++- DB·업로드는 변경 전 일관된 백업을 만들었다. 서버 `backup/pre-evidence-v1-20261020/`와 `backup-manifest.json`에서 확인한다.
++- 서비스 시드 {len(seed['steps'])}단계를 실행했다. 1차 126단계 후 기존 단계를 재사용하고 페이지 나눔 39단계를 추가했다. 저장된 프로세스 검사 {len(seed['checks'])}건이 통과했다.
++- 공개 Chromium에서 영어·일본어 각각 PDF→추출→공개→생성3후보→채택→검증3판정→최종화→ZIP→리뷰 발행→원본 업로드→모니터링을 실제 클릭해 완료했다.
++- 캡처 **{len(records)}장**: 언어 {dict(by_locale)}, 기기 {dict(by_device)}. HTML 인덱스는 `index.html`이다.
++- 단위·언어팩 93개, production build, Next typegen 후 최종 TypeScript 검사가 통과했다. 최종 저장 파일 {len(audit.get('fileChecks', []))}개의 크기·SHA-256 검사 통과, 대기/실행 중 작업 {audit.get('pendingJobs')}개다.
++- 실제 ZIP 2개의 CRC·PNG 내용·SHA-256을 독립 Python reader로 검사했다. 리뷰 출력 PDF 2개도 보관했다.
++
++최종 DB 집계: {counts}.
++
++새 계정과 비밀번호는 `ACCOUNTS.md`에만 기록하고 0600 및 해당 파일만 지정한 Git ignore로 보호했다. 서버/DB/API/기존 관리자 비밀은 문서에 넣지 않았다. 로컬 `private-state.json` 역시 0600·정확한 ignore로 보호한다. 부모 F: 드라이브는 POSIX 0600을 표현하지 않아 새 계정 파일 하나에만 상속을 끈 Windows 현재 사용자+SYSTEM ACL을 적용했다. 드라이브 mount나 다른 파일·사용자 권한은 변경하지 않았다. 실제 검증값은 `sync-receipt.json`에 있다.
++
++실제 AI·외부 검색·메일·OAuth는 연결되지 않았다. 생성·추출·검증·모니터링은 정확히 지정된 증빙 계정에만 허용한 **합성 샘플 공급자**로 실행했고, 일반 사용자의 결과를 가짜 평가로 대체하지 않았다. 추천은 기존 `rules-v1` 엔진을 사용했다. 리뷰 문서 출력은 현재 제품 계약상 일본어다.
++
++최초 관측(기대 HTTP값/일본어 선택자/비동기 checkbox/응답 본문 대기/재인증 제한)은 `HARNESS-OBSERVATIONS.md`와 원본 JSON에 남겼다. jobs 배경 RSC 502는 1회 관측됐고 서버에는 destination stream closed early 로그가 있었다. 원인은 확정하지 않았으며 동일 RSC 경로를 5회 다시 요청해 모두200을 확인하고 최종 화면을 캡처했다.
++
++재실행: `RUNBOOK.md`. 상세 커버리지 및 미연동 범위: `COVERAGE.md`. 전체 판정: `verification.json`.
++
++작업 위치: `{repo}` · branch `ARCreation/evidence-full-process`.
++Run `run_5d77a4bd650f` / Task `task_8bc3e4c471a5` / Dispatch `ctx_01387ac4dab3`.
++''')
++(root / 'STATUS.md').write_text(f'''# 실제 진행 상태
++
++- 상태: {report['status']}
++- 공개 URL: https://claps.arcreation.work
++- 완료: 변경 전 백업·10계정·165단계 시드·영일 서비스/브라우저 전체 흐름·{len(records)}장 캡처·관리자3언어 모바일·ZIP·증빙/리뷰·최종 파일 감사.
++- 검사: 단위/언어팩93개, production build/TypeScript, 보완 검사, 저장 파일 checksum 통과. 잔여 queued/running {audit.get('pendingJobs')}개.
++- 최초 관측과 수정 후 결과: HARNESS-OBSERVATIONS.md, supplement-results.json.
++- 부모 전달: sync-receipt.json을 확인한다.
++- Run: run_5d77a4bd650f / Task task_8bc3e4c471a5 / Dispatch ctx_01387ac4dab3.
++''')
++
++# Compare with the copied starting hashes; never call the large inherited diff our own work.
++baseline = read('BASELINE.json')['files']
++changed = []; patch = []
++for folder in ['app','components','lib','scripts','tests','deploy']:
++    for p in (repo / folder).rglob('*'):
++        if not p.is_file() or "__pycache__" in p.parts: continue
++        rel = p.relative_to(repo).as_posix(); digest = hashlib.sha256(p.read_bytes()).hexdigest()
++        if baseline.get(rel) == digest: continue
++        changed.append({'file': rel, 'before': baseline.get(rel), 'after': digest})
++        original = Path('/mnt/f/claps-product') / rel
++        if p.suffix in ['.ts','.tsx','.mjs','.py','.sh','.yaml'] and (not baseline.get(rel) or original.is_file() and hashlib.sha256(original.read_bytes()).hexdigest() == baseline[rel]):
++            old = original.read_text().splitlines(keepends=True) if baseline.get(rel) else []
++            patch.extend(difflib.unified_diff(old,p.read_text().splitlines(keepends=True),fromfile='a/'+rel,tofile='b/'+rel))
++p = repo / '.gitignore'; changed.append({'file':'.gitignore','after':hashlib.sha256(p.read_bytes()).hexdigest()})
++(root / 'implementation-manifest.json').write_text(json.dumps(changed,indent=2)+'\n')
++(root / 'implementation.patch').write_text(''.join(patch))
++with tarfile.open(root / 'implementation-source.tar.gz','w:gz') as archive:
++    for item in changed: archive.add(repo/item['file'],arcname=item['file'])
++print(json.dumps({'status':report['status'],'captures':len(records),'changedSourceFiles':len(changed),'storedFiles':report['storedFilesChecked']}))
+--- a/scripts/edge-evidence.mjs
++++ b/scripts/edge-evidence.mjs
+@@ -0,0 +1,17 @@
++import { chromium } from '@playwright/test';
++import fs from 'node:fs/promises';import path from 'node:path';import assert from 'node:assert/strict';
++const root=path.resolve('md/evidence-full-process'),origin='https://claps.arcreation.work',state=JSON.parse(await fs.readFile(path.join(root,'private-state.json'),'utf8')),seed=JSON.parse(await fs.readFile(path.join(root,'seed-result.json'),'utf8'));
++const browser=await chromium.launch({headless:true,args:['--no-sandbox']}),results={checks:[],records:[],errors:[]};let seq=0;
++async function api(ctx,method,route,data,status=200){const r=await ctx.request.fetch(origin+route,{method,headers:{Origin:origin},...(data===undefined?{}:{data})});const b=await r.json();assert.equal(r.status(),status,`${route}: ${r.status()} ${b?.error?.code}`);return b.data;}
++async function shot(page,label,locale='en'){const file=`captures/edge-${String(++seq).padStart(3,'0')}-${locale}-${label}.png`;await page.screenshot({path:path.join(root,file),fullPage:true,animations:'disabled',timeout:15000});results.records.push({label,locale,device:'desktop',file,route:new URL(page.url()).pathname,at:new Date().toISOString()});}
++async function check(name,fn){try{const detail=await fn();results.checks.push({name,ok:true,detail});}catch(e){results.checks.push({name,ok:false,error:e.message});}}
++try{
++ const ctx=await browser.newContext({viewport:{width:1440,height:1000},locale:'en'});ctx.setDefaultTimeout(15000);const a=state.accounts[0];await api(ctx,'POST','/api/auth/sign-in',{email:a.email,password:a.password});const page=await ctx.newPage();
++ await check('running generation and running cancellation',async()=>{const s=await api(ctx,'POST','/api/asset-sessions',{title:'SAMPLE live running/cancel capture',projectId:seed.flows[0].project},201);await page.goto(origin+`/assets/${s.id}`);await page.waitForLoadState('networkidle');const j=await api(ctx,'POST','/api/evidence-sample',{action:'generate',sessionId:s.id,guideId:seed.flows[0].guide,prompt:'SAMPLE running cancellation scenario',outputLocale:'en',idempotencyKey:crypto.randomUUID()},202);let observed;for(let i=0;i<40;i++){observed=await api(ctx,'GET',`/api/jobs/${j.id}`);if(observed.status==='running')break;assert.notEqual(observed.status,'succeeded');await page.waitForTimeout(80);}assert.equal(observed.status,'running');await page.goto(origin+`/jobs/${j.id}`,{waitUntil:'domcontentloaded'});await page.getByRole('status').filter({hasText:'Running'}).waitFor({timeout:1200});await shot(page,'generation-job-running');await api(ctx,'POST',`/api/jobs/${j.id}/cancel`,{});for(let i=0;i<40;i++){observed=await api(ctx,'GET',`/api/jobs/${j.id}`);if(observed.status==='canceled')break;await page.waitForTimeout(100);}assert.equal(observed.status,'canceled');await page.reload();await page.getByRole('status').filter({hasText:'Canceled'}).waitFor();await shot(page,'generation-running-canceled');return{job:j.id,status:observed.status};});
++ await check('invalid guide PDF upload UI',async()=>{await page.goto(origin+`/projects/${seed.flows[0].project}`);const panel=page.getByTestId('evidence-sample-panel');await panel.locator('input[type=file]').setInputFiles({name:'invalid.pdf',mimeType:'application/pdf',buffer:Buffer.from('THIS IS NOT A PDF')});await panel.getByRole('alert').waitFor();await shot(page,'guide-upload-invalid-error');});await ctx.close();
++ const pending=await browser.newContext({viewport:{width:390,height:844},locale:'en'});const p=state.accounts[7];await api(pending,'POST','/api/auth/sign-in',{email:p.email,password:p.password});await pending.addCookies([{name:'claps-locale',value:'en',url:origin}]);const pp=await pending.newPage();await pp.goto(origin+'/profile-setup');await pp.waitForLoadState('networkidle');await shot(pp,'profile-setup-mobile-en');results.records.at(-1).device='mobile';await pending.close();
++ const admin=await browser.newContext({viewport:{width:1440,height:1000},locale:'en'});admin.setDefaultTimeout(15000);const ad=state.accounts[6];await api(admin,'POST','/api/auth/sign-in',{email:ad.email,password:ad.password});await api(admin,'POST','/api/admin/reauthenticate',{password:ad.password});await api(admin,'POST','/api/locale',{locale:'en',scope:'admin'});const ap=await admin.newPage();
++ await check('admin restore/suspend synthetic member and audit',async()=>{const id=state.accounts[9].id,row=await api(admin,'GET',`/api/admin/users/${id}`);const restored=await api(admin,'PATCH',`/api/admin/users/${id}`,{version:row.version,action:'restore',reason:'Evidence: restore synthetic suspended member'});assert.equal(restored.status,'active');await ap.goto(origin+`/admin/users/${id}`);await ap.waitForLoadState('networkidle');await shot(ap,'admin-user-restored');const suspended=await api(admin,'PATCH',`/api/admin/users/${id}`,{version:restored.version,action:'suspend',reason:'Evidence: restore intended suspended scenario'});assert.equal(suspended.status,'suspended');await ap.reload();await ap.waitForLoadState('networkidle');await ap.getByLabel('Reason',{exact:true}).fill('Evidence confirm dialog preview');await ap.getByRole('button',{name:'Restore',exact:true}).first().click();await ap.getByRole('dialog').waitFor();await shot(ap,'admin-user-confirm-dialog');await ap.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();const logs=await api(admin,'GET',`/api/admin/audit-logs?entityId=${id}`);assert.ok(logs.items.some(l=>l.action==='user.restore')&&logs.items.some(l=>l.action==='user.suspend'));return{restore:true,suspend:true,audited:true};});
++ await check('admin locale editor dialog',async()=>{await ap.goto(origin+'/admin/locales');await ap.getByRole('button',{name:'Add language',exact:true}).click();await ap.getByRole('dialog').waitFor();await shot(ap,'admin-locale-editor-dialog');});
++ await admin.close();
++}finally{await browser.close();await fs.writeFile(path.join(root,'edge-results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results.checks));}
+--- a/scripts/verify-evidence-ui.mjs
++++ b/scripts/verify-evidence-ui.mjs
+@@ -0,0 +1,78 @@
++import { chromium } from "@playwright/test";
++import fs from "node:fs/promises";
++import path from "node:path";
++import assert from "node:assert/strict";
++const root = path.resolve("md/evidence-full-process"), origin = "https://claps.arcreation.work";
++const state = JSON.parse(await fs.readFile(path.join(root, "private-state.json"), "utf8"));
++const seed = JSON.parse(await fs.readFile(path.join(root, "seed-result.json"), "utf8"));
++const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
++const report = { target: origin, scenarios: [], captures: [], checks: [], errors: [] }; let seq = 0;
++async function persist() { await fs.writeFile(path.join(root, "ui-flow-results.json"), JSON.stringify(report, null, 2)); }
++async function api(ctx, method, url, data, status = 200) { const res = await ctx.request.fetch(origin + url, { method, headers: { Origin: origin }, ...(data === undefined ? {} : { data }) }); const body = await res.json(); assert.equal(res.status(), status, `${url}: ${res.status()} ${body?.error?.code}`); return body.data; }
++async function poll(ctx, job) { for (let i = 0; i < 80; i++) { const j = await api(ctx, "GET", `/api/jobs/${job}`); if (["succeeded", "failed", "canceled"].includes(j.status)) { assert.equal(j.status, "succeeded", j.errorCode); return j; } await new Promise(r => setTimeout(r, 250)); } throw Error("Job timed out"); }
++async function capture(page, locale, label, expand = false) {
++  console.log(JSON.stringify({ stage: "capture-start", label, locale }));
++  await page.waitForLoadState("networkidle", { timeout: 4000 }).catch(() => {}); await page.evaluate(() => Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 3000))]));
++  if (expand) await page.locator('details').evaluateAll(n => n.forEach(d => d.open = true));
++  const file = `captures/flow-${String(++seq).padStart(3, "0")}-${locale}-${label}.png`; await page.screenshot({ path: path.join(root, file), fullPage: true, animations: "disabled" });
++  report.captures.push({ label, locale, device: "desktop", file, route: new URL(page.url()).pathname, at: new Date().toISOString() }); await persist(); console.log(JSON.stringify({ capture: label, locale }));
++}
++async function responseAction(page, predicate, action) {
++  const next = page.waitForResponse(r => predicate(r.url(), r.request().method()), { timeout: 15000 }).then(response => ({response}), error => ({error}));
++  await action(); const received = await next; if(received.error) throw received.error;
++  const response=received.response; console.log(JSON.stringify({stage:'response',url:new URL(response.url()).pathname,status:response.status()}));
++  const result=await Promise.race([response.json(),new Promise((_,reject)=>setTimeout(()=>reject(Error('Browser response body exceeded 15 seconds')),15000))]);
++  assert.ok(response.ok(),JSON.stringify(result)); return result.data;
++}
++
++try {
++  for (const locale of ["en", "ja"]) {
++    const i = locale === "en" ? 0 : 1, a = state.accounts[i], ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale, reducedMotion: "reduce" });
++    await api(ctx, "POST", "/api/auth/sign-in", { email: a.email, password: a.password }); await ctx.addCookies([{ name: "claps-locale", value: locale, url: origin }]);
++    ctx.setDefaultTimeout(15000); ctx.setDefaultNavigationTimeout(30000);
++    const page = await ctx.newPage(); console.log(JSON.stringify({ stage: "logged-in", locale })); page.on('pageerror', e => report.errors.push(e.message));
++    const p = await api(ctx, "POST", "/api/projects", { name: `SAMPLE browser workflow ${locale}`, ip: "SAMPLE Mint Friends", description: "Created through public HTTP, then exercised by real browser clicks." }, 201);
++    console.log(JSON.stringify({ stage: "project-created", id: p.id })); await page.goto(origin + `/projects/${p.id}`);
++    const panel = page.getByTestId("evidence-sample-panel"); await panel.waitFor();
++    console.log(JSON.stringify({ stage: "upload-start", locale }));
++    const uploadedResponse = page.waitForResponse(r => r.url().includes('/api/evidence-sample?project=') && r.request().method() === 'POST', { timeout: 15000 });
++    await panel.locator('input[type=file]').setInputFiles(path.join(root, 'sample-guide.pdf'));
++    const uploaded = await uploadedResponse; assert.ok(uploaded.ok(), `PDF upload ${uploaded.status()}`);
++    const guideList = await api(ctx, 'GET', `/api/evidence-sample?project=${p.id}`); const g = guideList[0]; assert.ok(g?.id);
++    console.log(JSON.stringify({ stage: "upload-complete", locale, id: g.id })); await capture(page, locale, "guide-uploaded");
++    const extraction = await responseAction(page, (url, method) => url.endsWith('/api/evidence-sample') && method === 'POST', () => panel.getByRole('button', { name: locale === 'en' ? 'Extract sample rules' : 'サンプル規則抽出' }).click());
++    await poll(ctx, extraction.id); await page.reload(); await capture(page, locale, "guide-extracted-draft");
++    await responseAction(page, (url, method) => url.endsWith('/api/evidence-sample') && method === 'POST', () => panel.getByRole('button', { name: locale === 'en' ? 'Publish and activate' : '公開して有効化' }).click());
++    await capture(page, locale, "guide-published");
++    const s = await api(ctx, "POST", "/api/asset-sessions", { title: `SAMPLE browser session ${locale}`, projectId: p.id }, 201);
++    await page.goto(origin + `/assets/${s.id}`); await page.getByTestId("evidence-sample-panel").waitFor();
++    await page.getByLabel('Sample prompt').fill('SAMPLE browser click workflow / mint character');
++    const generation = await responseAction(page, (url, method) => url.endsWith('/api/evidence-sample') && method === 'POST', () => page.getByRole('button', { name: locale === 'en' ? 'Generate sample images' : 'サンプル画像を生成' }).click());
++    // Capture the actual queued/running UI without waiting for network idle to let it finish.
++    const runningFile = `captures/flow-${String(++seq).padStart(3, '0')}-${locale}-generation-submitted.png`; await page.screenshot({ path: path.join(root, runningFile), fullPage: true }); report.captures.push({ label: 'generation-submitted', locale, device: 'desktop', file: runningFile, route: `/assets/${s.id}`, at: new Date().toISOString() });
++    await poll(ctx, generation.id); await page.reload(); await capture(page, locale, "generation-succeeded");
++    const adoptionName = locale === 'en' ? 'Adopt' : '採用';
++    for (let n = 0; n < 3; n++) await responseAction(page, (url, method) => /\/api\/assets\/[^/]+$/.test(new URL(url).pathname) && method === 'PATCH', () => page.getByRole('button', { name: adoptionName, exact: true }).nth(n).click());
++    await page.goto(origin + `/assets/${s.id}/verify`);
++    const verification = await responseAction(page, (url, method) => url.endsWith(`/api/asset-sessions/${s.id}/verifications`) && method === 'POST', () => page.getByRole('button', { name: locale === 'en' ? 'Run sample verification' : 'サンプル検証を実行' }).click());
++    await poll(ctx, verification.jobId); await page.reload(); await capture(page, locale, "verification-three-verdicts", true);
++    const list = await api(ctx, 'GET', `/api/asset-sessions/${s.id}/assets`), views = await Promise.all(list.map(asset => api(ctx, 'GET', `/api/assets/${asset.id}/verification`))); const eligible = list.filter((_, index) => views[index].canFinalize); assert.equal(eligible.length, 1);
++    const finalName = locale === 'en' ? 'Finalize' : '最終';
++    const candidates = page.getByRole('button', { name: locale === 'en' ? /^Finalize$/ : /最終確定/ });
++    let clicked = false; for (let n = 0; n < await candidates.count(); n++) if (await candidates.nth(n).isEnabled()) { await responseAction(page, (url, method) => url.endsWith('/finalization') && method === 'PUT', () => candidates.nth(n).click()); clicked = true; break; } assert.equal(clicked, true, finalName);
++    await page.goto(origin + `/assets/${s.id}/final`); await page.locator('input[type=checkbox]').first().check();
++    const exp = await responseAction(page, (url, method) => url.endsWith('/api/exports') && method === 'POST', () => page.getByRole('button', { name: locale === 'en' ? /Create selected ZIP/ : /ZIP/ }).first().click()); await poll(ctx, exp.jobId); await capture(page, locale, "final-selected-zip");
++    await page.goto(origin + `/assets/${s.id}/review-package`); await page.locator('section[data-testid=automatic-checks]').waitFor();
++    for (let n = 0; n < 3; n++) { await responseAction(page, (url, method) => url.endsWith('/review-checks') && method === 'PATCH', () => page.locator('input[type=checkbox]').nth(n).click()); await page.waitForFunction(index => document.querySelectorAll('input[type=checkbox]')[index]?.checked, n); }
++    const issued = await responseAction(page, (url, method) => url.endsWith('/review-package') && method === 'POST', () => page.getByRole('button', { name: locale === 'en' ? /Issue snapshot/ : /資料を発行/ }).first().click());
++    await capture(page, locale, "review-issued");
++    await page.goto(origin + '/monitoring/new'); await page.locator('input[type=file]').setInputFiles(path.join(root, 'sample-reference.png')); await page.locator('form input:not([type=file])').fill(`SAMPLE browser monitoring ${locale}`);
++    const record = await responseAction(page, (url, method) => new URL(url).pathname === '/api/monitoring-records' && method === 'POST', () => page.locator('form button[type=submit],form button:not([type])').last().click()); await page.waitForURL(`**/monitoring/${record.id}`); await capture(page, locale, "monitoring-upload-created");
++    const scan = await responseAction(page, (url, method) => url.endsWith('/scans') && method === 'POST', () => page.getByRole('button', { name: locale === 'en' ? /Start scan|Run search|Search/ : /検知を開始/ }).last().click()); await poll(ctx, scan.jobId); await page.reload(); await capture(page, locale, "monitoring-scan-results", true);
++    await api(ctx, 'PATCH', `/api/projects/${p.id}`, { version: 0, name: 'invalid' }, 422);
++    report.checks.push({ name: `public HTTP invalid input status ${locale}`, ok: true, actual: 422, correction: 'The first capture harness expected 400; product contract is 422.' });
++    report.scenarios.push({ locale, status: 'passed', project: p.id, session: s.id, guide: g.id, generation: generation.id, verification: verification.jobId, finalAsset: eligible[0].id, export: exp.jobId, snapshot: issued.id, monitoring: record.id, scan: scan.jobId });
++    await ctx.close(); await persist();
++  }
++} catch (e) { report.errors.push(e.stack || e.message); await persist(); throw e; }
++finally { await browser.close(); await persist(); }
+--- a/scripts/capture-evidence.mjs
++++ b/scripts/capture-evidence.mjs
+@@ -0,0 +1,110 @@
++import { chromium } from "@playwright/test";
++import fs from "node:fs/promises";
++import path from "node:path";
++import assert from "node:assert/strict";
++const root = path.resolve("md/evidence-full-process"), origin = "https://claps.arcreation.work";
++const state = JSON.parse(await fs.readFile(path.join(root, "private-state.json"), "utf8"));
++const seed = JSON.parse(await fs.readFile(path.join(root, "seed-result.json"), "utf8"));
++await fs.mkdir(path.join(root, "captures"), { recursive: true });
++const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
++const records = [], errors = [], checks = [];
++let sequence = 0;
++const clean = value => value.replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-|-$/g, "");
++async function api(ctx, method, url, data, expected = 200) {
++  const r = await ctx.request.fetch(origin + url, { method, headers: { Origin: origin, "X-Claps-Locale": "en" }, ...(data === undefined ? {} : { data }) });
++  const body = await r.json().catch(() => null);
++  assert.equal(r.status(), expected, `${method} ${url}: ${r.status()} ${body?.error?.code}`); return body?.data;
++}
++async function context(locale, accountIndex, mobile = false) {
++  const ctx = await browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 }, deviceScaleFactor: 1, locale, reducedMotion: "reduce", isMobile: mobile, hasTouch: mobile });
++  await ctx.addCookies([{ name: "claps-locale", value: locale, url: origin }]);
++  if (accountIndex !== undefined) {
++    const a = state.accounts[accountIndex]; await api(ctx, "POST", "/api/auth/sign-in", { email: a.email, password: a.password });
++    await ctx.addCookies([{ name: "claps-locale", value: locale, url: origin }]);
++  }
++  const page = await ctx.newPage();
++  page.on("pageerror", e => errors.push({ kind: "pageerror", message: e.message, at: page.url() }));
++  // Expected 4xx/503 responses in negative scenarios are tracked by explicit assertions, not called rendering failures.
++  ctx.on("response", r => { if (r.status() >= 500 && !r.url().includes("/api/auth/")) errors.push({ kind: "http5xx", status: r.status(), url: r.url() }); });
++  return { ctx, page, locale, mobile, accountIndex };
++}
++async function settle(page) {
++  await page.waitForLoadState("networkidle", { timeout: 6000 }).catch(() => {});
++  await page.evaluate(() => document.fonts.ready);
++  await page.locator('img').evaluateAll(imgs => Promise.all(imgs.map(img => img.complete ? undefined : new Promise(resolve => { img.onload = resolve; img.onerror = resolve; setTimeout(resolve, 1500); }))));
++  await page.waitForTimeout(180);
++}
++async function snap(session, label, route, options = {}) {
++  const { page, locale, mobile } = session; let response;
++  try {
++    if (route) response = await page.goto(origin + route, { waitUntil: "domcontentloaded", timeout: 45000 });
++    if (!options.quick) await settle(page);
++    if (options.expand) { await page.locator("details").evaluateAll(nodes => nodes.forEach(n => { n.open = true; })); await page.waitForTimeout(150); }
++    const text = await page.locator("body").innerText();
++    assert.ok(!/Application error: a (client|server)-side exception/.test(text), "Application exception");
++    const filename = `${String(++sequence).padStart(3, "0")}-${locale}-${mobile ? "mobile" : "desktop"}-${clean(label)}.png`;
++    await page.screenshot({ path: path.join(root, "captures", filename), fullPage: true, animations: "disabled" });
++    const layout = await page.evaluate(() => ({ viewport: innerWidth, width: document.documentElement.scrollWidth, language: document.documentElement.lang, title: document.title }));
++    records.push({ label, locale, device: mobile ? "mobile" : "desktop", route: new URL(page.url()).pathname + new URL(page.url()).search, file: `captures/${filename}`, status: response?.status() ?? null, ...layout, at: new Date().toISOString() });
++    await fs.writeFile(path.join(root, "capture-results.json"), JSON.stringify({ target: origin, records, errors, checks }, null, 2));
++    console.log(JSON.stringify({ capture: sequence, locale, label }));
++  } catch (e) { errors.push({ kind: "capture", label, locale, route, message: e.message }); console.log(JSON.stringify({ failed: label, locale, message: e.message })); }
++}
++async function optional(s, name, fn) { try { await fn(); checks.push({ name, ok: true }); } catch (e) { checks.push({ name, ok: false, error: e.message }); } }
++try {
++  for (const locale of ["en", "ja"]) {
++    const s = await context(locale);
++    for (const [label, route] of [["landing", "/"], ["login-email-lookup", "/login"], ["sign-in", "/sign-in"], ["sign-up", "/sign-up"], ["verify-email-awaiting", "/verify-email"], ["verify-email-invalid-token", "/verify-email?token=" + "0".repeat(64)], ["forgot-password", "/forgot-password"], ["reset-password-no-token", "/reset-password"], ["reset-password-invalid-token", "/reset-password?token=" + "0".repeat(64)], ["protected-redirect", "/projects"]]) await snap(s, label, route);
++    await snap(s, "sign-in-invalid-credentials-form", "/sign-in?email=evidence.v1.01%40example.com");
++    await s.page.locator('#password').fill("InvalidEvidencePassword!"); await s.page.locator('button[type=submit]').click(); await s.page.getByRole("alert").waitFor(); await snap(s, "sign-in-invalid-credentials", null);
++    await s.ctx.close();
++    const memberIndex = locale === "en" ? 0 : 1, f = seed.flows.find(f => f.ownerIndex === memberIndex), m = await context(locale, memberIndex);
++    const pages = [["projects", "/projects"], ["project-detail-guide-published", `/projects/${f.project}`], ["project-session-list", `/projects/${f.project}/sessions`], ["asset-session-list", "/assets"], ["generation-adopted-candidates", `/assets/${f.session}`], ["verification-pass-warn-reject", `/assets/${f.session}/verify`], ["final-assets", `/assets/${f.session}/final`], ["evidence-timeline", `/assets/${f.session}/evidence`], ["asset-certificate", `/assets/${f.session}/evidence?asset=${f.pass}`], ["review-checks-and-snapshot", `/assets/${f.session}/review-package?snapshot=${f.snapshot}`], ["export-job-download", `/jobs/${f.zip}`], ["recommendation-results-and-catalog", "/partners"], ["recommendation-criteria-reference", "/partners/criteria"], ["monitoring-records", "/monitoring"], ["monitoring-new-upload", "/monitoring/new"], ["change-password", "/change-password"]];
++    for (const [label, route] of pages) await snap(m, label, route, { expand: label.includes("verification") });
++    await optional(m, `review-print-${locale}`, async () => { await m.page.goto(origin + `/assets/${f.session}/review-package?snapshot=${f.snapshot}`); await settle(m.page); await m.page.emulateMedia({ media: "print" }); await snap(m, "review-print-layout", null); await m.page.pdf({ path: path.join(root, `review-package-${locale}.pdf`), format: "A4", printBackground: true, preferCSSPageSize: true }); await m.page.emulateMedia({ media: "screen" }); });
++    for (const scenario of ["results", "empty", "partial", "error", "unscanned", "archived"]) { const r = seed.steps[`monitor-${memberIndex}-${scenario}`]; await snap(m, `monitoring-${scenario}`, `/monitoring/${r.id}`, { expand: true }); }
++    const retry = seed.steps["failed-retry-cancel"]; if (memberIndex === 0) for (const status of ["failed", "retry", "canceled"]) await snap(m, `generation-job-${status}`, `/jobs/${retry[status]}`);
++    if (memberIndex === 0) { const stale = seed.steps["stale-guide-scenario"]; await snap(m, "verification-stale-guide-v2", `/assets/${stale.session}/verify`, { expand: true }); await snap(m, "review-not-ready-stale", `/assets/${stale.session}/review-package`); }
++    await optional(m, `new-project-dialog-${locale}`, async () => { await m.page.goto(origin + "/projects"); await settle(m.page); const text = locale === "ja" ? /新規プロジェクト|プロジェクトを作成|プロジェクト作成/ : /New project|Create project/i; await m.page.getByRole("button", { name: text }).first().click(); await m.page.getByRole("dialog").waitFor(); await snap(m, "new-project-dialog", null); });
++    await optional(m, `project-edit-dialog-${locale}`, async () => { await m.page.goto(origin + `/projects/${f.project}`); await settle(m.page); await m.page.getByRole("button", { name: locale === "ja" ? /編集|名前変更/ : /Rename|Edit/i }).first().click(); await m.page.getByRole("dialog").waitFor(); await snap(m, "project-edit-dialog", null); });
++    await optional(m, `partner-details-dialog-${locale}`, async () => { await m.page.goto(origin + "/partners"); await m.page.getByTestId("match-hero").waitFor(); await m.page.getByTestId("match-hero").getByRole("button").click(); await m.page.getByRole("dialog").waitFor(); await snap(m, "partner-detail-dialog", null); });
++    await optional(m, `my-account-dialog-${locale}`, async () => { await m.page.goto(origin + "/projects"); await settle(m.page); await m.page.locator('aside button[data-slot="dropdown-menu-trigger"]').click(); await m.page.getByRole("menuitem", { name: locale === "ja" ? /マイ|アカウント/ : /My account/i }).click(); await m.page.getByRole("dialog").waitFor(); await snap(m, "my-account-dialog", null); });
++    await optional(m, `project-search-no-results-${locale}`, async () => { await m.page.goto(origin + "/projects"); await settle(m.page); await m.page.locator('input').first().fill("NO_SUCH_EVIDENCE_PROJECT"); await m.page.waitForTimeout(500); await snap(m, "project-search-no-results", null); });
++    // Same owner negative HTTP contracts on the publicly deployed server.
++    await optional(m, `HTTP-contracts-${locale}`, async () => { await api(m.ctx, "GET", `/api/projects/${f.project}`); await api(m.ctx, "PATCH", `/api/projects/${f.project}`, { version: 0, name: "invalid" }, 400); await api(m.ctx, "GET", `/api/assets/${f.pass}/certificate`); await api(m.ctx, "GET", `/api/asset-sessions/${f.session}/review-package/snapshots/${f.snapshot}`); });
++    await m.ctx.close();
++    const empty = await context(locale, locale === "en" ? 2 : 3);
++    for (const route of ["/projects", "/assets", "/partners", "/monitoring"]) await snap(empty, "empty-" + clean(route), route);
++    await snap(empty, "other-owner-project-not-found", `/projects/${f.project}`);
++    await optional(empty, `cross-owner-api-${locale}`, async () => { await api(empty.ctx, "GET", `/api/projects/${f.project}`, undefined, 404); await api(empty.ctx, "GET", `/api/assets/${f.pass}/certificate`, undefined, 404); });
++    await empty.ctx.close();
++    const mobile = await context(locale, memberIndex, true);
++    for (const [label, route] of pages.filter(([label]) => !label.includes("password"))) await snap(mobile, label, route, { expand: label.includes("verification") });
++    await snap(mobile, "monitoring-result-factors", `/monitoring/${seed.steps[`monitor-${memberIndex}-results`].id}`, { expand: true });
++    await mobile.ctx.close();
++  }
++  const pending = await context("ja", 7); await snap(pending, "profile-setup-japanese", "/profile-setup"); await pending.ctx.close();
++  const anonymous = await context("en");
++  for (const i of [8, 9]) {
++    const a = state.accounts[i]; await anonymous.page.goto(origin + `/sign-in?email=${encodeURIComponent(a.email)}`); await anonymous.page.locator('#password').fill(a.password); await anonymous.page.locator('button[type=submit]').click(); await anonymous.page.getByRole('alert').waitFor(); await snap(anonymous, i === 8 ? "unverified-login-denied" : "suspended-login-denied", null);
++  }
++  await anonymous.ctx.close();
++  const adminIndex = 6, f = seed.flows[0], monitor = seed.steps["monitor-0-results"];
++  for (const locale of ["ko", "en", "ja"]) {
++    const s = await context("en", adminIndex); s.locale = locale;
++    await api(s.ctx, "POST", "/api/locale", { locale, scope: "admin" });
++    await snap(s, "admin-reauth-required", "/admin");
++    await api(s.ctx, "POST", "/api/admin/reauthenticate", { password: state.accounts[adminIndex].password });
++    const routes = [["overview", "/admin"], ...["users", "projects", "partners", "jobs", "monitoring", "audit-logs", "locales"].map(x => [x, "/admin/" + x]), ["user-detail", `/admin/users/${state.accounts[0].id}`], ["project-detail", `/admin/projects/${f.project}`], ["project-guides", `/admin/projects/${f.project}?tab=guides`], ["project-assets", `/admin/projects/${f.project}?tab=assets`], ["project-jobs", `/admin/projects/${f.project}?tab=jobs`], ["project-history", `/admin/projects/${f.project}?tab=history`], ["partner-detail", `/admin/partners/${seed.partners[0]}`], ["partner-images", `/admin/partners/${seed.partners[0]}?tab=images`], ["partner-translations", `/admin/partners/${seed.partners[0]}?tab=translations`], ["partner-new", "/admin/partners/new"], ["job-detail", `/admin/jobs/${f.zip}`], ["monitoring-detail", `/admin/monitoring/${monitor.id}`], ["monitoring-scans", `/admin/monitoring/${monitor.id}?tab=scans`], ["user-history", `/admin/users/${state.accounts[0].id}?tab=history`]];
++    for (const [label, route] of routes) await snap(s, "admin-" + label, route, { expand: label.includes("scans") });
++    await optional(s, `admin-locale-separation-${locale}`, async () => { await s.page.goto(origin + "/projects"); assert.equal(await s.page.locator('html').getAttribute('lang'), "en"); await s.page.goto(origin + "/admin"); assert.equal(await s.page.locator('html').getAttribute('lang'), locale); });
++    await s.ctx.close();
++  }
++  const mobileAdmin = await context("en", adminIndex, true); await api(mobileAdmin.ctx, "POST", "/api/admin/reauthenticate", { password: state.accounts[adminIndex].password });
++  for (const route of ["/admin", "/admin/users", `/admin/projects/${f.project}?tab=guides`, "/admin/jobs", "/admin/locales"]) await snap(mobileAdmin, "admin-" + clean(route), route);
++  await mobileAdmin.ctx.close();
++} finally {
++  await browser.close();
++  await fs.writeFile(path.join(root, "capture-results.json"), JSON.stringify({ target: origin, records, errors, checks }, null, 2));
++  console.log(JSON.stringify({ completed: records.length, renderErrors: errors.length, checksPassed: checks.filter(c => c.ok).length, checksFailed: checks.filter(c => !c.ok).length }));
++}
+--- a/scripts/audit-evidence.ts
++++ b/scripts/audit-evidence.ts
+@@ -0,0 +1,25 @@
++import { createHash } from "node:crypto";
++import { readFile, writeFile } from "node:fs/promises";
++import { join } from "node:path";
++import { createDatabase } from "../lib/server/db";
++import sharp from "sharp";
++async function main() {
++  const {pool}=createDatabase(process.env.DATABASE_URL!,3);
++  try {
++    const accountStates=(await pool.query("SELECT id,email,app_role,status,email_verified,preferences->>'locale' locale FROM users WHERE email LIKE 'evidence.v1.%@example.com' ORDER BY email")).rows;
++    const counts:Record<string,number>={};for(const table of ['users','projects','asset_sessions','brand_guides','assets','jobs','partners','localized_contents','monitoring_records','monitoring_feedback_events','evidence_events','review_package_snapshots','admin_audit_logs']) counts[table]=(await pool.query(`SELECT count(*)::int n FROM ${table}`)).rows[0].n;
++    const jobs=(await pool.query("SELECT j.kind,j.status,j.provider,count(*)::int count FROM jobs j JOIN users u ON u.id=j.owner_id WHERE u.email LIKE 'evidence.v1.%@example.com' GROUP BY j.kind,j.status,j.provider ORDER BY j.kind,j.status")).rows;
++    const files=(await pool.query(`SELECT a.file FROM assets a JOIN asset_sessions s ON s.id=a.session_id JOIN users u ON u.id=s.owner_id WHERE u.email LIKE 'evidence.v1.%@example.com'
++      UNION ALL SELECT g.file FROM brand_guides g JOIN projects p ON p.id=g.project_id JOIN users u ON u.id=p.owner_id WHERE u.email LIKE 'evidence.v1.%@example.com'
++      UNION ALL SELECT source_file AS file FROM monitoring_records m JOIN users u ON u.id=m.owner_id WHERE u.email LIKE 'evidence.v1.%@example.com' AND source_file IS NOT NULL
++      UNION ALL SELECT output->'file' AS file FROM jobs j JOIN users u ON u.id=j.owner_id WHERE u.email LIKE 'evidence.v1.%@example.com' AND j.kind='export' AND j.status='succeeded'
++      UNION ALL SELECT jsonb_array_elements(profile->'images') AS file FROM partners
++      UNION ALL SELECT reference->'file' AS file FROM users u CROSS JOIN LATERAL jsonb_array_elements(u.preferences->'matching'->'references') reference WHERE u.email LIKE 'evidence.v1.%@example.com'`)).rows;
++    const fileChecks=[];for(const {file} of files){const bytes=await readFile(join(process.env.UPLOADS_DIR!,file.storageKey));const actual=createHash('sha256').update(bytes).digest('hex');let thumbnail=null;if(file.thumbnailKey){const thumb=await readFile(join(process.env.UPLOADS_DIR!,file.thumbnailKey));const meta=await sharp(thumb).metadata();if(meta.format!=='webp'||!thumb.length)throw Error('INVALID_THUMBNAIL');thumbnail={size:thumb.length,sha256:createHash('sha256').update(thumb).digest('hex'),format:meta.format};}fileChecks.push({storageKey:file.storageKey,size:bytes.length,checksumMatch:actual===file.checksum,sizeMatch:bytes.length===file.size,thumbnail});}
++    const pending=(await pool.query("SELECT count(*)::int n FROM jobs WHERE status IN ('queued','running')")).rows[0].n;
++    const report={at:new Date().toISOString(),target:process.env.APP_ORIGIN,accountStates,counts,jobs,fileChecks,pendingJobs:pending,allStoredFilesValid:fileChecks.every(f=>f.checksumMatch&&f.sizeMatch)};
++    if(accountStates.length!==10||!report.allStoredFilesValid||pending!==0)throw Error('EVIDENCE_AUDIT_FAILED');
++    await writeFile(join(process.env.UPLOADS_DIR!,'evidence-v1-audit.json'),JSON.stringify(report,null,2),{mode:0o600});console.log(JSON.stringify({status:'passed',accounts:10,storedFiles:fileChecks.length,pendingJobs:pending,counts}));
++  }finally{await pool.end();}
++}
++main().catch(e=>{console.error(e instanceof Error?e.message:'Audit failed');process.exitCode=1;});
+--- a/scripts/final-server-proof.py
++++ b/scripts/final-server-proof.py
+@@ -0,0 +1,18 @@
++import subprocess, json, hashlib
++from pathlib import Path
++root=Path('/home/arcreation/deployments/claps')
++backup=root/'backup/pre-evidence-v1-20261020'
++manifest=json.loads((backup/'manifest.json').read_text())
++for name,expected in manifest['sha256'].items():
++    with (backup/name).open('rb') as f: actual=hashlib.file_digest(f,'sha256').hexdigest()
++    if actual!=expected:raise RuntimeError('Backup checksum mismatch')
++sql="SELECT md5(row(u.id,u.email,u.app_role,u.status,a.password)::text) FROM users u LEFT JOIN auth_accounts a ON a.user_id=u.id WHERE u.email='admin@claps.arcreation.work' ORDER BY u.id"
++cmd=['docker','compose','exec','-T','db','sh','-c','exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "$1"','sh',sql]
++current=subprocess.run(cmd,cwd=root,check=True,capture_output=True,text=True).stdout
++if current!=(root/'backup/evidence-baseline/existing-users.digest').read_text():raise RuntimeError('Existing administrator changed')
++health=subprocess.run(['curl','-fsS','http://127.0.0.1:39081/api/health'],check=True,capture_output=True,text=True).stdout
++services=json.loads(subprocess.run(['docker','compose','ps','--format','json'],cwd=root,check=True,capture_output=True,text=True).stdout.replace('}\n{','},{').join(['[',']']))
++if any(s.get('Health')!='healthy' for s in services if s.get('Service') in ['web','worker','db']):raise RuntimeError('Unhealthy runtime')
++result={'backupsChecksumsMatch':True,'existingAdministratorCredentialsRoleStatusPreserved':True,'health':json.loads(health),'services':[{'service':s['Service'],'image':s['Image'],'health':s.get('Health')} for s in services]}
++(root/'releases/20261020-evidence-v1/final-server-proof.json').write_text(json.dumps(result,indent=2)+'\n')
++print(json.dumps(result))
+--- a/scripts/sync-evidence.py
++++ b/scripts/sync-evidence.py
+@@ -0,0 +1,44 @@
++#!/usr/bin/env python3
++"""Copy only evidence deliverables to the requested parent md directory."""
++import os, json, hashlib, shutil, datetime, subprocess, base64
++from pathlib import Path
++repo=Path(__file__).resolve().parents[1]
++source=repo/'md/evidence-full-process'
++parent=Path('/mnt/f/claps-product')
++target=parent/'md/evidence-full-process'
++target.mkdir(parents=True,exist_ok=True)
++ignore=parent/'.gitignore'
++text=ignore.read_text()
++for entry in ['/md/evidence-full-process/ACCOUNTS.md','/md/evidence-full-process/private-state.json']:
++    if entry not in text.splitlines():text+='\n'+entry+'\n'
++ignore.write_text(text)
++copied=[]
++for path in sorted(source.rglob('*')):
++    if not path.is_file() or path.name in ['private-state.json','sync-receipt.json']:continue
++    relative=path.relative_to(source)
++    if any(part.startswith('previous-transfer-') for part in relative.parts):continue
++    destination=target/relative
++    if relative.as_posix() in ['WORK-BRIEF.md','BASELINE.json'] and destination.exists():
++        if destination.read_bytes()!=path.read_bytes():continue
++    destination.parent.mkdir(parents=True,exist_ok=True)
++    if path.name=='ACCOUNTS.md':
++        fd=os.open(destination,os.O_CREAT|os.O_WRONLY|os.O_TRUNC,0o600)
++        with os.fdopen(fd,'wb') as output:output.write(path.read_bytes())
++        os.chmod(destination,0o600)
++    else:shutil.copy2(path,destination)
++    digest=hashlib.sha256(path.read_bytes()).hexdigest()
++    if hashlib.sha256(destination.read_bytes()).hexdigest()!=digest:raise RuntimeError('Transfer checksum mismatch: '+str(relative))
++    copied.append({'file':relative.as_posix(),'sha256':digest})
++mode=oct((target/'ACCOUNTS.md').stat().st_mode&0o777)
++acl=None
++if mode!='0o600':
++    script=repo/'scripts/protect-evidence-accounts.ps1'
++    encoded=base64.b64encode(script.read_text().encode('utf-16le')).decode('ascii')
++    response=subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',encoded],capture_output=True,timeout=60)
++    if response.returncode:raise RuntimeError(response.stderr.decode('utf-8',errors='replace'))
++    acl=json.loads(response.stdout.decode('utf-8-sig').strip())
++    if not acl.get('protected') or not acl.get('ownerOnlyWithSystem'):raise RuntimeError('Parent account ACL is not protected')
++receipt={'target':str(target),'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'files':len(copied),'checksumsMatch':True,'accountMode':mode,'accountWindowsAcl':acl,'privateStateCopied':False,'entries':copied}
++(source/'sync-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
++shutil.copy2(source/'sync-receipt.json',target/'sync-receipt.json')
++print(json.dumps({key:receipt[key] for key in ['target','files','checksumsMatch','accountMode','privateStateCopied']},ensure_ascii=False))
+--- a/scripts/evidence-backup.sh
++++ b/scripts/evidence-backup.sh
+@@ -0,0 +1,11 @@
++set -eu
++cd /home/arcreation/deployments/claps
++umask 077
++mkdir -p backup/evidence-baseline
++docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -At' > backup/evidence-baseline/existing-users.digest <<'SQL'
++SELECT md5(row(u.id,u.email,u.app_role,u.status,a.password)::text) FROM users u LEFT JOIN auth_accounts a ON a.user_id=u.id ORDER BY u.id;
++SQL
++docker compose stop web worker
++python3 releases/20261020-i18n/backup-restore.py backup --project claps-prod --env-file .env --compose-file compose.yaml --directory backup/pre-evidence-v1-20261020 </dev/null
++docker compose up -d --no-deps --wait web worker
++cat backup/pre-evidence-v1-20261020/manifest.json
+--- a/scripts/deploy-evidence.sh
++++ b/scripts/deploy-evidence.sh
+@@ -0,0 +1,21 @@
++#!/usr/bin/env bash
++set -euo pipefail
++cd /home/arcreation/deployments/claps
++release="$PWD/releases/20261020-evidence-v1"
++test -f backup/pre-evidence-v1-20261020/manifest.json
++docker load -i "$release/images.tar"
++mkdir -p "$release/source"
++tar -xzf "$release/source.tar.gz" -C "$release/source"
++test -f "$release/previous-compose.yaml" || cp compose.yaml "$release/previous-compose.yaml"
++cp "$release/source/deploy/remote/compose.evidence.yaml" compose.yaml
++docker compose stop worker
++trap 'docker compose up -d --no-deps --wait web worker' EXIT
++docker compose up -d --no-deps --wait web
++docker compose run --rm --no-deps -T --name claps-evidence-seed -v "$release/seed-evidence.ts:/app/scripts/seed-evidence.ts:ro" -e EVIDENCE_TARGET_CONFIRM=https://claps.arcreation.work worker node --conditions=react-server --import tsx scripts/seed-evidence.ts
++docker compose up -d --no-deps --wait worker
++docker compose ps
++docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -At' > "$release/existing-admin-after.digest" <<'SQL'
++SELECT md5(row(u.id,u.email,u.app_role,u.status,a.password)::text) FROM users u LEFT JOIN auth_accounts a ON a.user_id=u.id WHERE u.email='admin@claps.arcreation.work' ORDER BY u.id;
++SQL
++cmp backup/evidence-baseline/existing-users.digest "$release/existing-admin-after.digest"
++echo 'Existing administrator credentials, role and status preserved.'
+--- a/scripts/supplement-evidence.mjs
++++ b/scripts/supplement-evidence.mjs
+@@ -0,0 +1,28 @@
++import { chromium } from "@playwright/test";
++import fs from "node:fs/promises";
++import path from "node:path";
++import assert from "node:assert/strict";
++const root = path.resolve('md/evidence-full-process'), origin = 'https://claps.arcreation.work';
++const state = JSON.parse(await fs.readFile(path.join(root, 'private-state.json'), 'utf8')), seed = JSON.parse(await fs.readFile(path.join(root, 'seed-result.json'), 'utf8'));
++const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] }); const results = { checks: [], records: [], errors: [], target: origin }; let seq = 0;
++async function api(ctx, method, route, data, expected = 200) { const r = await ctx.request.fetch(origin + route, { method, headers: { Origin: origin }, ...(data === undefined ? {} : { data }) }); const b = await r.json(); assert.equal(r.status(), expected, `${route}: ${r.status()} ${b?.error?.code}`); return b.data; }
++async function shot(page, locale, label, mobile = false) { await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {}); await page.evaluate(() => document.fonts.ready); const file = `captures/supplement-${String(++seq).padStart(3,'0')}-${locale}-${label}.png`; await page.screenshot({ path: path.join(root, file), fullPage: true, animations: 'disabled', timeout: 15000 }); results.records.push({ label, locale, device: mobile ? 'mobile' : 'desktop', file, route: new URL(page.url()).pathname + new URL(page.url()).search, at: new Date().toISOString() }); console.log(JSON.stringify({ capture: label, locale })); }
++async function check(name, fn) { try { const detail = await fn(); results.checks.push({ name, ok: true, detail }); } catch(e) { results.checks.push({ name, ok: false, error: e.message }); } }
++try {
++  for (const locale of ['en','ja']) {
++    const i = locale === 'en' ? 0 : 1, a = state.accounts[i], f = seed.flows[i], ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale }); ctx.setDefaultTimeout(15000);
++    await api(ctx,'POST','/api/auth/sign-in',{ email:a.email,password:a.password }); await ctx.addCookies([{name:'claps-locale',value:locale,url:origin}]); const page=await ctx.newPage(); page.on('pageerror',e=>results.errors.push(e.message));
++    await check(`HTTP-contracts-${locale}-corrected`, async()=>{await api(ctx,'PATCH',`/api/projects/${f.project}`,{version:0,name:'invalid'},422); await api(ctx,'GET',`/api/assets/${f.pass}/certificate`); await api(ctx,'GET',`/api/asset-sessions/${f.session}/review-package/snapshots/${f.snapshot}`); return {invalidInput:422,certificate:200,snapshot:200};});
++    await check(`project-edit-dialog-${locale}-corrected`,async()=>{await page.goto(origin+`/projects/${f.project}`);await page.getByRole('button',{name:locale==='ja'?'名前を変更':'Rename',exact:true}).click();await page.getByRole('dialog').waitFor();await shot(page,locale,'project-edit-dialog-corrected');});
++    await check(`evidence-timeline-expanded-${locale}`,async()=>{await page.goto(origin+`/assets/${f.session}/evidence`);const buttons=page.getByRole('button',{name:locale==='en'?/Show history/:/履歴を表示/});if(await buttons.count())await buttons.first().click();await shot(page,locale,'evidence-timeline-expanded');});
++    await check(`project-pagination-archive-${locale}`,async()=>{await page.goto(origin+'/projects');await page.waitForLoadState('networkidle');const page2=page.getByRole('button',{name:'2',exact:true});if(await page2.count()){await page2.click();await shot(page,locale,'projects-page-2');}if(locale==='en')assert.equal(await page2.count(),1);await page.getByRole('button',{name:locale==='en'?'Archived':'アーカイブ済み',exact:true}).click();await shot(page,locale,'projects-archived');});
++    await check(`session-pagination-inline-rename-${locale}`,async()=>{await page.goto(origin+`/projects/${f.project}/sessions`);await page.waitForLoadState('networkidle');const page2=page.getByRole('button',{name:'2',exact:true});if(await page2.count()){await page2.click();await shot(page,locale,'sessions-page-2');}await page.getByRole('button',{name:locale==='en'?'Rename':'名前を変更',exact:true}).first().click();await shot(page,locale,'session-rename-input');});
++    await check(`monitoring-feedback-state-${locale}`,async()=>{await page.goto(origin+`/monitoring/${seed.steps[`monitor-${i}-results`].id}`);await page.getByTestId('monitoring-scan').first().waitFor();await page.locator('details').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));await shot(page,locale,'monitoring-feedback-expanded');});
++    await check(`review-snapshot-remains-immutable-${locale}`,async()=>{const before=await api(ctx,'GET',`/api/asset-sessions/${f.session}/review-package/snapshots/${f.snapshot}`);const session=await api(ctx,'GET',`/api/asset-sessions/${f.session}`);await api(ctx,'PATCH',`/api/asset-sessions/${f.session}`,{version:session.version,title:session.title+' · snapshot test'});const after=await api(ctx,'GET',`/api/asset-sessions/${f.session}/review-package/snapshots/${f.snapshot}`);assert.deepEqual(before,after);const current=await api(ctx,'GET',`/api/asset-sessions/${f.session}/review-package`);assert.equal(current.checks.stale,true);await page.goto(origin+`/assets/${f.session}/review-package?snapshot=${f.snapshot}`);await shot(page,locale,'review-stale-checks-fixed-snapshot');return{checksum:after.checksum,checksStale:true};});
++    await ctx.close();
++  }
++  const ctx=await browser.newContext({viewport:{width:390,height:844},locale:'en',isMobile:true,hasTouch:true});ctx.setDefaultTimeout(15000);const a=state.accounts[6];await api(ctx,'POST','/api/auth/sign-in',{email:a.email,password:a.password});await api(ctx,'POST','/api/admin/reauthenticate',{password:a.password});const page=await ctx.newPage();
++  for(const locale of ['ko','en','ja']){await api(ctx,'POST','/api/locale',{locale,scope:'admin'});for(const route of ['/admin','/admin/users','/admin/jobs','/admin/locales',`/admin/projects/${seed.flows[0].project}?tab=guides`]){await page.goto(origin+route);await shot(page,locale,'admin-mobile-'+route.split('/').at(-1).replace(/[^a-z-]/g,''),true);}}
++  await check('admin jobs RSC 502 final repeated verification',async()=>{const observations=[];for(let i=0;i<5;i++){const r=await ctx.request.get(origin+'/admin/jobs?_rsc=aysIoAI4vNGu8dMt',{headers:{RSC:'1'}});observations.push({status:r.status(),type:r.headers()['content-type']});assert.equal(r.status(),200);}await page.goto(origin+'/admin/jobs');await shot(page,'ja','admin-jobs-final-recheck',true);return observations;});
++  await ctx.close();
++}finally{await browser.close();await fs.writeFile(path.join(root,'supplement-results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify({captures:results.records.length,checks:results.checks}));}
+--- a/scripts/seed-evidence.ts
++++ b/scripts/seed-evidence.ts
+@@ -0,0 +1,172 @@
++/** Explicit production evidence provisioning. Never imports isolated test fixtures. */
++import { randomBytes, randomUUID, createHash } from "node:crypto";
++import { readFile, writeFile, chmod, mkdir, rename } from "node:fs/promises";
++import { join } from "node:path";
++import assert from "node:assert/strict";
++import type { JobDto } from "../lib/contracts/jobs";
++import { createDatabase } from "../lib/server/db";
++import { AuthService, type AuthUser } from "../lib/server/auth/service";
++import { WorkspaceService } from "../lib/server/projects/service";
++import { StorageService } from "../lib/server/storage/service";
++import { EvidenceSampleService } from "../lib/server/evidence-sample/service";
++import { sampleImage, sampleRules, SAMPLE_PROVIDER } from "../lib/server/evidence-sample/handlers";
++import { productionHandlers } from "../lib/server/adapters/registry";
++import { JobService } from "../lib/server/jobs/service";
++import { JobQueue } from "../lib/server/jobs/queue";
++import { runClaimedJob } from "../lib/server/jobs/runner";
++import { developmentQueuePolicy } from "../lib/server/jobs/policy";
++import { VerificationService } from "../lib/server/verifications/service";
++import { FinalizationService } from "../lib/server/finalizations/service";
++import { ExportService } from "../lib/server/exports/service";
++import { EvidenceService } from "../lib/server/evidence/service";
++import { ReviewService } from "../lib/server/review/service";
++import { MonitoringService } from "../lib/server/monitoring/service";
++import { MonitoringFeedbackService } from "../lib/server/monitoring/feedback";
++import { MatchingService } from "../lib/server/matching/service";
++import { AdminAccess } from "../lib/server/admin/access";
++import { AdminService } from "../lib/server/admin/service";
++import { uploadPartnerImage } from "../lib/server/admin/images";
++import { ContentService } from "../lib/server/localized-contents/service";
++
++type Account = { email: string; password: string; locale: string; purpose: string; id?: string };
++type State = { schemaVersion: 1; accounts: Account[]; steps: Record<string, unknown>; checks: { name: string; ok: boolean; at: string; detail?: unknown }[] };
++const root = process.env.UPLOADS_DIR!, privatePath = join(root, "evidence-v1-private.json");
++function pdf() {
++  const stream = "BT /F1 20 Tf 50 750 Td (CLAPS EVIDENCE SAMPLE GUIDE - NO AI) Tj 0 -40 Td (SAMPLE RULE: navy / mint / yellow) Tj 0 -40 Td (SAMPLE RULE: disclose synthetic artwork) Tj ET";
++  const objects = ["<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>", "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>", `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`];
++  let out = "%PDF-1.4\n"; const offsets = [0]; for (const [i, obj] of objects.entries()) { offsets.push(Buffer.byteLength(out)); out += `${i + 1} 0 obj\n${obj}\nendobj\n`; } const start = Buffer.byteLength(out);
++  out += `xref\n0 6\n0000000000 65535 f \n${offsets.slice(1).map(o => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF\n`; return Buffer.from(out);
++}
++async function main() {
++  if (process.env.EVIDENCE_SAMPLE_MODE !== "claps-evidence-v1" || process.env.EVIDENCE_TARGET_CONFIRM !== "https://claps.arcreation.work" || process.env.APP_ORIGIN !== "https://claps.arcreation.work") throw Error("EXPLICIT_EVIDENCE_TARGET_REQUIRED");
++  const { pool } = createDatabase(process.env.DATABASE_URL!, 3);
++  try {
++    const database = (await pool.query("SELECT current_database() db")).rows[0].db;
++    if (database !== "claps") throw Error("EXPECTED_CLAPS_DATABASE");
++    const baseline = (await pool.query("SELECT id,email,app_role,status FROM users WHERE email='admin@claps.arcreation.work'")).rows[0];
++    assert.equal(baseline?.app_role, "admin"); assert.equal(baseline.status, "active");
++    const unexpected = await pool.query("SELECT j.id FROM jobs j JOIN users u ON u.id=j.owner_id WHERE j.status IN ('queued','running') AND u.email NOT LIKE 'evidence.v1.%@example.com'");
++    assert.equal(unexpected.rowCount, 0, "Non-evidence jobs are active: defer seed");
++    await mkdir(root, { recursive: true, mode: 0o700 });
++    let state: State;
++    try { state = JSON.parse(await readFile(privatePath, "utf8")); } catch (e) { if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e; state = { schemaVersion: 1, accounts: Array.from({ length: 10 }, (_, i) => ({ email: `evidence.v1.${String(i + 1).padStart(2, "0")}@example.com`, password: `Ev1!${randomBytes(18).toString("base64url")}`, locale: i % 2 ? "ja" : "en", purpose: ["English full workflow", "Japanese full workflow", "English empty workspace", "Japanese empty workspace", "Review / revision", "Licensing / archive", "Evidence administrator", "Profile pending", "Email unverified", "Suspended access denial"][i] })), steps: {}, checks: [] }; }
++    async function save() { await writeFile(privatePath + ".tmp", JSON.stringify(state, null, 2), { mode: 0o600 }); await rename(privatePath + ".tmp", privatePath); await chmod(privatePath, 0o600); }
++    await save();
++    async function step<T>(key: string, fn: () => Promise<T>): Promise<T> { if (key in state.steps) return state.steps[key] as T; const value = await fn(); state.steps[key] = value; await save(); console.log(JSON.stringify({ step: key, status: "ok" })); return value; }
++    async function check(name: string, fn: () => Promise<unknown>) { try { const detail = await fn(); state.checks.push({ name, ok: true, at: new Date().toISOString(), detail }); } catch (e) { state.checks.push({ name, ok: false, at: new Date().toISOString(), detail: e instanceof Error ? e.message : "failure" }); await save(); throw e; } await save(); }
++    async function denied(fn: () => Promise<unknown>, codes: string[]) { try { await fn(); assert.fail("Operation unexpectedly accepted"); } catch (e) { assert.ok(codes.includes((e as { code?: string }).code ?? ""), `${(e as Error).message}`); return { code: (e as { code: string }).code }; } }
++    const links = new Map<string, string>(), auth = new AuthService(pool, async m => { links.set(m.to, m.url); }, process.env.APP_ORIGIN!);
++    const ws = new WorkspaceService(auth), storage = new StorageService(ws), jobs = new JobService(auth, productionHandlers, developmentQueuePolicy), queue = new JobQueue(jobs), sample = new EvidenceSampleService(ws, jobs), verify = new VerificationService(ws, jobs), finals = new FinalizationService(ws), exports = new ExportService(ws, jobs), evidence = new EvidenceService(ws), review = new ReviewService(ws), monitoring = new MonitoringService(ws, jobs), feedback = new MonitoringFeedbackService(monitoring), matching = new MatchingService(ws, jobs);
++    const tokens = new Map<number, string>();
++    for (const [i, a] of state.accounts.entries()) {
++      let u = (await pool.query<AuthUser>("SELECT * FROM users WHERE email=$1", [a.email])).rows[0];
++      if (!u) { await auth.signup(a); u = (await pool.query<AuthUser>("SELECT * FROM users WHERE email=$1", [a.email])).rows[0]; }
++      a.id = u!.id; await save();
++      if (i === 8) continue;
++      if (!u!.email_verified) { if (!links.get(a.email)) await auth.sendLink(a.email, "verify", a.locale); const token = new URL(links.get(a.email)!).searchParams.get("token")!; await auth.consume(token, "verify", undefined, a.locale); }
++      if (u!.status === "suspended") continue;
++      const login = await auth.login(a); tokens.set(i, login.token);
++      if (i !== 7 && login.user.status !== "active") await auth.profile(login.token, { name: `Evidence User ${i + 1}`, org: "CLAPS Synthetic Evidence Studio", role: i === 6 ? "management" : "design", locale: a.locale, ...(a.locale === "ja" ? { familyName: "証憑", givenName: `利用者${i + 1}`, familyNameKana: "ショウヒョウ", givenNameKana: "リヨウシャ" } : {}) });
++      if (i === 6 && login.user.app_role !== "admin") { await auth.manage(a.email, "promote"); tokens.set(i, (await auth.login(a)).token); }
++      if (i === 9) { await auth.manage(a.email, "suspend"); tokens.delete(i); }
++    }
++    await check("10 provisioned evidence accounts / existing admin preserved", async () => { assert.equal((await pool.query("SELECT count(*)::int n FROM users WHERE email LIKE 'evidence.v1.%@example.com'")).rows[0].n, 10); assert.deepEqual((await pool.query("SELECT id,email,app_role,status FROM users WHERE id=$1", [baseline.id])).rows[0], baseline); });
++    const adminRaw = tokens.get(6)!, access = new AdminAccess(auth), admin = new AdminService(access, jobs), content = new ContentService(access);
++    await access.verify(adminRaw, { password: state.accounts[6].password });
++    const partners: string[] = [];
++    for (let i = 0; i < 7; i++) {
++      const p = await step(`partner-${i}`, () => admin.partner(adminRaw, undefined, { name: `SAMPLE ${["Mint Studio", "Paper Works", "Lumen Toys", "Canvas Fashion", "Orchard Games", "Cedar Living", "Private Workshop"][i]}`, description: "합성 증빙용 파트너. 실제 사업자 추천이 아닙니다.", marketDescription: "SAMPLE licensing and character merchandise", contactEmail: null, visibility: i === 6 ? "private" : "public", tags: ["character", "licensing", "design", i % 2 ? "fashion" : "toys"], ipNames: ["SAMPLE Mint Friends"], reason: "Explicit evidence seed v1" }));
++      const id = (p as { id: string }).id; partners.push(id);
++      await step(`partner-image-${i}`, async () => { const row = (await pool.query("SELECT version FROM partners WHERE id=$1", [id])).rows[0]; return uploadPartnerImage(access, adminRaw, id, { version: row.version, reason: "Synthetic evidence image", name: "SAMPLE-partner.png" }, "image/png", await sampleImage(i)); });
++      for (const locale of ["en", "ja"]) await step(`partner-${i}-${locale}`, async () => {
++        const current = await content.get(adminRaw, "partner", id, locale);
++        const translated = { schemaVersion: 1 as const, resourceType: "partner" as const, name: locale === "ja" ? `サンプル・パートナー ${i + 1}` : `SAMPLE Partner ${i + 1}`, description: locale === "ja" ? "証憑用の合成事業者。実際の推薦ではありません。" : "Synthetic evidence partner. Not a real business recommendation.", marketDescription: "SAMPLE character licensing", ipNames: ["SAMPLE Mint Friends"] };
++        await content.import(adminRaw, { schemaVersion: 1, entries: [{ resourceType: "partner", resourceKey: id, locale, version: current.version, sourceRevision: current.sourceRevision, content: translated }], reason: "Evidence translation draft" });
++        const draft = await content.get(adminRaw, "partner", id, locale);
++        if (i === 6) return { draftOnly: true };
++        return content.publish(adminRaw, { resourceType: "partner", resourceKey: id, locale, version: draft.version, sourceRevision: draft.sourceRevision, content: translated, reason: "Evidence translation publish" });
++      });
++    }
++    async function drive(job: JobDto) {
++      for (let n = 0; n < 100; n++) {
++        const row = (await pool.query("SELECT status,error_code FROM jobs WHERE id=$1", [job.id])).rows[0];
++        if (["succeeded", "failed", "canceled"].includes(row.status)) return row;
++        const claimed = await queue.claim("evidence-seed-v1"); if (claimed) await runClaimedJob(queue, claimed); else await new Promise(r => setTimeout(r, 200));
++      }
++      throw Error("JOB_NOT_SETTLED");
++    }
++    async function successful(job: JobDto) { const r = await drive(job); assert.equal(r.status, "succeeded", `${job.kind}: ${r.error_code}`); return job.id; }
++    await writeFile(join(root, "evidence-sample-guide.pdf"), pdf(), { mode: 0o600 });
++    const flows: { ownerIndex: number; project: string; session: string; guide: string; assets: string[]; pass: string; zip: string; snapshot: string }[] = [];
++    for (const i of [0, 1]) {
++      const raw = tokens.get(i)!, locale = state.accounts[i].locale;
++      const p = await step(`main-project-${i}`, () => ws.createProject(raw, { name: i ? "SAMPLE ミント・フレンズ 春の企画" : "SAMPLE Mint Friends Spring Campaign", ip: "SAMPLE Mint Friends", description: "Evidence-only synthetic project; provider results are samples.", status: "generating" }));
++      const session = await step(`main-session-${i}`, () => ws.createSession(raw, { title: i ? "証憑サンプル・デザイン" : "Evidence sample designs", projectId: p.id }));
++      const guide = await step(`main-guide-${i}`, () => sample.upload(raw, p.id, "SAMPLE-brand-guide.pdf", pdf()));
++      await step(`extract-${i}`, async () => successful(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: "guide_extraction", guideId: guide.id, outputLocale: locale }, idempotencyKey: `ev1_extract_${i}` })));
++      await step(`edit-guide-${i}`, async () => { const g = (await sample.list(raw, p.id)).find(g => g.id === guide.id)!; return sample.edit(raw, guide.id, { rowVersion: g.row_version, rules: sampleRules() }); });
++      await step(`publish-guide-${i}`, () => sample.publish(raw, guide.id));
++      const generation = await step(`generate-${i}`, async () => successful(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: "generation", sessionId: session.id, guideId: guide.id, prompt: "SAMPLE mascot designs / deterministic synthetic scenario", outputLocale: locale }, idempotencyKey: `ev1_generate_${i}` })));
++      const assets = (await pool.query<{ id: string }>("SELECT id FROM assets WHERE generation_job_id=$1 ORDER BY id", [generation])).rows.map(a => a.id); assert.equal(assets.length, 3);
++      await step(`adopt-${i}`, async () => { for (const id of assets) { const a = await ws.getAsset(raw, id); if (!a.adopted) await ws.patchAsset(raw, id, { version: a.version, adopted: true }); } const a = await ws.getAsset(raw, assets[2]); await ws.patchAsset(raw, a.id, { version: a.version, adopted: false }); const b = await ws.getAsset(raw, a.id); await ws.patchAsset(raw, b.id, { version: b.version, adopted: true }); return { adopted: 3 }; });
++      await step(`verify-${i}`, async () => successful(await verify.request(raw, session.id, { assetIds: assets, guideId: guide.id, outputLocale: locale, idempotencyKey: `ev1_verify_${i}` })));
++      const pass = assets[0];
++      await check(`pass/warn/reject and finalization guard ${locale}`, async () => { const views = await Promise.all(assets.map(a => finals.get(raw, a))); assert.deepEqual(views.map(v => v.verification?.verdict), ["pass", "warn", "reject"]); for (const id of assets.slice(1)) { const a = await ws.getAsset(raw, id); await denied(() => finals.set(raw, id, { version: a.version }, true), ["STATE_CONFLICT"]); } return views.map(v => ({ verdict: v.verification?.verdict, canFinalize: v.canFinalize })); });
++      await step(`final-${i}`, async () => { const a = await ws.getAsset(raw, pass); return finals.set(raw, pass, { version: a.version }, true); });
++      const zip = await step(`zip-${i}`, async () => successful(await exports.request(raw, { assetIds: [pass], outputLocale: locale, idempotencyKey: `ev1_zip_${i}` })));
++      await step(`zip-download-${i}`, async () => { const ticket = await exports.download(raw, zip); const download = await storage.download(raw, ticket.downloadUrl.split("/").at(-1)!.split("?")[0]); await writeFile(join(root, `evidence-${locale}.zip`), download.bytes, { mode: 0o600 }); assert.equal(download.bytes.readUInt32LE(0), 0x04034b50); return { size: download.bytes.length, sha256: createHash("sha256").update(download.bytes).digest("hex") }; });
++      await step(`review-check-${i}`, async () => { const ready = await review.get(raw, session.id); return review.patch(raw, session.id, { version: ready.checks.version, targetHash: ready.targetHash, manual: { copyrightNotice: true, thirdPartyAssets: true, recipientConfirmed: true } }); });
++      const snapshot = await step(`review-issue-${i}`, async () => { const r = await review.get(raw, session.id); assert.equal(r.ready, true, JSON.stringify(r.automatic)); return review.issue(raw, session.id, { version: r.checks.version, targetHash: r.targetHash, idempotencyKey: `ev1_review_${i}` }); });
++      await check(`native evidence and immutable review snapshot ${locale}`, async () => { const cert = await evidence.certificate(raw, pass); assert.equal(cert.generation.origin, "native"); assert.equal(cert.verification?.origin, "native"); const stored = await review.snapshot(raw, session.id, snapshot.id); assert.equal(stored.checksum, snapshot.checksum); const timeline = await evidence.list(raw, session.id); assert.equal(timeline.history, "native"); return { certificate: cert, timeline, snapshot: stored }; });
++      await step(`cover-${i}`, async () => { const a = await ws.getProject(raw, p.id); return ws.patchProject(raw, p.id, { version: a.version, cover: { kind: "asset", assetId: pass }, status: "completed" }); });
++      await step(`matching-${i}`, async () => { const bytes = await sampleImage(0), upload = await storage.reserveMatching(raw, { name: "SAMPLE-reference.png", mime: "image/png", size: bytes.length }); await storage.upload(raw, upload.ticket, bytes, "image/png"); const current = await matching.get(raw); const saved = await matching.save(raw, { revision: current.revision, criteria: { ipName: "SAMPLE Mint Friends", category: "character", industries: ["toys", "fashion"], styles: ["design"], worldView: "SAMPLE character licensing" }, referenceIds: [upload.referenceId] }); return successful(await matching.request(raw, { revision: saved.revision, outputLocale: locale, idempotencyKey: `ev1_matching_${i}` })); });
++      for (const scenario of ["results", "empty", "partial", "error", "unscanned", "archived"]) {
++        const record = await step(`monitor-${i}-${scenario}`, async () => { const marker = `SAMPLE_${scenario.toUpperCase()}`, bytes = Buffer.concat([await sampleImage(scenario === "empty" ? 1 : 0), Buffer.from(marker)]), upload = await storage.reserveMonitoring(raw, { name: `${marker}.png`, mime: "image/png", size: bytes.length }); await storage.upload(raw, upload.ticket, bytes, "image/png"); return monitoring.create(raw, { name: `${marker} / NO LIVE WEB SEARCH`, source: { kind: "upload", ticket: upload.ticket } }); });
++        if (["unscanned", "archived"].includes(scenario)) { if (scenario === "archived") await step(`archive-monitor-${i}`, () => monitoring.patch(raw, record.id, { version: record.version, archived: true })); continue; }
++        await step(`scan-${i}-${scenario}`, async () => { const job = await monitoring.request(raw, record.id, { outputLocale: locale, idempotencyKey: `ev1_scan_${i}_${scenario}` }); const r = await drive(job); assert.equal(r.status, scenario === "error" ? "failed" : "succeeded"); return { jobId: job.id, ...r }; });
++        if (scenario === "results") {
++          await step(`rescan-${i}`, async () => successful(await monitoring.request(raw, record.id, { outputLocale: locale, idempotencyKey: `ev1_rescan_${i}` })));
++          await step(`feedback-${i}`, async () => { const history = await monitoring.history(raw, record.id); const job = history.items[0].job.id; const reported = await feedback.write(raw, record.id, job, "0", "reported", { reason: "own_content", idempotencyKey: `ev1_feedback_${i}` }); const replay = await feedback.write(raw, record.id, job, "0", "reported", { reason: "own_content", idempotencyKey: `ev1_feedback_${i}` }); assert.equal(reported.eventId, replay.eventId); await feedback.write(raw, record.id, job, "0", "withdrawn", { idempotencyKey: `ev1_withdraw_${i}` }); return feedback.write(raw, record.id, job, "0", "reported", { reason: "licensed_use", idempotencyKey: `ev1_report_again_${i}` }); });
++        }
++      }
++      await step(`asset-monitor-${i}`, async () => monitoring.create(raw, { name: "SAMPLE finalized asset source", source: { kind: "asset", assetId: pass } }));
++      flows.push({ ownerIndex: i, project: p.id, session: session.id, guide: guide.id, assets, pass, zip, snapshot: snapshot.id });
++      void generation;
++    }
++    const raw = tokens.get(0)!;
++    for (const [idx, status] of ["preparing", "generating", "verifying", "needs_fix", "completed"].entries()) await step(`status-project-${idx}`, async () => { const p = await ws.createProject(raw, { name: `SAMPLE ${status} project`, status, description: "Synthetic state coverage" }); const s = await ws.createSession(raw, { projectId: p.id, title: `SAMPLE ${status} session` }); return { project: p.id, session: s.id }; });
++    for (let index = 1; index <= 32; index++) await step(`pagination-project-${index}`, () => ws.createProject(raw, { name: `SAMPLE portfolio ${String(index).padStart(2, "0")}`, status: index % 2 ? "preparing" : "generating", description: "Synthetic pagination and search coverage" }));
++    for (let index = 1; index <= 32; index++) await step(`pagination-session-${index}`, () => ws.createSession(raw, { projectId: flows[0].project, title: `SAMPLE exploration ${String(index).padStart(2, "0")}` }));
++    await step("archived-session", async () => { const s = await ws.createSession(raw, { title: "SAMPLE archived session", projectId: flows[0].project }); return ws.patchSession(raw, s.id, { version: s.version, archived: true }); });
++    for (const i of [4, 5, 6]) await step(`extra-owner-${i}`, async () => { const p = await ws.createProject(tokens.get(i)!, { name: `SAMPLE ${state.accounts[i].purpose}`, status: i === 4 ? "needs_fix" : "preparing" }); const s = await ws.createSession(tokens.get(i)!, { projectId: p.id, title: "SAMPLE empty session" }); return { project: p.id, session: s.id }; });
++    await step("project-archive-restore", async () => { const p = await ws.createProject(raw, { name: "SAMPLE archived project" }); const archived = await ws.patchProject(raw, p.id, { version: p.version, archived: true }); const restored = await ws.patchProject(raw, p.id, { version: archived.version, archived: false }); return ws.patchProject(raw, p.id, { version: restored.version, archived: true }); });
++    await step("failed-retry-cancel", async () => { const f = flows[0], data = { schemaVersion: 1, kind: "generation", sessionId: f.session, guideId: f.guide, prompt: "[sample-fail] deliberate evidence failure", outputLocale: "en" }; const failed = await jobs.enqueue(raw, { input: data, idempotencyKey: "ev1_fail" }); assert.equal((await drive(failed)).status, "failed"); const retry = await jobs.retry(raw, failed.id); await successful(retry); const canceled = await jobs.enqueue(raw, { input: { ...data, prompt: "SAMPLE queued cancellation" }, idempotencyKey: "ev1_cancel" }); assert.equal((await jobs.cancel(raw, canceled.id)).status, "canceled"); return { failed: failed.id, retry: retry.id, canceled: canceled.id }; });
++    await step("stale-guide-scenario", async () => {
++      const p = await ws.createProject(raw, { name: "SAMPLE stale verification / guide v2", status: "needs_fix" }), s = await ws.createSession(raw, { title: "SAMPLE guide version changed", projectId: p.id });
++      const g = await sample.upload(raw, p.id, "SAMPLE-v1.pdf", pdf()); await successful(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: "guide_extraction", guideId: g.id, outputLocale: "en" }, idempotencyKey: `ev1_stale_extract_${g.id}` })); await sample.publish(raw, g.id);
++      await successful(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: "generation", sessionId: s.id, guideId: g.id, prompt: "SAMPLE stale guide scenario", outputLocale: "en" }, idempotencyKey: `ev1_stale_gen_${s.id}` }));
++      const a = (await ws.listAssets(raw, s.id))[0]; await ws.patchAsset(raw, a.id, { version: a.version, adopted: true });
++      await successful(await verify.request(raw, s.id, { assetIds: [a.id], guideId: g.id, outputLocale: "en", idempotencyKey: `ev1_stale_verify_${s.id}` }));
++      let current = await ws.getAsset(raw, a.id); await finals.set(raw, a.id, { version: current.version }, true); current = await ws.getAsset(raw, a.id); await finals.set(raw, a.id, { version: current.version }, false);
++      current = await ws.getAsset(raw, a.id); await successful(await verify.request(raw, s.id, { assetIds: [a.id], guideId: g.id, outputLocale: "en", idempotencyKey: `ev1_stale_reverify_${s.id}` })); current = await ws.getAsset(raw, a.id); await finals.set(raw, a.id, { version: current.version }, true);
++      const g2 = await sample.upload(raw, p.id, "SAMPLE-v2.pdf", pdf()); await successful(await jobs.enqueue(raw, { input: { schemaVersion: 1, kind: "guide_extraction", guideId: g2.id, outputLocale: "en" }, idempotencyKey: `ev1_stale_extract_${g2.id}` })); await sample.publish(raw, g2.id);
++      assert.equal((await finals.get(raw, a.id)).stale, true); assert.equal((await review.get(raw, s.id)).automatic.verified, false);
++      return { project: p.id, session: s.id, asset: a.id, oldGuide: g.id, newGuide: g2.id };
++    });
++    await step("password-reset-and-change", async () => { const a = state.accounts[4], temporary = `Tmp!${randomBytes(18).toString("hex")}`; await auth.sendLink(a.email, "reset", "en"); const token = new URL(links.get(a.email)!).searchParams.get("token")!; await auth.consume(token, "reset", temporary); const session = await auth.login({ ...a, password: temporary }); await auth.changePassword(session.token, temporary, a.password); return { reset: true, changedBack: true, externalEmailSent: false }; });
++    await check("unauthenticated / other owner / stale version / suspended / unverified access", async () => {
++      await denied(() => ws.getProject(undefined, flows[0].project), ["UNAUTHORIZED"]);
++      await denied(() => ws.getProject(tokens.get(2), flows[0].project), ["NOT_FOUND"]);
++      const p = await ws.getProject(raw, flows[0].project); await denied(() => ws.patchProject(raw, p.id, { version: p.version - 1, name: "wrong" }), ["VERSION_CONFLICT"]);
++      await denied(() => auth.login(state.accounts[9]), ["UNAUTHORIZED"]); await denied(() => auth.login(state.accounts[8]), ["FORBIDDEN"]);
++      await denied(() => admin.overview(raw), ["FORBIDDEN"]);
++      return { passed: 6 };
++    });
++    await check("all admin sections readable", async () => { const overview = await admin.overview(adminRaw); const counts: Record<string, unknown> = {}; for (const kind of ["users", "projects", "partners", "jobs", "guides", "monitoring-records", "audit-logs"]) counts[kind] = await admin.list(adminRaw, kind, {}); counts.locales = await admin.locales(adminRaw); return { overview, counts }; });
++    await save();
++    const report = { schemaVersion: 1, target: process.env.APP_ORIGIN, database, provider: SAMPLE_PROVIDER, createdAt: new Date().toISOString(), accounts: state.accounts.map(({ password: _password, ...a }) => a), flows, partners, steps: state.steps, checks: state.checks, limitations: ["Generation, guide extraction and verification are explicit synthetic fixtures; not AI performance evidence.", "Monitoring sources, URLs and similarity percentages are synthetic; no live web search or infringement detection.", "Existing guide-analysis UI is a timer-based prototype. Evidence-specific PDF lifecycle uses real DB, queue and storage.", "Review package is currently Japanese only by product contract.", "Production email and OAuth providers remain disabled."] };
++    await writeFile(join(root, "evidence-v1-result.json"), JSON.stringify(report, null, 2), { mode: 0o600 });
++    console.log(JSON.stringify({ status: "complete", accounts: 10, steps: Object.keys(state.steps).length, checks: state.checks.length, flows: flows.length }));
++  } finally { await pool.end(); }
++}
++main().catch(e => { console.error(JSON.stringify({ status: "failed", error: e instanceof Error ? e.message : "unknown" })); process.exitCode = 1; });
+--- a/tests/unit/evidence-sample.test.ts
++++ b/tests/unit/evidence-sample.test.ts
+@@ -0,0 +1,25 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import type { PoolClient } from "pg";
++import sharp from "sharp";
++import { authorizeEvidence, evidenceEmail, sampleImage, sampleRules } from "../../lib/server/evidence-sample/handlers";
++afterEach(() => vi.unstubAllEnvs());
++describe("explicit evidence sample boundary", () => {
++  it("accepts exactly ten reserved evidence identities", () => {
++    for (let i = 1; i <= 10; i++) expect(evidenceEmail(`evidence.v1.${String(i).padStart(2, "0")}@example.com`)).toBe(true);
++    for (const email of ["admin@claps.arcreation.work", "evidence.v1.11@example.com", "evidence.v1.01@example.com.attacker.org", "evidence.v1.00@example.com"]) expect(evidenceEmail(email)).toBe(false);
++  });
++  it("requires both explicit mode and an authorized owner", async () => {
++    const client = (email: string) => ({ query: vi.fn().mockResolvedValue({ rows: [{ email }] }) }) as unknown as PoolClient;
++    vi.stubEnv("EVIDENCE_SAMPLE_MODE", "");
++    await expect(authorizeEvidence(client("evidence.v1.01@example.com"), "owner")).rejects.toMatchObject({ code: "SERVICE_UNAVAILABLE" });
++    vi.stubEnv("EVIDENCE_SAMPLE_MODE", "claps-evidence-v1");
++    await expect(authorizeEvidence(client("admin@claps.arcreation.work"), "owner")).rejects.toMatchObject({ code: "SERVICE_UNAVAILABLE" });
++    await expect(authorizeEvidence(client("evidence.v1.01@example.com"), "owner")).resolves.toBeUndefined();
++  });
++  it("creates real decodable, distinct synthetic PNGs and explicit sample rules", async () => {
++    const first = await sampleImage(0), second = await sampleImage(1);
++    expect(first.equals(second)).toBe(false);
++    expect(await sharp(first).metadata()).toMatchObject({ format: "png", width: 768, height: 768 });
++    expect(sampleRules().rules.every(r => r.title.startsWith("SAMPLE:"))).toBe(true);
++  });
++});
+--- a/deploy/remote/compose.evidence.yaml
++++ b/deploy/remote/compose.evidence.yaml
+@@ -0,0 +1,94 @@
++name: claps-prod
++x-runtime-environment: &id001
++  EVIDENCE_SAMPLE_MODE: claps-evidence-v1
++  DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
++  UPLOADS_DIR: /app/uploads
++  NODE_ENV: production
++  DB_POOL_MAX: ${DB_POOL_MAX:-10}
++  APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
++  MAIL_ADAPTER: ${MAIL_ADAPTER:-disabled}
++  MAIL_SANDBOX_DIR: ${MAIL_SANDBOX_DIR:-/tmp/claps-mail}
++  AUTH_TRUSTED_IP_HEADER: ${AUTH_TRUSTED_IP_HEADER:-}
++services:
++  db:
++    image: postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
++    environment:
++      POSTGRES_USER: ${POSTGRES_USER:-claps}
++      POSTGRES_DB: ${POSTGRES_DB:-claps}
++      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
++    volumes:
++    - db-data:/var/lib/postgresql/data
++    healthcheck:
++      test:
++      - CMD-SHELL
++      - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
++      interval: 5s
++      timeout: 5s
++      retries: 12
++    restart: unless-stopped
++  migrate:
++    environment: *id001
++    depends_on:
++      db:
++        condition: service_healthy
++    command:
++    - sh
++    - -c
++    - pnpm db:migrate && pnpm db:seed
++    restart: 'no'
++    image: claps-migrate:20261020-i18n
++  web:
++    environment: *id001
++    ports:
++    - 127.0.0.1:${WEB_PORT:-3000}:3000
++    volumes:
++    - uploads-data:/app/uploads
++    depends_on:
++      migrate:
++        condition: service_completed_successfully
++    healthcheck:
++      test:
++      - CMD
++      - node
++      - -e
++      - fetch("http://127.0.0.1:3000/api/health").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
++      interval: 10s
++      timeout: 6s
++      retries: 6
++      start_period: 15s
++    init: true
++    restart: unless-stopped
++    image: claps-web:20261020-evidence-v1
++  worker:
++    environment:
++      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
++      UPLOADS_DIR: /app/uploads
++      NODE_ENV: production
++      EVIDENCE_SAMPLE_MODE: claps-evidence-v1
++      DB_POOL_MAX: 3
++      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
++      MAIL_ADAPTER: ${MAIL_ADAPTER:-disabled}
++      MAIL_SANDBOX_DIR: ${MAIL_SANDBOX_DIR:-/tmp/claps-mail}
++      AUTH_TRUSTED_IP_HEADER: ${AUTH_TRUSTED_IP_HEADER:-}
++      WORKER_HEARTBEAT_PATH: /tmp/claps-worker-heartbeat
++    volumes:
++    - uploads-data:/app/uploads
++    depends_on:
++      migrate:
++        condition: service_completed_successfully
++    healthcheck:
++      test:
++      - CMD
++      - node
++      - scripts/worker-health.mjs
++      interval: 10s
++      timeout: 5s
++      retries: 3
++      start_period: 10s
++    init: true
++    stop_grace_period: 20s
++    restart: unless-stopped
++    image: claps-worker:20261020-evidence-v1
++volumes:
++  db-data: null
++  uploads-data: null

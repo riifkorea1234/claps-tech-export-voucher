@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { test, expect } from "@playwright/test";
 import { Pool } from "pg";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
@@ -14,7 +15,7 @@ const db = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
 test.beforeAll(async () => {
   if (
     !process.env.TEST_DATABASE_URL ||
-    new URL(process.env.TEST_DATABASE_URL).pathname !== "/claps_test"
+    !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(process.env.TEST_DATABASE_URL).pathname)
   )
     throw new Error("Isolated DB required");
   originalEnglishEnabled = !!(
@@ -25,7 +26,7 @@ test.beforeAll(async () => {
 async function fixture(admin = true) {
   if (
     !process.env.TEST_DATABASE_URL ||
-    new URL(process.env.TEST_DATABASE_URL).pathname !== "/claps_test"
+    !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(process.env.TEST_DATABASE_URL).pathname)
   )
     throw new Error("Isolated DB required");
   const id = randomUUID(),
@@ -107,6 +108,7 @@ test.afterAll(async () => {
     projects,
   ]);
   await db.query("DELETE FROM brand_guides WHERE id=ANY($1)", [guides]);
+  await cleanupEvidence(db, ids);
   await db.query("DELETE FROM jobs WHERE owner_id=ANY($1)", [ids]);
   await db.query("DELETE FROM projects WHERE id=ANY($1)", [projects]);
   await db.query("DELETE FROM partners WHERE id=ANY($1)", [partners]);

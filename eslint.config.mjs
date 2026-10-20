@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Durable evidence includes historical standalone CommonJS browser probes, not application code.
+    "md/evidence/**",
   ]),
 ]);
 

@@ -1,4 +1,6 @@
 import "server-only";
+import { assertDatabaseMetadata } from "../evidence/size";
+import { appendEvidence, guideProvenance } from "../evidence/writer";
 import { z } from "zod";
 import type { AuthService } from "../auth/service";
 import { ruleResultSchema, fileSchema, verificationSchema } from "../../contracts/metadata";
@@ -41,12 +43,17 @@ export function verificationHandler(auth: AuthService, provider: VerificationPro
         if (!input.assetIds.includes(r.assetId) || r.rules.length !== ruleIds.length || new Set(r.rules.map(x => x.ruleId)).size !== ruleIds.length || r.rules.some(x => !ruleIds.includes(x.ruleId) || !x.evidence)) throw new JobFailure("INVALID_RESULT");
         return { assetId: r.assetId, verification: verificationSchema.parse({ schemaVersion: 1, verdict: aggregateVerdict(r.rules), ruleResults: r.rules, guideId: input.guideId, guideVersion: snapshot.guideVersion, jobId: context.job.id, engineVersion: parsed.engineVersion, checkedAt: new Date().toISOString() }) };
       });
-      return { output: { schemaVersion: 1, kind: "verification", assetIds: input.assetIds, results } };
+      const output = { schemaVersion: 1 as const, kind: "verification" as const, assetIds: input.assetIds, results };
+      await assertDatabaseMetadata(auth.pool, output);
+      return { output };
     },
     async apply(c, job, result) {
       if (job.input.kind !== "verification" || result.output.kind !== "verification" || !result.output.results) throw new JobFailure("INVALID_RESULT");
       await checkVerificationSnapshot(c, job.owner_id, job.input, job.project_id);
-      for (const r of result.output.results) await c.query("UPDATE assets SET verification_job_id=$2,verification=$3,version=version+1,updated_at=now() WHERE id=$1", [r.assetId, job.id, r.verification]);
+      for (const r of result.output.results) {
+        await c.query("UPDATE assets SET verification_job_id=$2,verification=$3,version=version+1,updated_at=now() WHERE id=$1", [r.assetId, job.id, r.verification]);
+        await appendEvidence(c, job.owner_id, job.input.snapshot!.sessionId, { schemaVersion: 1, kind: "verify.run", actorType: "worker", verification: { jobId: job.id, verdict: r.verification.verdict, engineVersion: r.verification.engineVersion, checkedAt: r.verification.checkedAt, ruleCount: r.verification.ruleResults.length }, guide: await guideProvenance(c, job.input.guideId) }, r.assetId, job.id);
+      }
     },
   };
 }

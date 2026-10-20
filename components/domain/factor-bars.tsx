@@ -31,7 +31,7 @@ export function FactorBars({ factors }: { factors: Factor[] }) {
     >
       {factors.map((f, i) => (
         <div key={f.code} className="flex items-center gap-3">
-          <span className="w-[90px] shrink-0 text-xs text-muted-foreground">
+          <span className="w-[var(--factor-label-w)] shrink-0 text-xs text-muted-foreground">
             {t(`partners.factorLabel.${f.code}`)}
           </span>
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-200">

@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomUUID, randomBytes } from "node:crypto";
 import { beforeAll, afterAll, it, expect } from "vitest";
 import { hashPassword } from "better-auth/crypto";
@@ -105,6 +106,7 @@ afterAll(async () => {
     [[...partners, ...guides]],
   );
   await pool.query("DELETE FROM brand_guides WHERE id=ANY($1)", [guides]);
+  await cleanupEvidence(pool, ids);
   await pool.query("DELETE FROM jobs WHERE owner_id=ANY($1)", [ids]);
   await pool.query("DELETE FROM asset_sessions WHERE owner_id=ANY($1)", [ids]);
   await pool.query("DELETE FROM projects WHERE id=ANY($1)", [projects]);
@@ -511,13 +513,13 @@ it("enforces deployed-pack intersection, default language and acyclic locale reg
   await expect(
     admin.locale(raw, "fr", { ...base, fallbackCode: "de", version: 1 }),
   ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
-  const ko = (await admin.locales(raw)).items.find((r) => r.code === "ko");
+  const en = (await admin.locales(raw)).items.find((r) => r.code === "en");
   await expect(
-    admin.locale(raw, "ko", {
+    admin.locale(raw, "en", {
       ...base,
       enabled: false,
       fallbackCode: null,
-      version: ko.version,
+      version: en.version,
     }),
   ).rejects.toMatchObject({ code: "STATE_CONFLICT" });
   expect(

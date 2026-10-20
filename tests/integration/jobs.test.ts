@@ -1,3 +1,4 @@
+import { cleanupEvidence } from "../helpers/evidence-cleanup";
 import { randomUUID, randomBytes } from "node:crypto";
 import { fork } from "node:child_process";
 import { once } from "node:events";
@@ -39,6 +40,7 @@ beforeAll(async () => { await migrateDatabase(pool); });
 beforeEach(async () => { ({ id: owner, raw: token } = await account()); configure(); });
 afterEach(async () => { await pool.query("UPDATE jobs SET status='canceled' WHERE owner_id=ANY($1) AND status IN ('queued','running')", [owners]); });
 afterAll(async () => {
+  await cleanupEvidence(pool, owners);
   await pool.query("DELETE FROM storage_tickets WHERE owner_id=ANY($1)", [owners]);
   await pool.query("DELETE FROM assets WHERE session_id IN(SELECT id FROM asset_sessions WHERE owner_id=ANY($1))", [owners]);
   await pool.query("DELETE FROM jobs WHERE owner_id=ANY($1)", [owners]);

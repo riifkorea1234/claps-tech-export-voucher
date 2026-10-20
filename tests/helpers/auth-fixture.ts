@@ -1,9 +1,11 @@
+import { cleanupEvidence } from "./evidence-cleanup";
 import { randomUUID } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { expect, type APIRequestContext } from "@playwright/test";
 import { Pool } from "pg";
 export const fixturePassword = "eight888";
-export const fixtureEmail = () => `p3-e2e-${randomUUID()}@example.test`;
+const generatedEmails: string[] = [];
+export const fixtureEmail = () => { const email = `p3-e2e-${randomUUID()}@example.test`; generatedEmails.push(email); return email; };
 export async function post(request: APIRequestContext, baseURL: string, action: string, data: unknown) {
   return request.post(`/api/auth/${action}`, { headers: { Origin: baseURL }, data });
 }
@@ -29,10 +31,11 @@ export async function createAccount(request: APIRequestContext, baseURL: string,
 }
 export async function cleanupAccounts() {
   const url = process.env.TEST_DATABASE_URL;
-  if (!url || new URL(url).pathname !== "/claps_test") throw new Error("Isolated TEST_DATABASE_URL required");
+  if (!url || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(url).pathname)) throw new Error("Isolated TEST_DATABASE_URL required");
   const pool = new Pool({ connectionString: url });
   try {
-    const { rows } = await pool.query("SELECT id FROM users WHERE email LIKE 'p3-e2e-%@example.test'"); const ids = rows.map(r => r.id);
+    const { rows } = await pool.query("SELECT id FROM users WHERE email=ANY($1)", [generatedEmails]); const ids = rows.map(r => r.id);
+    await cleanupEvidence(pool, ids);
     await pool.query("DELETE FROM storage_tickets WHERE owner_id=ANY($1)", [ids]);
     await pool.query("UPDATE projects SET cover='{\"schemaVersion\":1,\"kind\":\"default\"}',active_guide_id=NULL WHERE owner_id=ANY($1)", [ids]);
     await pool.query("DELETE FROM monitoring_records WHERE owner_id=ANY($1)", [ids]);

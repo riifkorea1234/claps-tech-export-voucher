@@ -1,0 +1,26 @@
+{
+  "backupsChecksumsMatch": true,
+  "existingAdministratorCredentialsRoleStatusPreserved": true,
+  "health": {
+    "data": {
+      "status": "ok"
+    }
+  },
+  "services": [
+    {
+      "service": "db",
+      "image": "postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652",
+      "health": "healthy"
+    },
+    {
+      "service": "web",
+      "image": "claps-web:20261020-evidence-v1",
+      "health": "healthy"
+    },
+    {
+      "service": "worker",
+      "image": "claps-worker:20261020-evidence-v1",
+      "health": "healthy"
+    }
+  ]
+}

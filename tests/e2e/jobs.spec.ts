@@ -5,7 +5,7 @@ import { createAccount, cleanupAccounts } from "../helpers/auth-fixture";
 let email: string;
 async function fixture(status = "queued") {
   const url = process.env.TEST_DATABASE_URL;
-  if (!url || new URL(url).pathname !== "/claps_test") throw new Error("Isolated test DB required");
+  if (!url || !/^\/claps_test(?:_[a-z0-9]+)?$/.test(new URL(url).pathname)) throw new Error("Isolated test DB required");
   const pool = new Pool({ connectionString: url }), id = randomUUID();
   try {
     const { rows: [u] } = await pool.query("SELECT id FROM users WHERE email=$1", [email]);

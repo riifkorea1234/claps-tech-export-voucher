@@ -1,4 +1,5 @@
 import "server-only";
+import { appendEvidence } from "../evidence/writer";
 import { issueFileUrl, projectFile, reserveCleanup } from "../storage/service";
 import { digest } from "../auth/service";
 import { fileSchema, coverSchema, parseMetadata } from "@/lib/contracts/metadata";
@@ -110,6 +111,7 @@ export class WorkspaceService {
     return this.run(raw, async (c, owner) => {
       if (d.projectId) await this.projectRow(c, owner, d.projectId);
       const { rows: [r] } = await c.query("INSERT INTO asset_sessions(id,owner_id,title,project_id) VALUES($1,$2,$3,$4) RETURNING *", [randomUUID(), owner, d.title, d.projectId ?? null]);
+      await appendEvidence(c, owner, r.id, { schemaVersion: 1, kind: "session.created", actorType: "user" });
       return this.sessionDto(c, r);
     });
   }
@@ -151,7 +153,11 @@ export class WorkspaceService {
         if (references.rowCount) throw new AppError("STATE_CONFLICT");
       }
       const { rows: [r] } = await c.query("UPDATE assets SET adopted=$2,deleted_at=$3,version=version+1,updated_at=now() WHERE id=$1 RETURNING *", [id, d.adopted ?? row.adopted, d.deleted ? new Date() : null]);
-      if (d.deleted) await reserveCleanup(c, owner, "asset", id, row.file);
+      if (d.adopted !== undefined && d.adopted !== row.adopted) await appendEvidence(c, owner, row.session_id, { schemaVersion: 1, actorType: "user", kind: d.adopted ? "asset.adopted" : "asset.unadopted", assetVersion: r.version }, id);
+      if (d.deleted) {
+        await appendEvidence(c, owner, row.session_id, { schemaVersion: 1, actorType: "user", kind: "asset.deleted", assetVersion: r.version }, id);
+        await reserveCleanup(c, owner, "asset", id, row.file);
+      }
       return this.assetDto(c, owner, r);
     });
   }

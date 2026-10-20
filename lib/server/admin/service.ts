@@ -1,6 +1,7 @@
 import { MonitoringService } from "../monitoring/service";
 import { WorkspaceService } from "../projects/service";
 import "server-only";
+import { generationTerminal } from "../evidence/writer";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { AdminAccess, audit } from "./access";
@@ -21,14 +22,14 @@ import {
 } from "../../contracts/common";
 import { AppError } from "../errors/http";
 import { deployedLocales } from "../../i18n/server";
-import { validateFallbacks, type LocaleEntry } from "../../i18n/core";
+import { DEFAULT_LOCALE, validateFallbacks, type LocaleEntry } from "../../i18n/core";
 import { syncOriginal } from "../localized-contents/service";
 import { JobService, jobDto } from "../jobs/service";
 import type { JobRow } from "../jobs/types";
 const lists = {
   users: {
     table: "users",
-    columns: "id,name,email,org_name,status,version,created_at",
+    columns: "id,name,email,org_name,family_name,given_name,family_name_kana,given_name_kana,status,version,created_at",
     search: "name || ' ' || COALESCE(org_name,'') || ' ' || email",
   },
   projects: {
@@ -304,7 +305,7 @@ export class AdminService {
           .max(128)
           .regex(/^[A-Za-z0-9_-]+$/)
           .optional(),
-        outputLocale: localeCodeSchema.default("ko"),
+        outputLocale: localeCodeSchema.default(DEFAULT_LOCALE),
       })
       .parse(input);
     return this.access.run(
@@ -601,19 +602,20 @@ export class AdminService {
             ).rowCount
           )
             throw new AppError("STATE_CONFLICT");
-          result = await this.jobs.retryLocked(c, row);
+          result = await this.jobs.retryLocked(c, row, u.id, "admin");
         } else if (
           ["queued", "running"].includes(row.status) &&
           !row.cancel_requested_at
         ) {
           result = (
             await c.query<JobRow>(
-              `UPDATE jobs SET cancel_requested_at=COALESCE(cancel_requested_at,now()),status=CASE WHEN status='queued' THEN 'canceled' ELSE status END,
+              `UPDATE jobs SET cancel_requested_actor_id=$2,cancel_requested_actor_type='admin',cancel_requested_at=COALESCE(cancel_requested_at,now()),status=CASE WHEN status='queued' THEN 'canceled' ELSE status END,
           finished_at=CASE WHEN status='queued' THEN now() ELSE finished_at END,error_code=CASE WHEN status='queued' THEN 'CANCELED' ELSE error_code END,updated_at=now() WHERE id=$1 RETURNING *`,
-              [id],
+              [id, u.id],
             )
           ).rows[0];
         } else throw new AppError("STATE_CONFLICT");
+        if (data.action === "cancel" && result.status === "canceled") await generationTerminal(c, result, u.id);
         await audit(c, u.id, `job.${data.action}`, "job", id, data.reason, [
           { field: "status", before: row.status, after: result.status },
           {
@@ -662,7 +664,7 @@ export class AdminService {
       )
         throw new AppError("VERSION_CONFLICT");
       if (
-        (data.code === "ko" && (!data.enabled || data.fallbackCode !== null)) ||
+        (data.code === DEFAULT_LOCALE && (!data.enabled || data.fallbackCode !== null)) ||
         (data.enabled && !packs.includes(data.code))
       )
         throw new AppError("STATE_CONFLICT");

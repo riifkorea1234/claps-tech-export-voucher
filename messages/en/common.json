@@ -61,5 +61,7 @@
   "jobs.kind.verification": "Verification",
   "jobs.kind.matching": "Matching",
   "jobs.kind.monitoring": "Monitoring",
-  "jobs.kind.export": "Export"
+  "jobs.kind.export": "Export",
+  "required": "Required",
+  "optionalShort": "Optional"
 }

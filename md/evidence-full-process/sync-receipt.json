@@ -1,0 +1,1159 @@
+{
+  "target": "/mnt/f/claps-product/md/evidence-full-process",
+  "at": "2026-10-19T21:45:09.003697+00:00",
+  "files": 285,
+  "checksumsMatch": true,
+  "accountMode": "0o777",
+  "accountWindowsAcl": {
+    "path": "F:\\claps-product\\md\\evidence-full-process\\ACCOUNTS.md",
+    "ownerOnlyWithSystem": true,
+    "allowedSids": [
+      "S-1-5-18",
+      "S-1-5-21-830640234-3398976960-3700415531-1001"
+    ],
+    "protected": true
+  },
+  "privateStateCopied": false,
+  "entries": [
+    {
+      "file": "ACCOUNTS.md",
+      "sha256": "455d96d0e13780996849ee5e74a26577eab32b921eceffce2ed347e4602dcece"
+    },
+    {
+      "file": "BASELINE.json",
+      "sha256": "f86cc4b08e2a55392019ac0646e4b7d0e8dd5d41df1f6650e301f45aba48ccb1"
+    },
+    {
+      "file": "COVERAGE.md",
+      "sha256": "a760808991c5a3ee907d2fe259e8f87f805bd4ad3564fbafcfc0bd2a3cf5ec4a"
+    },
+    {
+      "file": "HARNESS-OBSERVATIONS.md",
+      "sha256": "96cdf3028a0e2dfa27fc2774d477224de6393809224dfa7fd25ac116496e2b27"
+    },
+    {
+      "file": "RESULT.md",
+      "sha256": "b738b51b4e0d2a702fa113a7ba940b8db9c9c9a49af50f2449b01c047762c319"
+    },
+    {
+      "file": "RUNBOOK.md",
+      "sha256": "4f3bd20cca61e8c359260ef33aa7f3ccf94876fc15900004310618157a7790b2"
+    },
+    {
+      "file": "STATUS.md",
+      "sha256": "8ce96327ab89a389bd46214daec0daa311d0eedacd94921211c1393f36b57817"
+    },
+    {
+      "file": "WORK-BRIEF.md",
+      "sha256": "1d32f90d4e185202d77db41431a0c7fdf49ba37567f3070da869dcb09d55ca27"
+    },
+    {
+      "file": "assets-en.zip",
+      "sha256": "2fe1c6e9de3eed46d8edde88545454ca0022004be5eedd1cc54d01aa6bc062be"
+    },
+    {
+      "file": "assets-ja.zip",
+      "sha256": "beb4eb1a6e6374386970191bfe031d257d8cd4b485aa179a3256498e2ff893bc"
+    },
+    {
+      "file": "backup-manifest.json",
+      "sha256": "5a800076a1ca0d582c7b4723137430d9f8a8b8514bed1d53993e72f71d3f24bf"
+    },
+    {
+      "file": "capture-index.csv",
+      "sha256": "2ed7dcad43d8476fcfdb19494efbaa9aced3e91cce46bd818d536ff49fe9a8f4"
+    },
+    {
+      "file": "capture-index.json",
+      "sha256": "7cca1a0e6df680b32c6550b14bee584903251a756fb7941cca77cbca50a4a092"
+    },
+    {
+      "file": "capture-results.json",
+      "sha256": "40f9fe1c3ea5c263156c30e73257466313f7f1e3a6d5cd81d93704f4a751c449"
+    },
+    {
+      "file": "captures/001-en-desktop-landing.png",
+      "sha256": "432a975481f107d5dd2d9563f3f3cf6aac1c2b40fac1876756b2cde4462f412c"
+    },
+    {
+      "file": "captures/002-en-desktop-login-email-lookup.png",
+      "sha256": "1219892fb7677134d764c28ccf952bbbbf0a64dc59a30f05ea7b7059384b710b"
+    },
+    {
+      "file": "captures/003-en-desktop-sign-in.png",
+      "sha256": "056659b406d853bff4291d67b79281e9bcd07d49a418ad071fbb5488c7cb3aea"
+    },
+    {
+      "file": "captures/004-en-desktop-sign-up.png",
+      "sha256": "13baf35ba67a5fdc349a7c08f07ac9759a9510965f0c3cd058dc85816a8fee83"
+    },
+    {
+      "file": "captures/005-en-desktop-verify-email-awaiting.png",
+      "sha256": "014704df20c031240f7bba03919c0c2b612c4fde73e88bd1de84044af0a12489"
+    },
+    {
+      "file": "captures/006-en-desktop-verify-email-invalid-token.png",
+      "sha256": "7e0a80ee0b2f9b83828adae3ee46886cb39e30628c0bb3aad677a6be6044b93a"
+    },
+    {
+      "file": "captures/007-en-desktop-forgot-password.png",
+      "sha256": "361d65a68797584db07b8430d739d769f6b413561c284f11eed65d4db21f1c9e"
+    },
+    {
+      "file": "captures/008-en-desktop-reset-password-no-token.png",
+      "sha256": "6daf3d2ac691337ab326aa8cae7a322c609fa6140303923f548d497d1190ec80"
+    },
+    {
+      "file": "captures/009-en-desktop-reset-password-invalid-token.png",
+      "sha256": "13d0eb9bfc3955af26c4adc4c1dcfb5b8c7db32e202a460e10ad24235ab87dd1"
+    },
+    {
+      "file": "captures/010-en-desktop-protected-redirect.png",
+      "sha256": "1219892fb7677134d764c28ccf952bbbbf0a64dc59a30f05ea7b7059384b710b"
+    },
+    {
+      "file": "captures/011-en-desktop-sign-in-invalid-credentials-form.png",
+      "sha256": "b7072fe08dbe0980487e5ee32ab63299f99337004162cca7106f34cdb519b173"
+    },
+    {
+      "file": "captures/012-en-desktop-sign-in-invalid-credentials.png",
+      "sha256": "c2d7ce43cf357bad9e33775ffc6029477a573e5160f59c1b827f69fa11d0afa5"
+    },
+    {
+      "file": "captures/013-en-desktop-projects.png",
+      "sha256": "f152a230557f22e29a9a0721c84fdae4c6a1b60fa79a08a84903c507082d580e"
+    },
+    {
+      "file": "captures/014-en-desktop-project-detail-guide-published.png",
+      "sha256": "34a581597c92e7ee0c0caa8c1ca56def3757072e0be9755665f0ba65b8691e04"
+    },
+    {
+      "file": "captures/015-en-desktop-project-session-list.png",
+      "sha256": "2ab6b80912b60859e93f3ed3e2ed25e3e33c118f7d05b8ac0f073e6bb2547f3c"
+    },
+    {
+      "file": "captures/016-en-desktop-asset-session-list.png",
+      "sha256": "e24dfc169fa4a923769bc73e8ea90a87bc3d4c83e81f188f9818980a8914a60a"
+    },
+    {
+      "file": "captures/017-en-desktop-generation-adopted-candidates.png",
+      "sha256": "29cb40165413764042b7af0ad0d65865c0750186cd804497f1b20d5242ffa7da"
+    },
+    {
+      "file": "captures/018-en-desktop-verification-pass-warn-reject.png",
+      "sha256": "4d4c6c53dfb1694fd7c1aa1e33a40561b783a7d398b79fcb757e1b09e9cf1134"
+    },
+    {
+      "file": "captures/019-en-desktop-final-assets.png",
+      "sha256": "1da52a978e41c680fe7b65ea501fa552bfdc6ee7508458c2ea9ad7fdbfef22e3"
+    },
+    {
+      "file": "captures/020-en-desktop-evidence-timeline.png",
+      "sha256": "295fa614dd65d9d7e8412ca595fadfcb1af47aab677a19a23c4ed8e1bb65fc9c"
+    },
+    {
+      "file": "captures/021-en-desktop-asset-certificate.png",
+      "sha256": "295fa614dd65d9d7e8412ca595fadfcb1af47aab677a19a23c4ed8e1bb65fc9c"
+    },
+    {
+      "file": "captures/022-en-desktop-review-checks-and-snapshot.png",
+      "sha256": "72931402b68118d2ceef07f28c7fe3b2457fa8b11b2143bdf945fa6a21321820"
+    },
+    {
+      "file": "captures/023-en-desktop-export-job-download.png",
+      "sha256": "595f502e5c190f8c3358b606f403a87b675583f8f33df5759e80a0fa67fee61e"
+    },
+    {
+      "file": "captures/024-en-desktop-recommendation-results-and-catalog.png",
+      "sha256": "430f72457488b9e2d6648cee4dde59eb4942701ee10c5377cb61fe04667ad739"
+    },
+    {
+      "file": "captures/025-en-desktop-recommendation-criteria-reference.png",
+      "sha256": "e41df71f8930010389e0f5a3ca116f500cb3a47091ffb46387564e0f8acce2d4"
+    },
+    {
+      "file": "captures/026-en-desktop-monitoring-records.png",
+      "sha256": "36459860f3dedc4f31052a4f3101383632e1d10b6dc618d5698e14f25691cc66"
+    },
+    {
+      "file": "captures/027-en-desktop-monitoring-new-upload.png",
+      "sha256": "a7820c0c9a991d77f75e52b1e44a3affa1a9fbc2cf6a09a27549836e5cf0b749"
+    },
+    {
+      "file": "captures/028-en-desktop-change-password.png",
+      "sha256": "71a3d25c54bdd92c5a795bf8e8c50e52b7e24e062a42ee95a33d3c6dfdcb9bfa"
+    },
+    {
+      "file": "captures/029-en-desktop-review-print-layout.png",
+      "sha256": "99eb14d81c0fb64f2ac44c2af7a7fc953ef0d71fc92ac17f47ff3add16db1346"
+    },
+    {
+      "file": "captures/030-en-desktop-monitoring-results.png",
+      "sha256": "97b72dcff05293285598adf9143ff1196b2e33bd3151f1c20ca6df7f2f1a5ca5"
+    },
+    {
+      "file": "captures/031-en-desktop-monitoring-empty.png",
+      "sha256": "23324d5a9232b96792dec8230e93727ef79863d779a246163b813b882b9edac4"
+    },
+    {
+      "file": "captures/032-en-desktop-monitoring-partial.png",
+      "sha256": "4e7c85e98ba4023a7eb8dcf1d488fe08324b6896099f809ebfd633594e26be04"
+    },
+    {
+      "file": "captures/033-en-desktop-monitoring-error.png",
+      "sha256": "450ee4e6175e57e5447fdf8e27949db960e9c1e33093e3444473f5a386ec11ea"
+    },
+    {
+      "file": "captures/034-en-desktop-monitoring-unscanned.png",
+      "sha256": "1124a1736ad7c7dd556e5a8f31443c341dd9a03d7dbdafd8538c6c9b2fafec59"
+    },
+    {
+      "file": "captures/035-en-desktop-monitoring-archived.png",
+      "sha256": "b43c6317f1d305647abf0ea38c7d5171bc2bcea0419cf164d26fd697aef8f4fc"
+    },
+    {
+      "file": "captures/036-en-desktop-generation-job-failed.png",
+      "sha256": "b2d312d974ff35738ffdea811a9071b073cf42e03a97eccc192368aebd0c3f8b"
+    },
+    {
+      "file": "captures/037-en-desktop-generation-job-retry.png",
+      "sha256": "e033986df0713bd950bb8dbad7f2674f111aef13a2f9ebdffdb7520b764e129c"
+    },
+    {
+      "file": "captures/038-en-desktop-generation-job-canceled.png",
+      "sha256": "9560a87b72433fe02296a8b035cd695c8f8b55d708f4bc6c59a8c09b8f2542aa"
+    },
+    {
+      "file": "captures/039-en-desktop-verification-stale-guide-v2.png",
+      "sha256": "e8f5602960d60b561f34a4d3fe234e2e3be3805aee73580fd15c0d7b72e99dfe"
+    },
+    {
+      "file": "captures/040-en-desktop-review-not-ready-stale.png",
+      "sha256": "813c3afd08696d2a1346d1eb822033ae284cddf547d300ca8eaa30727f06d662"
+    },
+    {
+      "file": "captures/041-en-desktop-new-project-dialog.png",
+      "sha256": "50a75477fbd58703ecbadfc60fbad15cce8304c27bbd70ec1921ad02f9affb0a"
+    },
+    {
+      "file": "captures/042-en-desktop-project-edit-dialog.png",
+      "sha256": "b9b4c3724b366b03608856a6e7387408ea941618d1c7bfebeb8787983ec68ea8"
+    },
+    {
+      "file": "captures/043-en-desktop-partner-detail-dialog.png",
+      "sha256": "51273df3f0086fd5e6bdf0f32523c8b88f79130c1bb692bf5cd7f12ea0808d68"
+    },
+    {
+      "file": "captures/044-en-desktop-my-account-dialog.png",
+      "sha256": "e0107b5569b947c5c7da39caf7dd8f749cfe9641a18b2c28ab8a1282bf062b84"
+    },
+    {
+      "file": "captures/045-en-desktop-project-search-no-results.png",
+      "sha256": "7c016867c6e9bba3145c4577b60dd61563830e621c0766748cc04cac9693d28e"
+    },
+    {
+      "file": "captures/046-en-desktop-empty-projects.png",
+      "sha256": "443d870222a9cc7fb1c2a3aaf1a9f984d569d62b5f327cdb046562af4cd60744"
+    },
+    {
+      "file": "captures/047-en-desktop-empty-assets.png",
+      "sha256": "1046adb2fe6eb91a23df5f1c19ba9a4d20d9e997f4958becda2ae42b1daa44c9"
+    },
+    {
+      "file": "captures/048-en-desktop-empty-partners.png",
+      "sha256": "9c9f4c784bf65d4e7d7182e1bd8c24514ad32689536ec3fd64145ef3988d5cd2"
+    },
+    {
+      "file": "captures/049-en-desktop-empty-monitoring.png",
+      "sha256": "cc8be1f1cdd4009a1d009e280f87a6d64d8f395b8607ae6dcce0fdbbf4b46295"
+    },
+    {
+      "file": "captures/050-en-desktop-other-owner-project-not-found.png",
+      "sha256": "262045ea2e87202dcadf0a211c043b28dcf362f773616276c8f113d0e3da6f78"
+    },
+    {
+      "file": "captures/051-en-mobile-projects.png",
+      "sha256": "1e66a0b2a5405f656e0c49e436de76b403800ed3c9f9057de9b5b47de0a63cc8"
+    },
+    {
+      "file": "captures/052-en-mobile-project-detail-guide-published.png",
+      "sha256": "95d4373d615f66b32851395943a77c53121edc4ec9d6af016a4a41feea04ae27"
+    },
+    {
+      "file": "captures/053-en-mobile-project-session-list.png",
+      "sha256": "d752d93374349795ba5160c16b204803a4e0c1de610dd75a038af26257b875df"
+    },
+    {
+      "file": "captures/054-en-mobile-asset-session-list.png",
+      "sha256": "9ca07a3447f4d8057c8889de2c0c81293b29018b0a79732f9dca13f52bbe2d07"
+    },
+    {
+      "file": "captures/055-en-mobile-generation-adopted-candidates.png",
+      "sha256": "80f26647cb91ceaad5ce70ef75e2bfc2741b535b76ae03c869e937ec58a33cae"
+    },
+    {
+      "file": "captures/056-en-mobile-verification-pass-warn-reject.png",
+      "sha256": "e4207559f082e1d1f484fcdbe2e8f1105dd01e80af071b5a56e0eb63eaa02ee4"
+    },
+    {
+      "file": "captures/057-en-mobile-final-assets.png",
+      "sha256": "0aad9264e5ceec4c29798bdf36569266f5951217504e36094531dcc9aec3c4ee"
+    },
+    {
+      "file": "captures/058-en-mobile-evidence-timeline.png",
+      "sha256": "12387414943ce32bcfd41f98f518b399b61e4d97902e28b6526aeab73565b74f"
+    },
+    {
+      "file": "captures/059-en-mobile-asset-certificate.png",
+      "sha256": "12387414943ce32bcfd41f98f518b399b61e4d97902e28b6526aeab73565b74f"
+    },
+    {
+      "file": "captures/060-en-mobile-review-checks-and-snapshot.png",
+      "sha256": "d596abb6ec1b827398ba5138ee3a9c11520204039bc1511917c7c0f45caae1bd"
+    },
+    {
+      "file": "captures/061-en-mobile-export-job-download.png",
+      "sha256": "d9651a267aed12af70f2d8c3501744e71b303dd0f1791635eeba2570861be593"
+    },
+    {
+      "file": "captures/062-en-mobile-recommendation-results-and-catalog.png",
+      "sha256": "6e259f194e766ffb7f7b31a394510da9acbde3c0fa45ba5ee92e443e4b882fd8"
+    },
+    {
+      "file": "captures/063-en-mobile-recommendation-criteria-reference.png",
+      "sha256": "eb59a382395222233992d245155da3b47a906e661a8e5f12d664f8f6af7c11dd"
+    },
+    {
+      "file": "captures/064-en-mobile-monitoring-records.png",
+      "sha256": "01f4f4b1df8813325e4631cf52042bf367a55b8a64cb4dbba489ce28efb7a043"
+    },
+    {
+      "file": "captures/065-en-mobile-monitoring-new-upload.png",
+      "sha256": "1bda68d0da47d9630b84d20aad0766bcecb9c3971cce55981321d4416d51af71"
+    },
+    {
+      "file": "captures/066-en-mobile-monitoring-result-factors.png",
+      "sha256": "e2fa702119ff6cc2ea2206ada211217886378be51b6ac79f89d5ba512b0eedc7"
+    },
+    {
+      "file": "captures/067-ja-desktop-landing.png",
+      "sha256": "8a6702129751853dcc66cb6d46a94be12d5c11e0a8d516718bd6116215592ffb"
+    },
+    {
+      "file": "captures/068-ja-desktop-login-email-lookup.png",
+      "sha256": "72d3d64295ef93f7a9916fccd3b99d47b24c7970945041937144a2ce8bab8287"
+    },
+    {
+      "file": "captures/069-ja-desktop-sign-in.png",
+      "sha256": "1bcda9d4d8dc56ffdc14954db9b851d59ee855460d153f633ec6a3140107c395"
+    },
+    {
+      "file": "captures/070-ja-desktop-sign-up.png",
+      "sha256": "d0e70816e59ddccab264284a9e85013f2d39f642c6e2e17edb8a0c5dbf681ec4"
+    },
+    {
+      "file": "captures/071-ja-desktop-verify-email-awaiting.png",
+      "sha256": "6b1f816cbc9153740df8e93eaf696fc7c3b329c61b7f4c912fa9966abb304d0f"
+    },
+    {
+      "file": "captures/072-ja-desktop-verify-email-invalid-token.png",
+      "sha256": "0419f8cc43a859f1dbe874b984d4e98d002ae00d54a299f1bd2998ef5f807a56"
+    },
+    {
+      "file": "captures/073-ja-desktop-forgot-password.png",
+      "sha256": "10b12e66ebdbfb739e75f2e79da8de820850c1f18c3e27784408401a5a57b85a"
+    },
+    {
+      "file": "captures/074-ja-desktop-reset-password-no-token.png",
+      "sha256": "21fa611874a266bf4c1abb8e9c03c269f6d441eac7a2a95759baf7bc33c247d5"
+    },
+    {
+      "file": "captures/075-ja-desktop-reset-password-invalid-token.png",
+      "sha256": "7c9b3984c8afe383fae4aae742a83cda3a8e45f4bc2e2cf18f15d121e8decf68"
+    },
+    {
+      "file": "captures/076-ja-desktop-protected-redirect.png",
+      "sha256": "72d3d64295ef93f7a9916fccd3b99d47b24c7970945041937144a2ce8bab8287"
+    },
+    {
+      "file": "captures/077-ja-desktop-sign-in-invalid-credentials-form.png",
+      "sha256": "e845332c801c2a6b6572cbf6d8047509f7c9a270453ebe37a65be4e573b18dd0"
+    },
+    {
+      "file": "captures/078-ja-desktop-sign-in-invalid-credentials.png",
+      "sha256": "e699be49ebc61c7b66da001e663d50687c2ce1f04034944111238364e333d891"
+    },
+    {
+      "file": "captures/079-ja-desktop-projects.png",
+      "sha256": "b08d4730f4e2807e757b6eaa401e9ae9917c42820ab076fa737ff1079213359b"
+    },
+    {
+      "file": "captures/080-ja-desktop-project-detail-guide-published.png",
+      "sha256": "3cbfdb98a997bab0fbb12e8d5a883c28308975b9775771c447807a1486d6e4c9"
+    },
+    {
+      "file": "captures/081-ja-desktop-project-session-list.png",
+      "sha256": "ea6be9695065ef5ea422ba60d8dc852b2941c521d2cdd729d840f0e322d257c8"
+    },
+    {
+      "file": "captures/082-ja-desktop-asset-session-list.png",
+      "sha256": "01fc9a0deeee69d1fdfdb8ff4c626ea949c806bffea7f1e20035f8ed12ac543a"
+    },
+    {
+      "file": "captures/083-ja-desktop-generation-adopted-candidates.png",
+      "sha256": "aa70c768930252592ffdbf0d2c233f7b51d76ef4f10ea47cac350fc74d4b5331"
+    },
+    {
+      "file": "captures/084-ja-desktop-verification-pass-warn-reject.png",
+      "sha256": "8261aa97ae2263637ea8763743ccd1edbeff5a6ccb72fda411d3b5b646fe3b5b"
+    },
+    {
+      "file": "captures/085-ja-desktop-final-assets.png",
+      "sha256": "150fbdffac9608d334e4b8e89652216773354ab2aff4319daa85b6a623f83d22"
+    },
+    {
+      "file": "captures/086-ja-desktop-evidence-timeline.png",
+      "sha256": "21596b957e1dc87e47412b78c702d9deaed9615a55c96ed56485571372bd07b3"
+    },
+    {
+      "file": "captures/087-ja-desktop-asset-certificate.png",
+      "sha256": "21596b957e1dc87e47412b78c702d9deaed9615a55c96ed56485571372bd07b3"
+    },
+    {
+      "file": "captures/088-ja-desktop-review-checks-and-snapshot.png",
+      "sha256": "c30baf58f355369589e03644dce3ba43ce650da6ea25bc3c349b03cb67040dbc"
+    },
+    {
+      "file": "captures/089-ja-desktop-export-job-download.png",
+      "sha256": "851048b1749f0df191614c7af2b19727d4d657bc0aaea4714149d1f5fc1894f3"
+    },
+    {
+      "file": "captures/090-ja-desktop-recommendation-results-and-catalog.png",
+      "sha256": "ea394660a522b6aef70d5a4e267e4610781a02631351071ced640be164be53b0"
+    },
+    {
+      "file": "captures/091-ja-desktop-recommendation-criteria-reference.png",
+      "sha256": "7a63e54042d11eefb6e2e9e7680925ad1896adea4ebf2b5940b36fe7c9ddacbd"
+    },
+    {
+      "file": "captures/092-ja-desktop-monitoring-records.png",
+      "sha256": "a99f9bc5fcabb92f51eff6f2454b22cf94ddb44bd0d8f329c14065120591155c"
+    },
+    {
+      "file": "captures/093-ja-desktop-monitoring-new-upload.png",
+      "sha256": "8d4ffd8f4cdcdf4b43fe4cf15937eee67aefbf853c06bd24509bd8f63a8b940c"
+    },
+    {
+      "file": "captures/094-ja-desktop-change-password.png",
+      "sha256": "7becf5f9c80d58a87481db7b2956e5a4ee4b8d81c7f574e026dfe13a28e052ce"
+    },
+    {
+      "file": "captures/095-ja-desktop-review-print-layout.png",
+      "sha256": "54ec55e2febb868ddba6329037d88d87e32f0d40491f1fe29752564bb0315151"
+    },
+    {
+      "file": "captures/096-ja-desktop-monitoring-results.png",
+      "sha256": "ca904773e8b2e4dc165380c664139067223c83d66dc6bbb3998f8a4bdde5a53f"
+    },
+    {
+      "file": "captures/097-ja-desktop-monitoring-empty.png",
+      "sha256": "3a391600d203bcfbe794d4cc26ca046d92a3460ac3f13a5958ed4f2e7ff78927"
+    },
+    {
+      "file": "captures/098-ja-desktop-monitoring-partial.png",
+      "sha256": "5f400947f4a9bd2b2c9953355de79ecef13b1d87043f54e0790b8bc81a4b2cba"
+    },
+    {
+      "file": "captures/099-ja-desktop-monitoring-error.png",
+      "sha256": "ccdc03174668c0755a84fc3cf27538de5fec2a70038d987521ad110c774945c1"
+    },
+    {
+      "file": "captures/100-ja-desktop-monitoring-unscanned.png",
+      "sha256": "7e6f18e08ad2891df8bf4c097478922691fc027a4c92d2e3063ec9f08f745f1e"
+    },
+    {
+      "file": "captures/101-ja-desktop-monitoring-archived.png",
+      "sha256": "467caf4b5b50f3e6a3967755ba7c9120cd0077b27968ff091dadf1b1c5344523"
+    },
+    {
+      "file": "captures/102-ja-desktop-new-project-dialog.png",
+      "sha256": "c696b96a7d181f37e33c81c179b180a441a8b10214b8a50b7c3f1ffdd139fda7"
+    },
+    {
+      "file": "captures/103-ja-desktop-partner-detail-dialog.png",
+      "sha256": "a0fafc71d83d2686ba518159ffaba4c40400649b95fc10e5360b34654a6211c4"
+    },
+    {
+      "file": "captures/104-ja-desktop-my-account-dialog.png",
+      "sha256": "c774ec3189ecba01a23cf128ac1bfad0ee8ef27dbe8b85cd2eb361d87a22a311"
+    },
+    {
+      "file": "captures/105-ja-desktop-project-search-no-results.png",
+      "sha256": "bd3dfd38297c8686b7a96704bad70bb936f101e2b58be766d67607cd69faec99"
+    },
+    {
+      "file": "captures/106-ja-desktop-empty-projects.png",
+      "sha256": "606e47792d24bddd6335c319b8cd02e45c97cc7ed9b0cc2756c845c1cb8408eb"
+    },
+    {
+      "file": "captures/107-ja-desktop-empty-assets.png",
+      "sha256": "2e49af8a74c680a4b8f6a625ce5ff9c47edd54287994e3cf02293aa0f0bfb8f7"
+    },
+    {
+      "file": "captures/108-ja-desktop-empty-partners.png",
+      "sha256": "2009327f035308c698993ac8eaa86c2f8fda4ba1a5dad7c63400c3600f2449cd"
+    },
+    {
+      "file": "captures/109-ja-desktop-empty-monitoring.png",
+      "sha256": "6c2c3a07ba2412a908336675fd9449acdea786a0b75a8ed18577dd3ce38ed381"
+    },
+    {
+      "file": "captures/110-ja-desktop-other-owner-project-not-found.png",
+      "sha256": "5c7989f068f12c080a9392da017955b9bce495db78edf00ec953651ade124830"
+    },
+    {
+      "file": "captures/111-ja-mobile-projects.png",
+      "sha256": "60b34ed46348b9112bdfdb7ad51a35568e78219b909aa532d4f3adb83e3e1f3d"
+    },
+    {
+      "file": "captures/112-ja-mobile-project-detail-guide-published.png",
+      "sha256": "c23e75fbff6d1990f246b33cf82dd0ddd0399d4f646cf20675b01b73ce689582"
+    },
+    {
+      "file": "captures/113-ja-mobile-project-session-list.png",
+      "sha256": "55718c2bb05277f10cdc2cee5bdb1fe7cd7ec6fbaea279464f91ccf7f308d45d"
+    },
+    {
+      "file": "captures/114-ja-mobile-asset-session-list.png",
+      "sha256": "8607395b9646816461e4bbcd4277b2543d861bbaa4d9ac716956bd96647f98e0"
+    },
+    {
+      "file": "captures/115-ja-mobile-generation-adopted-candidates.png",
+      "sha256": "c54ad87e2f5e653549007f8d4e907b6faed713172e33f0702c3483c307746dd2"
+    },
+    {
+      "file": "captures/116-ja-mobile-verification-pass-warn-reject.png",
+      "sha256": "52ed885d6784e0a04434cae66f9f9c078a2cfe8c97051e6425d5ac6a00611d26"
+    },
+    {
+      "file": "captures/117-ja-mobile-final-assets.png",
+      "sha256": "bcacd7773a0f7df9c076ea32faaa7ac3484d5efffa8badfbb9ef0d858249429c"
+    },
+    {
+      "file": "captures/118-ja-mobile-evidence-timeline.png",
+      "sha256": "8ca59f4c3e54331f7c1db3009445d2d5e59938f3da2f747e446e38e6073dfd15"
+    },
+    {
+      "file": "captures/119-ja-mobile-asset-certificate.png",
+      "sha256": "8ca59f4c3e54331f7c1db3009445d2d5e59938f3da2f747e446e38e6073dfd15"
+    },
+    {
+      "file": "captures/120-ja-mobile-review-checks-and-snapshot.png",
+      "sha256": "b550d67c1c4d34251d56ed45979a3599f0a292a221150ff05dc5c31e58f70768"
+    },
+    {
+      "file": "captures/121-ja-mobile-export-job-download.png",
+      "sha256": "66c89dabce12e5527e0fb6115306db874cd89509c9a01efac8438df216071562"
+    },
+    {
+      "file": "captures/122-ja-mobile-recommendation-results-and-catalog.png",
+      "sha256": "b60e3105ec296c396ae9cc9fd68c3f4e210670f61710edce02d7ff88065c5ff5"
+    },
+    {
+      "file": "captures/123-ja-mobile-recommendation-criteria-reference.png",
+      "sha256": "c2d1f60814f1e058d599c78ebdaee749db1e16e49eded5125ba653ba6d021b66"
+    },
+    {
+      "file": "captures/124-ja-mobile-monitoring-records.png",
+      "sha256": "c7ae8085ee82aed827b3dc3031f37eb76cd43a68715a2eefff3310a51d505ed0"
+    },
+    {
+      "file": "captures/125-ja-mobile-monitoring-new-upload.png",
+      "sha256": "992f2d1fd7823d3d7d9aa094f2894b3387702b3a95288c6e5337d1291588ea31"
+    },
+    {
+      "file": "captures/126-ja-mobile-monitoring-result-factors.png",
+      "sha256": "9f8e76d581891965676cb6f1c8bef54aa3a6abd2b9d5bb6d02934af4b6ee2926"
+    },
+    {
+      "file": "captures/127-ja-desktop-profile-setup-japanese.png",
+      "sha256": "01f587ac1cb628cd3605ba231acad133271929a88c681a580470b32a2368388f"
+    },
+    {
+      "file": "captures/128-en-desktop-unverified-login-denied.png",
+      "sha256": "492ee664a5d78377486acd41ae0dbd914bc12423766e0439bb04fc7bd804c624"
+    },
+    {
+      "file": "captures/129-en-desktop-suspended-login-denied.png",
+      "sha256": "6990e0c70ffc8948b1e394483ba322e50d655bb66c6af127e10c0e3880c961fe"
+    },
+    {
+      "file": "captures/130-ko-desktop-admin-reauth-required.png",
+      "sha256": "4bc3ada3d37defebc3a48ce0505da418c181c3a8761946287c61839d9b231b68"
+    },
+    {
+      "file": "captures/131-ko-desktop-admin-overview.png",
+      "sha256": "6b0e7ebebeacef1d12f1e60a9f107a02f5b7701c03860bb0a1abafb32c219018"
+    },
+    {
+      "file": "captures/132-ko-desktop-admin-users.png",
+      "sha256": "7d796a81bce6e84d9d942a5b7df37c49f9ca20759cd4e73dfa8e9023d7717e95"
+    },
+    {
+      "file": "captures/133-ko-desktop-admin-projects.png",
+      "sha256": "1f2dac93e31764231f84982972bb048011b30806d6a50a208a4c827273d9f9e9"
+    },
+    {
+      "file": "captures/134-ko-desktop-admin-partners.png",
+      "sha256": "9f8538a2c65a906649ef5a45d3b3e400245d769f149e02d7935906a328334218"
+    },
+    {
+      "file": "captures/135-ko-desktop-admin-jobs.png",
+      "sha256": "d1a1fba11e2ff0b7deab44a49a56e2c1cfe75b5cbea7bded0a697a385e0e6eec"
+    },
+    {
+      "file": "captures/136-ko-desktop-admin-monitoring.png",
+      "sha256": "717e8a37dffe1d000487572a19bcfab4439e57519fd65fd878d47c68341e2e8b"
+    },
+    {
+      "file": "captures/137-ko-desktop-admin-audit-logs.png",
+      "sha256": "948cf7d837409580199fff1df231daf1573c8bc265924df80e82c8df0ed15d2c"
+    },
+    {
+      "file": "captures/138-ko-desktop-admin-locales.png",
+      "sha256": "711a880d2c694184ed3373f5fbee1ca65e85056d731f45f996ea90b590b06ad3"
+    },
+    {
+      "file": "captures/139-ko-desktop-admin-user-detail.png",
+      "sha256": "76fdd2688b20abc484965dc4b897f83f8cdfb97b49b6907c356470905c75dcd6"
+    },
+    {
+      "file": "captures/140-ko-desktop-admin-project-detail.png",
+      "sha256": "0e32c0a234f095e1d662aa37a1366d429795e1d3e3464f57ec422777b9b5aabe"
+    },
+    {
+      "file": "captures/141-ko-desktop-admin-project-guides.png",
+      "sha256": "e95fb434dc0341012b3dc9416fe119def88af90675a762d1e7f636ef2ae054d3"
+    },
+    {
+      "file": "captures/142-ko-desktop-admin-project-assets.png",
+      "sha256": "e4a522700eeaa19dcbf62e42aa2f5badb02beb95092f77ac32f2b70c972cdc70"
+    },
+    {
+      "file": "captures/143-ko-desktop-admin-project-jobs.png",
+      "sha256": "3c7020c208661fc0dbd06834ee75e3c74e5696659b6a99d555dd0c3b2c59c1a3"
+    },
+    {
+      "file": "captures/144-ko-desktop-admin-project-history.png",
+      "sha256": "b52ce5f391cce57579c81fc8540367ca3cbf829a19b7e08322be63ff385df59e"
+    },
+    {
+      "file": "captures/145-ko-desktop-admin-partner-detail.png",
+      "sha256": "432ee8704a6e4c18f055d6af34a583b42feed64ba3d207faf4b17c676023c7fb"
+    },
+    {
+      "file": "captures/146-ko-desktop-admin-partner-images.png",
+      "sha256": "35bd11d2d15d3f1d38e09ad5a9b64fea9e4b0e081cb7cd33682eb85fa79fc074"
+    },
+    {
+      "file": "captures/147-ko-desktop-admin-partner-translations.png",
+      "sha256": "24450d6a0213c16e2d0152731ef679c427e324ea997b4f1b3e29a9c4e13070b9"
+    },
+    {
+      "file": "captures/148-ko-desktop-admin-partner-new.png",
+      "sha256": "2b38e30fc56f618cc337c53b2c4865d20184a1793fb8dc1e426803d99abe18a5"
+    },
+    {
+      "file": "captures/149-ko-desktop-admin-job-detail.png",
+      "sha256": "dc27a667cdcd0f50bbc688ea672e5ed2eae923ae87340e9146ba028235745741"
+    },
+    {
+      "file": "captures/150-ko-desktop-admin-monitoring-detail.png",
+      "sha256": "1ffac9890449ee732471e5f0c592e72a0d7b7b643333a973e27f698454c2a1f2"
+    },
+    {
+      "file": "captures/151-ko-desktop-admin-monitoring-scans.png",
+      "sha256": "1acb91492758a07c2f57ee3ce4dff0d9fb7cf66945adcc38baad66ff502e24fc"
+    },
+    {
+      "file": "captures/152-ko-desktop-admin-user-history.png",
+      "sha256": "5b0e4d1abb97e17e4bed08b932d0671cf7c197fac715bd97153473273185825d"
+    },
+    {
+      "file": "captures/153-en-desktop-admin-reauth-required.png",
+      "sha256": "04d2d8c499dd2988ed3f5721b10a10985c7be65eff204ceab13c36b3a9773749"
+    },
+    {
+      "file": "captures/154-en-desktop-admin-overview.png",
+      "sha256": "d665c638b6a260b68a16bde9bef1a417bcb8f5f7b1579631d3a8aa4ba36f38ca"
+    },
+    {
+      "file": "captures/155-en-desktop-admin-users.png",
+      "sha256": "a7350373cf484a06442c12b7d302cc2743aa82db28124d73a61960d39c616f50"
+    },
+    {
+      "file": "captures/156-en-desktop-admin-projects.png",
+      "sha256": "63f4b9823e823cf235537e1d36f13b11f7740203bdb23240174817febfe3f5bb"
+    },
+    {
+      "file": "captures/157-en-desktop-admin-partners.png",
+      "sha256": "57538c5bf12b6a87d2adfca7fdc5006c3b82605fdf4839eb4939c52e8bb32d53"
+    },
+    {
+      "file": "captures/158-en-desktop-admin-jobs.png",
+      "sha256": "8fb5c1b92b881a3f0a0617cdcaa0a95017c1a99dd2649568b0baee9d428da1fd"
+    },
+    {
+      "file": "captures/159-en-desktop-admin-monitoring.png",
+      "sha256": "68bfadc0cc8ee170520ec737eeb130fa2e2770c6aff703043b67bfe7d08ff625"
+    },
+    {
+      "file": "captures/160-en-desktop-admin-audit-logs.png",
+      "sha256": "702120a48624e5a16b0d9938d79e8c93188067ace371d66b4873c7046341632f"
+    },
+    {
+      "file": "captures/161-en-desktop-admin-locales.png",
+      "sha256": "292d7e62374979b93783df0772fe6872b64d5da924dd604e7c19188ee9b39f07"
+    },
+    {
+      "file": "captures/162-en-desktop-admin-user-detail.png",
+      "sha256": "3f9c44b2e6045ce03ee154485c07719a5bc05ed5bd4a9ba1b392d2dfd6f4bdab"
+    },
+    {
+      "file": "captures/163-en-desktop-admin-project-detail.png",
+      "sha256": "b890657ff64b83b132cb7e0297b86c203c8f1a7d5e0d2d4ba03d2a019e8bd5ad"
+    },
+    {
+      "file": "captures/164-en-desktop-admin-project-guides.png",
+      "sha256": "d94ab9e8d4c844ad2d5e4934fb2b9daffd1fdd51907d4660696a75709a9fb8d7"
+    },
+    {
+      "file": "captures/165-en-desktop-admin-project-assets.png",
+      "sha256": "0e8d5a06e64460116e0de85a4a94a6bb5c7a7338a3312bb61d5882e3e473eacb"
+    },
+    {
+      "file": "captures/166-en-desktop-admin-project-jobs.png",
+      "sha256": "54f91071de93cb4ddb4328ef8088e85656156f23b1ce0b12ee4d4b9723260658"
+    },
+    {
+      "file": "captures/167-en-desktop-admin-project-history.png",
+      "sha256": "aec78e076a814078c642e6184b9244aaef7db4c53221702457cad263c74ec29a"
+    },
+    {
+      "file": "captures/168-en-desktop-admin-partner-detail.png",
+      "sha256": "c23fc48f4184bfd6a177a86ffb03e7e3a377dc6735d56137eb1430c23d0a61a8"
+    },
+    {
+      "file": "captures/169-en-desktop-admin-partner-images.png",
+      "sha256": "ffbf95efbd5ec9dc06be151a9b7b9ff6b82af400eae3b7a14eb748800fd04c19"
+    },
+    {
+      "file": "captures/170-en-desktop-admin-partner-translations.png",
+      "sha256": "d8c1868a6580fdbda2634f4b77660c18687a64fe0ccb649e058f0f7691c0f9bb"
+    },
+    {
+      "file": "captures/171-en-desktop-admin-partner-new.png",
+      "sha256": "5a57d6cc9fb5c745db5e821d4861f3755e8991e693dbfe725dca3f3b891ff7fb"
+    },
+    {
+      "file": "captures/172-en-desktop-admin-job-detail.png",
+      "sha256": "1486eb1bc4841716cb9ad1c4fff041c10d0c84539c10662eb4bcb94a03b627cb"
+    },
+    {
+      "file": "captures/173-en-desktop-admin-monitoring-detail.png",
+      "sha256": "6c59322bf06ed35c561083bfec8e2b945cd3d46b9c934101dfd250563c2a7f7a"
+    },
+    {
+      "file": "captures/174-en-desktop-admin-monitoring-scans.png",
+      "sha256": "d9d1eb4f5ebff608681d29b41636d81283919a595dfdd9fb65c91d18e1ed0e7c"
+    },
+    {
+      "file": "captures/175-en-desktop-admin-user-history.png",
+      "sha256": "55fddf6e6f442beb4a91a95ee5bf60d7773099fae737051b9e6aa335dbe7fc73"
+    },
+    {
+      "file": "captures/176-ja-desktop-admin-reauth-required.png",
+      "sha256": "48b1c73ce07c423f45becdd033d6bfc2bedf90f88b493e0f4c384bd749fb02c0"
+    },
+    {
+      "file": "captures/177-ja-desktop-admin-overview.png",
+      "sha256": "0b67ef72e4f03fba706557ad8336b7ce54a9f9f6e4c6e2452a37adadf0924f09"
+    },
+    {
+      "file": "captures/178-ja-desktop-admin-users.png",
+      "sha256": "b5f303975063a66d7c7d7665d34ea923acada276a2bdc9ee8ebbbac1f5802e49"
+    },
+    {
+      "file": "captures/179-ja-desktop-admin-projects.png",
+      "sha256": "784bcd2e8396e737e77dd893308b619376055998b1ce2d2ab3d25f642c5ec50a"
+    },
+    {
+      "file": "captures/180-ja-desktop-admin-partners.png",
+      "sha256": "7e0de2bc163d21f0fa280bc1db6706364d430d8b5dddc03b3967acfa8c70c092"
+    },
+    {
+      "file": "captures/181-ja-desktop-admin-jobs.png",
+      "sha256": "dcb078756bd77e66fd75855333471e3ba81fd28bb6395816ac3620f7be0aa7eb"
+    },
+    {
+      "file": "captures/182-ja-desktop-admin-monitoring.png",
+      "sha256": "f266d6b174541dee025879133bc0d45de1f8712c575b5e5ab230921f766c805e"
+    },
+    {
+      "file": "captures/183-ja-desktop-admin-audit-logs.png",
+      "sha256": "4312f84ab6e8ab01b43a8e2f8d088853d94968cbf40eb102b7942702f07b3f0e"
+    },
+    {
+      "file": "captures/184-ja-desktop-admin-locales.png",
+      "sha256": "8b9b2b39767f4fa5058abee5a14d61c4b1afe205b9de852472fa416e16c76a72"
+    },
+    {
+      "file": "captures/185-ja-desktop-admin-user-detail.png",
+      "sha256": "d85d72b669febeb2caa9bc60ada77ccbd813cf165ec5146094f7ea5deade52e5"
+    },
+    {
+      "file": "captures/186-ja-desktop-admin-project-detail.png",
+      "sha256": "85eb483da819b3e25f40b3052f2b02757bd23e4e4fd384cde05b64323828cfd7"
+    },
+    {
+      "file": "captures/187-ja-desktop-admin-project-guides.png",
+      "sha256": "eb554730de869f85ef896f67548616cc9d453ce0655fe7661147b5084eec57ae"
+    },
+    {
+      "file": "captures/188-ja-desktop-admin-project-assets.png",
+      "sha256": "184fdd10e3583e35e76073740d9a23329b13322d4f47a5914e4d596c6ecdad38"
+    },
+    {
+      "file": "captures/189-ja-desktop-admin-project-jobs.png",
+      "sha256": "93d12a57c00d88944926d6144bf338e409883d02b5197e67b53d070ac8d1ae85"
+    },
+    {
+      "file": "captures/190-ja-desktop-admin-project-history.png",
+      "sha256": "ccf3b07614ec73da29bec1dd89e2b4ed3a85a410bf619d8a83571bc027d62beb"
+    },
+    {
+      "file": "captures/191-ja-desktop-admin-partner-detail.png",
+      "sha256": "d743880e62020024bbdbca3218e7c641dee250db1278355179a4d4bc99f97cc1"
+    },
+    {
+      "file": "captures/192-ja-desktop-admin-partner-images.png",
+      "sha256": "3c53a8d9b9137810d217d301d396182dec025a5470f18904c2dee5c64bd96f79"
+    },
+    {
+      "file": "captures/193-ja-desktop-admin-partner-translations.png",
+      "sha256": "214805a5d2f94f7f62006cac7f120376fcb6cc1eb54df90a5a6e34d74dae29ad"
+    },
+    {
+      "file": "captures/194-ja-desktop-admin-partner-new.png",
+      "sha256": "207ec8c2f81c06a592c17586611351361426dff08bc33d0b5d344986639230ee"
+    },
+    {
+      "file": "captures/195-ja-desktop-admin-job-detail.png",
+      "sha256": "3ce6e9fd630855b9cc2478bdcb22468df8f636329c9fa67331ef3c5b4b44028b"
+    },
+    {
+      "file": "captures/196-ja-desktop-admin-monitoring-detail.png",
+      "sha256": "a394926c27a99341c97d10fd2f466a831904fd827555e10860bbe6576b75dd93"
+    },
+    {
+      "file": "captures/197-ja-desktop-admin-monitoring-scans.png",
+      "sha256": "586d2b200a73230411158a01f172268b75cdcc6ee29027ea3a44502681e59666"
+    },
+    {
+      "file": "captures/198-ja-desktop-admin-user-history.png",
+      "sha256": "2fa1da535d707cd922fc1aaccb4a92a502e808b5b0bd3bc6f4eb9a6cc4c80f0f"
+    },
+    {
+      "file": "captures/edge-001-en-generation-job-running.png",
+      "sha256": "4a92adca7c5c6e900a55b0a7e77ab103df59b7130cfde0578d4148aa980c917e"
+    },
+    {
+      "file": "captures/edge-002-en-generation-running-canceled.png",
+      "sha256": "5854eb7659780d1090e0a5896be9380ed59964e19aff986ff642ee61e6bb77fa"
+    },
+    {
+      "file": "captures/edge-003-en-guide-upload-invalid-error.png",
+      "sha256": "c3cb177be19b38b78beae6a7b80c901f505cd9e7008c262eb37b9110d9e4fe94"
+    },
+    {
+      "file": "captures/edge-004-en-profile-setup-mobile-en.png",
+      "sha256": "d133265cef34f7bdd474d8ffb29a4b562bd03b5941df00a15be3473ab075b77d"
+    },
+    {
+      "file": "captures/edge-005-en-admin-user-restored.png",
+      "sha256": "cd826c835a83ac282edef1f644ec1a51a35efce4b5735227a9075a5a9cacff91"
+    },
+    {
+      "file": "captures/edge-006-en-admin-user-confirm-dialog.png",
+      "sha256": "46b21cabfd9f8abc22fb40cb089daf41fd1064172c8072dfab5b8036a0f90013"
+    },
+    {
+      "file": "captures/edge-007-en-admin-locale-editor-dialog.png",
+      "sha256": "2e9a41c8152a5799554eb17c51d605fe69a6cb58ae7b2e34825410fd40acf11a"
+    },
+    {
+      "file": "captures/flow-001-en-guide-uploaded.png",
+      "sha256": "afec0dd2c1e3ce202be8993ae8f692a38153f4bc0a190a4d0e350a9199d87302"
+    },
+    {
+      "file": "captures/flow-002-en-guide-extracted-draft.png",
+      "sha256": "b40a66f799866acca9c6fd80088654306d1165e255e1cb96f819cf4a7869e843"
+    },
+    {
+      "file": "captures/flow-003-en-guide-published.png",
+      "sha256": "185a6daf2e7207c2173b272278af684045b99fbd5d787b6368e0e7bccd51a744"
+    },
+    {
+      "file": "captures/flow-004-en-generation-submitted.png",
+      "sha256": "dd25d6fe964c34df5017038b24f0a5a63e60f6fb9741076b01ce3cd3b1bccb5c"
+    },
+    {
+      "file": "captures/flow-005-en-generation-succeeded.png",
+      "sha256": "c90ab49510646c1072954826f3d0daa5b349da5f2108bd082317b302ca4af07a"
+    },
+    {
+      "file": "captures/flow-006-en-verification-three-verdicts.png",
+      "sha256": "22f5bc742fb15a86712fadca7a781caff7329f97114c1493751d5e0b18bb815c"
+    },
+    {
+      "file": "captures/flow-007-en-final-selected-zip.png",
+      "sha256": "3a8c2e03a2698c44d47012f575d17650dd73755d68b8efd40019d5e80993b992"
+    },
+    {
+      "file": "captures/flow-008-en-review-issued.png",
+      "sha256": "d0acf9b386e34715b01715e5624e7c26d46916e75a3bea3eb6084179e06b108c"
+    },
+    {
+      "file": "captures/flow-009-en-monitoring-upload-created.png",
+      "sha256": "9b3102181ed893f09c83a4629f3f9a091eecd00655b174474f982585c5b7a6a3"
+    },
+    {
+      "file": "captures/flow-010-en-monitoring-scan-results.png",
+      "sha256": "7e985b91b4b963b684b64aafb734f3b228fd7260528d3f9b17e5100398e6ad30"
+    },
+    {
+      "file": "captures/flow-011-ja-guide-uploaded.png",
+      "sha256": "fa50096a05046b4cd85a2a4be69f61068f2e72994bc47227dde03346c1de1665"
+    },
+    {
+      "file": "captures/flow-012-ja-guide-extracted-draft.png",
+      "sha256": "ba98105950f0fced595729da4492e2f25ac81cafad8a09f4ba0a26c052bf4e17"
+    },
+    {
+      "file": "captures/flow-013-ja-guide-published.png",
+      "sha256": "81d407f27570434746b95112d1152fd8ac0266b508e57899a5d835698b9a8107"
+    },
+    {
+      "file": "captures/flow-014-ja-generation-submitted.png",
+      "sha256": "620a1f6365115a76fb93a0941c96e1fb1e1f7d8eca179c40f4e8d042b1253ca2"
+    },
+    {
+      "file": "captures/flow-015-ja-generation-succeeded.png",
+      "sha256": "fd8030717acaa60ec3f3f824ceeeb5a22da916322d793d4d7dba89571dbfc883"
+    },
+    {
+      "file": "captures/flow-016-ja-verification-three-verdicts.png",
+      "sha256": "cc1672e66af1c17cbec33519aca4b6070ed6d61bd78c7d448368c87a75d8c023"
+    },
+    {
+      "file": "captures/flow-017-ja-final-selected-zip.png",
+      "sha256": "24ac7ff1a5c679a8f10fa3723c843484f71da9ae6eccf28067c83d8a99fa571f"
+    },
+    {
+      "file": "captures/flow-018-ja-review-issued.png",
+      "sha256": "4aa7dac571ecb0ecc9ffa88df5eb251d7c9f27e0ed7b7a6baed75f34f20a3d24"
+    },
+    {
+      "file": "captures/flow-019-ja-monitoring-upload-created.png",
+      "sha256": "618311a1874146ab28aeb67e41c91b4f7dab956d1f5f08df7ff22cf7897036f8"
+    },
+    {
+      "file": "captures/flow-020-ja-monitoring-scan-results.png",
+      "sha256": "0542da36e0e47b6b5e1dcb06bca810ae6d02c99e53eb7e9e300e60dfb21ea673"
+    },
+    {
+      "file": "captures/supplement-001-en-project-edit-dialog-corrected.png",
+      "sha256": "d2dc476762bc98300d8f3dac48fc788ae6e767fabc482cb1127639ec1a274b85"
+    },
+    {
+      "file": "captures/supplement-002-en-evidence-timeline-expanded.png",
+      "sha256": "295fa614dd65d9d7e8412ca595fadfcb1af47aab677a19a23c4ed8e1bb65fc9c"
+    },
+    {
+      "file": "captures/supplement-003-en-projects-page-2.png",
+      "sha256": "514259b53bc8315a7678e1caa98d4f3e123f77c5f844d0cb00a2a1d6aa070ed0"
+    },
+    {
+      "file": "captures/supplement-004-en-projects-archived.png",
+      "sha256": "24aff0306394dfab6d6af72e9d503c0eb327e1a404d225c28d562dbd779de4f5"
+    },
+    {
+      "file": "captures/supplement-005-en-sessions-page-2.png",
+      "sha256": "7c66e40f25fe7ba5f5098d9a1fd16711444dcd29c0a92f0b8b39193fe3198a27"
+    },
+    {
+      "file": "captures/supplement-006-en-session-rename-input.png",
+      "sha256": "ed02148fc32ffa5472db0dbf8121249093c96ead43569d5d6039650ed6a3a3a9"
+    },
+    {
+      "file": "captures/supplement-007-en-monitoring-feedback-expanded.png",
+      "sha256": "97b72dcff05293285598adf9143ff1196b2e33bd3151f1c20ca6df7f2f1a5ca5"
+    },
+    {
+      "file": "captures/supplement-008-en-review-stale-checks-fixed-snapshot.png",
+      "sha256": "72931402b68118d2ceef07f28c7fe3b2457fa8b11b2143bdf945fa6a21321820"
+    },
+    {
+      "file": "captures/supplement-009-ja-project-edit-dialog-corrected.png",
+      "sha256": "4b899d4b7dbfc1eb558b347ded7305356c38d484a601af6dea7eab412355b2a6"
+    },
+    {
+      "file": "captures/supplement-010-ja-evidence-timeline-expanded.png",
+      "sha256": "21596b957e1dc87e47412b78c702d9deaed9615a55c96ed56485571372bd07b3"
+    },
+    {
+      "file": "captures/supplement-011-ja-projects-archived.png",
+      "sha256": "95ef9e5de6f05de950bcc26c088baef7d7fb1b7480a9275af08c876efeb9c6f7"
+    },
+    {
+      "file": "captures/supplement-012-ja-session-rename-input.png",
+      "sha256": "0fbb60c0d9f41d38b3546bf8099da35c7120997ad08a2f95923f3aac926befc9"
+    },
+    {
+      "file": "captures/supplement-013-ja-monitoring-feedback-expanded.png",
+      "sha256": "ca904773e8b2e4dc165380c664139067223c83d66dc6bbb3998f8a4bdde5a53f"
+    },
+    {
+      "file": "captures/supplement-014-ja-review-stale-checks-fixed-snapshot.png",
+      "sha256": "c30baf58f355369589e03644dce3ba43ce650da6ea25bc3c349b03cb67040dbc"
+    },
+    {
+      "file": "captures/supplement-015-ko-admin-mobile-admin.png",
+      "sha256": "478cc02976638489afbd80be72add166206fe229fa185dabd984122b5e9bd052"
+    },
+    {
+      "file": "captures/supplement-016-ko-admin-mobile-users.png",
+      "sha256": "ffa422176617ea82e294a404a41729d738b93c77ce0d5760d076ed4dc512b078"
+    },
+    {
+      "file": "captures/supplement-017-ko-admin-mobile-jobs.png",
+      "sha256": "4ec9f29e2fe1a23977622a2054b7f27915de5cefb00d1e11ca54628d222c007b"
+    },
+    {
+      "file": "captures/supplement-018-ko-admin-mobile-locales.png",
+      "sha256": "99853776d255de1320d787ff21dc90de084f872556d241869fd54b916947edbd"
+    },
+    {
+      "file": "captures/supplement-019-ko-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "sha256": "894daf791d70ee9157e0fdd5b4cfc621154de904661247ab7c828a07b8ec740f"
+    },
+    {
+      "file": "captures/supplement-020-en-admin-mobile-admin.png",
+      "sha256": "7dd55256c2ca3e87a99f151b51c0e39b9d35062fd39d955da063934d1237b916"
+    },
+    {
+      "file": "captures/supplement-021-en-admin-mobile-users.png",
+      "sha256": "776fd234a26741b9c3675c3a785db833741d951fbd85420d298bf1de5f167b89"
+    },
+    {
+      "file": "captures/supplement-022-en-admin-mobile-jobs.png",
+      "sha256": "f49e2aa3433151f78871b2f7486d9a36194c19e33e7d01c59d0b2bf05f9ad03e"
+    },
+    {
+      "file": "captures/supplement-023-en-admin-mobile-locales.png",
+      "sha256": "c9509a4a52e9fefd7f8f49e534208ff313f0f3f2b641fbc4710e99f7dbf3726e"
+    },
+    {
+      "file": "captures/supplement-024-en-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "sha256": "ec8672c222f4d443cae1f1930150f61a1c09bfe215a2998c65ab9d6ba87bbbf2"
+    },
+    {
+      "file": "captures/supplement-025-ja-admin-mobile-admin.png",
+      "sha256": "dce9cc9c28597a9e48b1f2caa50351e8ef1c8279d512f3a76bb0d5adeb791d00"
+    },
+    {
+      "file": "captures/supplement-026-ja-admin-mobile-users.png",
+      "sha256": "27f2f977f3c8bf8fd2ec8f866614daef0150af43bda41f62f875216d6d326485"
+    },
+    {
+      "file": "captures/supplement-027-ja-admin-mobile-jobs.png",
+      "sha256": "7690430b9ac749c5143170cc1710746f12dd5581b615b8ba24c0bb199e8c4f81"
+    },
+    {
+      "file": "captures/supplement-028-ja-admin-mobile-locales.png",
+      "sha256": "c5eabdd3f6b42e74130c2a851c62301e5d9add217acb6d4d274db582e416adde"
+    },
+    {
+      "file": "captures/supplement-029-ja-admin-mobile-afeac--a-d-cdefftabguides.png",
+      "sha256": "3475398b289fb420eeebcb012df4865aa4bfa88ade3434a0615276188929b16c"
+    },
+    {
+      "file": "captures/supplement-030-ja-admin-jobs-final-recheck.png",
+      "sha256": "7690430b9ac749c5143170cc1710746f12dd5581b615b8ba24c0bb199e8c4f81"
+    },
+    {
+      "file": "edge-results.json",
+      "sha256": "4d725fbfa10b8494014de20b1c5fb882cf87254eefc2e4dff38666278ab6be1b"
+    },
+    {
+      "file": "final-server-proof.json",
+      "sha256": "7a4e7b12df5f709f32118f88d94764c7c41eb5209a71ac5d3fe3c2051f750c70"
+    },
+    {
+      "file": "implementation-manifest.json",
+      "sha256": "8403f0d15c790eac89df726d0facd109e592c9aeb74be104dd8b2dbefb04f84d"
+    },
+    {
+      "file": "implementation-source.tar.gz",
+      "sha256": "1e528a0993355ecbe5eaadd637f29891adb2df862e84fc6d1ad2b22e9274e93d"
+    },
+    {
+      "file": "implementation.patch",
+      "sha256": "755637ea7d40e1bedef7265ece69fc06bed4b0f8573b0d10127d4dcebde32f5b"
+    },
+    {
+      "file": "index.html",
+      "sha256": "55e7d5e63079a5b77656f16ccc403a941424eb39e5e6b8cd3f90c3d4bfd7b267"
+    },
+    {
+      "file": "review-package-en.pdf",
+      "sha256": "c8c7e8bc3a9a0d060f284b9e6125b176c167fbaef740a7a7907c18bd45720f22"
+    },
+    {
+      "file": "review-package-ja.pdf",
+      "sha256": "e3d5f73abe209a9f9c1b3f747992607638829731ffc6dc0583b90cef79ac8b32"
+    },
+    {
+      "file": "sample-guide.pdf",
+      "sha256": "997864d2cf65f1f6785a1d3239f5155a9a6508230ec74fdedd459a0837788d51"
+    },
+    {
+      "file": "sample-reference.png",
+      "sha256": "fa006cda425714bb077c67f8de255c9ee54eb08979bd91d495f79409fa11b051"
+    },
+    {
+      "file": "seed-result.json",
+      "sha256": "4ee4764b76b4956d7c1dbcc8c49486ce75ae382b51c2f5d9b1786503cbecffb2"
+    },
+    {
+      "file": "server-audit.json",
+      "sha256": "08e82c3610e6b9a630c4327e72409ff896894e838c45497051c19c4ac70a10fa"
+    },
+    {
+      "file": "supplement-results.json",
+      "sha256": "c61bee6122513b89e1daa0e8aa2cc2544b6ca2d6f0fa261b258579a55df986a8"
+    },
+    {
+      "file": "ui-flow-results.json",
+      "sha256": "150561d68742aca83473df3d2ec218db7839231496b6e667067d1c9d2a2d1cfa"
+    },
+    {
+      "file": "verification.json",
+      "sha256": "61569f55bf401fa1c34602b42e8c2092135570b291f8df87fd540788686d5c25"
+    },
+    {
+      "file": "zip-inspection.json",
+      "sha256": "bdc824515fd03905253f534c1583053f52cc09dc9182b4d9cb7b5550fd481267"
+    }
+  ]
+}
